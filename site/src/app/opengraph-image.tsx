@@ -11,7 +11,7 @@ export default async function Image() {
 	const interLight = await readFile(join(process.cwd(), 'public/fonts/inter-300.woff'))
 	return new ImageResponse(
 		(
-			<div style={{ background: '#fbdcd9', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '72px 80px', fontFamily: 'Inter, sans-serif' }}>
+			<div style={{ background: '#fad3cf', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '72px 80px', fontFamily: 'Inter, sans-serif' }}>
 				<span style={{ fontSize: 13, letterSpacing: '0.18em', color: '#5d4745', textTransform: 'uppercase' }}>vf-clamp</span>
 				<div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 					{/* Axis range bars — visual metaphor for restricting design space */}
