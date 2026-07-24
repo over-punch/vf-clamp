@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
+import SiteHeader from "../components/SiteHeader"
 
 // Use the self-hosted inter-300.woff already present in public/fonts/ — avoids a
 // Google Fonts network round-trip and matches the weight actually used (300).
@@ -54,7 +55,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 				/>
 			</head>
-			<body className="min-h-full flex flex-col">{children}</body>
+			<body className="min-h-full flex flex-col">
+				<SiteHeader current="vfClamp" githubUrl="https://github.com/Liiift-Studio/vf-clamp" />{children}</body>
 		</html>
 	)
 }
