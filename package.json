@@ -58,7 +58,7 @@
 	"homepage": "https://vfclamp.com",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Liiift-Studio/vf-clamp.git"
+		"url": "git+https://github.com/Liiift-Studio/vf-clamp.git"
 	},
 	"bugs": {
 		"url": "https://github.com/Liiift-Studio/vf-clamp/issues"
