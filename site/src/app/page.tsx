@@ -388,7 +388,7 @@ npx @liiift-studio/vf-clamp-cli clamp font.ttf \\
 									<th className="pb-2 font-normal">Effect</th>
 								</tr>
 							</thead>
-							<tbody className="text-muted zebra-bleed">
+							<tbody className="text-muted zebra">
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">number</td><td className="py-2">Pin axis at value — removed from output design space</td></tr>
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">&#123; min, max &#125;</td><td className="py-2">Restrict to range — axis stays variable within bounds</td></tr>
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">null</td><td className="py-2">Explicitly keep full original range — same as omitting the axis entirely</td></tr>
