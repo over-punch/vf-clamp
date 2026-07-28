@@ -559,8 +559,10 @@ export default function Demo() {
 	const isLoadingRef        = useRef(false)
 	const containerRef        = useRef<HTMLDivElement>(null)
 	const warmedUpRef         = useRef(false)
-	// downloadDoneRef: incremented after each successful download — suppresses the cold-start hint on warm runs
-	const downloadDoneRef     = useRef(0)
+	// downloadCount: incremented after each successful download — suppresses the cold-start
+	// hint on warm runs. State, not a ref: it is read during render, so a ref would not
+	// re-render and the hint would linger until some unrelated update happened to occur.
+	const [downloadCount, setDownloadCount] = useState(0)
 	const styleRef            = useRef<HTMLStyleElement | null>(null)
 	const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 	const previewRafRef       = useRef<number>(0)
@@ -609,7 +611,10 @@ export default function Demo() {
 		}
 	}, [])
 
-	// Inject @font-face when font buffer changes so TextPreview can render it
+	// Inject @font-face when font buffer changes so TextPreview can render it.
+	// Must stay an effect: it removes a previously injected <style> element via styleRef
+	// and creates a new one, so the state reset is inseparable from the DOM work.
+	/* eslint-disable react-hooks/set-state-in-effect */
 	useEffect(() => {
 		styleRef.current?.remove()
 		setHasDemoFont(false)
@@ -630,6 +635,7 @@ export default function Demo() {
 			setHasDemoFont(false)
 		}
 	}, [fontBuffer])
+	/* eslint-enable react-hooks/set-state-in-effect */
 
 	/**
 	 * Axes where every named instance shares the same coordinate value — i.e. the
@@ -834,7 +840,7 @@ export default function Demo() {
 			})
 			setNameTables(parsedTables)
 			setOutputSizes(newOutputSizes)
-			downloadDoneRef.current += 1
+			setDownloadCount(c => c + 1)
 		} catch (err) {
 			setProcessError(err instanceof Error ? err.message : 'Processing failed')
 		} finally {
@@ -1282,8 +1288,8 @@ export default function Demo() {
 										style={{ width: `${processingProgress}%` }}
 									/>
 								</div>
-								{/* Show cold-start hint only on the first download (downloadDoneRef === 0) */}
-								{downloadDoneRef.current === 0 && (
+								{/* Show cold-start hint only on the first download */}
+								{downloadCount === 0 && (
 									<p className="text-[10px] opacity-25">
 										First run includes fonttools engine startup (~10 s)
 									</p>
