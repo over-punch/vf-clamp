@@ -1,10 +1,9 @@
 // vfClamp landing page — hero, demo, how it works, usage, WOFF2, REST API
 import Image from "next/image"
 import CodeBlock from "../components/CodeBlock"
-import CopyInstall from "../components/CopyInstall"
+import Hero from "../components/Hero"
 import SiteFooter from "../components/SiteFooter"
 import Demo from "../components/Demo"
-import { MagnetChar } from "@liiift-studio/magnettype"
 import { version } from "../../../package.json"
 import { version as siteVersion } from "../../package.json"
 
@@ -13,31 +12,13 @@ export default function Home() {
 		<main className="flex flex-col items-center px-6 py-20 gap-24">
 
 			{/* Hero */}
-			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
-				<div className="flex flex-col gap-2">
-					<p className="text-xs uppercase tracking-[0.18em] font-medium text-muted">variable-font subsetting</p>
-					<h1 className="text-4xl lg:text-8xl xl:text-9xl" style={{ fontFamily: "var(--font-merriweather), serif", fontVariationSettings: '"wght" 300, "opsz" 144', lineHeight: "1.05em" }}>
-						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }}>Restrict the range,</MagnetChar><br />
-						<MagnetChar as="span" minWeight={300} maxWeight={800} spreadRadius={220} fixedAxes={{ opsz: 144 }} style={{ color: "var(--foreground-subtle)", fontStyle: "italic" }}>keep what varies.</MagnetChar>
-					</h1>
-				</div>
-				<div className="flex flex-wrap items-center gap-4">
-					<CopyInstall />
-					<a
-						href="https://github.com/Liiift-Studio/vf-clamp"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="text-sm text-muted hover:text-foreground transition-colors"
-					>
-						GitHub ↗
-					</a>
-				</div>
-				<div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted tracking-wide">
-					<span>TypeScript</span><span>·</span>
-					<span>fonttools varLib.instancer</span><span>·</span>
-					<span>Pyodide WASM</span><span>·</span>
-					<span>TTF · OTF · WOFF · WOFF2</span>
-				</div>
+			<Hero
+				eyebrow="variable-font subsetting"
+				title={[{ text: "Restrict the range," }, { text: "keep what varies.", italic: true, subtle: true }]}
+				install="@liiift-studio/vf-clamp"
+				github="https://github.com/Liiift-Studio/vf-clamp"
+				tech={["TypeScript", "fonttools varLib.instancer", "Pyodide WASM", "TTF · OTF · WOFF · WOFF2"]}
+			>
 				<p className="text-base leading-relaxed max-w-lg">
 					Deliver a variable font scoped to exactly the instances a customer bought — not
 					the whole family. vf-clamp is the delivery layer for per-purchase micro-VFs: a new
@@ -49,7 +30,7 @@ export default function Home() {
 					restrict it to a sub-range, or leave it untouched. The output is a smaller,
 					self-contained font trimmed to exactly the design space you declared.
 				</p>
-			</section>
+			</Hero>
 
 			{/* Interactive demo */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
