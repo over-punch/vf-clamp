@@ -1,4 +1,5 @@
 // vfClamp landing page — hero, demo, how it works, usage, WOFF2, REST API
+import Image from "next/image"
 import CodeBlock from "../components/CodeBlock"
 import CopyInstall from "../components/CopyInstall"
 import SiteFooter from "../components/SiteFooter"
@@ -141,7 +142,7 @@ export default function Home() {
 							Native plugins for Glyphs.app and RoboFont. Select named instances from your open font (or a TTF/OTF on disk), preview the licensed design space in a live chart with an animated specimen, and export restricted VFs — without leaving your type editor. Both plugins share the same UI; pick the one for your tool.
 						</p>
 						<div className="rounded-lg border border-foreground/10 overflow-hidden bg-[var(--panel)] flex items-center justify-center">
-							<img src="/screenshots/glyphs-robofont.png" alt="vf-clamp dialog inside Glyphs.app — RoboFont uses the same UI" className="max-w-full h-auto" />
+							<Image src="/screenshots/glyphs-robofont.png" alt="vf-clamp dialog inside Glyphs.app — RoboFont uses the same UI" width={1864} height={1948} className="max-w-full h-auto" />
 						</div>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto pt-3">
 							<div className="flex flex-col gap-2">

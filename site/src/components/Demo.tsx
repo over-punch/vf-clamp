@@ -481,7 +481,6 @@ function TextPreview({
 			<div className="flex-1 min-w-0">
 				{editing ? (
 					<textarea
-						// eslint-disable-next-line jsx-a11y/no-autofocus
 						autoFocus
 						value={customText}
 						onChange={(e) => setCustomText(e.target.value)}
