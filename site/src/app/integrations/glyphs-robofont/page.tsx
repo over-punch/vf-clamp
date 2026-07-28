@@ -1,5 +1,7 @@
 // Per-plugin integration page — deep dive on the Glyphs.app and RoboFont plugins
 // (they share the same UI, so they share a page).
+import Link from "next/link"
+import Image from "next/image"
 import SiteFooter from "../../../components/SiteFooter"
 import { version } from "../../../../../package.json"
 import { version as siteVersion } from "../../../../package.json"
@@ -78,7 +80,7 @@ export default function GlyphsRoboFontPage() {
 			{/* Hero */}
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] font-medium text-muted">
-					<a href="/" className="hover:text-foreground transition-colors">vf-clamp</a>
+					<Link href="/" className="hover:text-foreground transition-colors">vf-clamp</Link>
 					<span>›</span>
 					<span>integrations</span>
 				</div>
@@ -96,9 +98,11 @@ export default function GlyphsRoboFontPage() {
 			{/* Screenshot — large, dominant */}
 			<section className="w-full max-w-2xl lg:max-w-5xl">
 				<div className="rounded-2xl border border-foreground/10 overflow-hidden bg-[var(--panel)]">
-					<img
+					<Image
 						src="/screenshots/glyphs-robofont.png"
 						alt="vf-clamp dialog inside Glyphs.app — RoboFont uses the same UI"
+						width={1864}
+						height={1948}
 						className="w-full h-auto"
 					/>
 				</div>
@@ -151,7 +155,7 @@ export default function GlyphsRoboFontPage() {
 				</p>
 				<p className="text-base text-muted leading-relaxed max-w-2xl">
 					What differs between the two plugins is the host integration — how each one reads the
-					open font, where saved files land, how exports flow through each app's own export API.
+					open font, where saved files land, how exports flow through each app&apos;s own export API.
 					Everything visual stays in sync by construction.
 				</p>
 			</section>
