@@ -56,8 +56,8 @@ const PLUGINS = [
 		bundleName: "vf-clamp-glyphs.glyphsPlugin",
 		requirement: "Glyphs 3.x (3.2+ recommended for the Open Font source mode)",
 		downloadUrl:
-			"https://github.com/Liiift-Studio/vf-clamp-glyphs/releases/latest/download/vf-clamp-glyphs.zip",
-		repoUrl: "https://github.com/Liiift-Studio/vf-clamp-glyphs",
+			"https://github.com/over-punch/vf-clamp-glyphs/releases/latest/download/vf-clamp-glyphs.zip",
+		repoUrl: "https://github.com/over-punch/vf-clamp-glyphs",
 		install:
 			"Unzip the .glyphsPlugin bundle into ~/Library/Application Support/Glyphs 3/Plugins/ and restart Glyphs. The menu item appears under Script › vf-clamp › Generate Restricted VFs.",
 	},
@@ -67,8 +67,8 @@ const PLUGINS = [
 		requirement:
 			"RoboFont 4.0+ — uses the bundled Python 3 + fonttools + vanilla. Open Font source mode requires a designspace file alongside the UFO.",
 		downloadUrl:
-			"https://github.com/Liiift-Studio/vf-clamp-robofont/releases/latest/download/vf-clamp-robofont.zip",
-		repoUrl: "https://github.com/Liiift-Studio/vf-clamp-robofont",
+			"https://github.com/over-punch/vf-clamp-robofont/releases/latest/download/vf-clamp-robofont.zip",
+		repoUrl: "https://github.com/over-punch/vf-clamp-robofont",
 		install:
 			"Drag the .roboFontExt bundle to RoboFont's Extensions panel. The menu item appears under Extensions › vf-clamp.",
 	},

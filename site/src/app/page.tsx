@@ -16,7 +16,7 @@ export default function Home() {
 				eyebrow="variable-font subsetting"
 				title={[{ text: "Restrict the range," }, { text: "keep what varies.", italic: true, subtle: true }]}
 				install="@overpunch/vf-clamp"
-				github="https://github.com/Liiift-Studio/vf-clamp"
+				github="https://github.com/over-punch/vf-clamp"
 				tech={["TypeScript", "fonttools varLib.instancer", "Pyodide WASM", "TTF · OTF · WOFF · WOFF2"]}
 			>
 				<p className="text-base leading-relaxed max-w-lg">
@@ -70,8 +70,8 @@ export default function Home() {
 						</p>
 						<code className="text-xs font-mono text-subtle">vf-clamp clamp font.ttf --axis wght:400:700</code>
 						<div className="flex items-center gap-2 mt-auto pt-3">
-							<a href="https://github.com/Liiift-Studio/vf-clamp-cli" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">GitHub ↗</a>
-							<a href="https://github.com/Liiift-Studio/vf-clamp-cli#readme" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">Docs ↗</a>
+							<a href="https://github.com/over-punch/vf-clamp-cli" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">GitHub ↗</a>
+							<a href="https://github.com/over-punch/vf-clamp-cli#readme" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">Docs ↗</a>
 						</div>
 					</div>
 
@@ -90,8 +90,8 @@ export default function Home() {
 						</p>
 						<code className="text-xs font-mono text-subtle">vf-clamp.vscode-extension</code>
 						<div className="flex items-center gap-2 mt-auto pt-3">
-							<a href="https://github.com/Liiift-Studio/vf-clamp-vscode/releases/latest/download/vf-clamp.vsix" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">Download .vsix ↗</a>
-							<a href="https://github.com/Liiift-Studio/vf-clamp-vscode" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
+							<a href="https://github.com/over-punch/vf-clamp-vscode/releases/latest/download/vf-clamp.vsix" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">Download .vsix ↗</a>
+							<a href="https://github.com/over-punch/vf-clamp-vscode" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
 						</div>
 					</div>
 
@@ -129,15 +129,15 @@ export default function Home() {
 							<div className="flex flex-col gap-2">
 								<code className="text-xs font-mono text-subtle">vf-clamp-glyphs.glyphsPlugin</code>
 								<div className="flex gap-2">
-									<a href="https://github.com/Liiift-Studio/vf-clamp-glyphs/releases/latest/download/vf-clamp-glyphs.zip" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">Glyphs.app ↗</a>
-									<a href="https://github.com/Liiift-Studio/vf-clamp-glyphs" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
+									<a href="https://github.com/over-punch/vf-clamp-glyphs/releases/latest/download/vf-clamp-glyphs.zip" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">Glyphs.app ↗</a>
+									<a href="https://github.com/over-punch/vf-clamp-glyphs" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
 								</div>
 							</div>
 							<div className="flex flex-col gap-2">
 								<code className="text-xs font-mono text-subtle">vf-clamp.roboFontExt</code>
 								<div className="flex gap-2">
-									<a href="https://github.com/Liiift-Studio/vf-clamp-robofont/releases/latest/download/vf-clamp-robofont.zip" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">RoboFont ↗</a>
-									<a href="https://github.com/Liiift-Studio/vf-clamp-robofont" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
+									<a href="https://github.com/over-punch/vf-clamp-robofont/releases/latest/download/vf-clamp-robofont.zip" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs font-medium py-2 px-3 rounded-lg bg-foreground/10 hover:bg-foreground/15 transition-colors">RoboFont ↗</a>
+									<a href="https://github.com/over-punch/vf-clamp-robofont" target="_blank" rel="noopener noreferrer" className="flex-1 text-center text-xs py-2 px-3 rounded-lg border border-foreground/15 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-muted hover:text-foreground">GitHub ↗</a>
 								</div>
 							</div>
 						</div>

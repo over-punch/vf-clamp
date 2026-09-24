@@ -1,6 +1,6 @@
 # vf-clamp
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Fvf-clamp.svg)](https://www.npmjs.com/package/@overpunch/vf-clamp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40overpunch%2Fvf-clamp.svg)](https://www.npmjs.com/package/@overpunch/vf-clamp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/over-punch/type-tools)
 
 The delivery layer for per-purchase micro-VFs. Restrict a variable font's axis ranges to exactly the named instances a customer bought — like CSS `clamp()` for design space.
 
@@ -10,7 +10,7 @@ npm install @overpunch/vf-clamp
 
 **[Interactive demo at vfclamp.com →](https://vfclamp.com)**
 
-![Clamp to the styles a customer bought: a weight axis showing a full family's nine named instances (Thin–Black), and a clamped output that keeps only Light–Bold (wght 300–700) as a variable range while the masters outside the purchase are removed](https://raw.githubusercontent.com/Liiift-Studio/vf-clamp/main/assets/design-space.png?v=2)
+![Clamp to the styles a customer bought: a weight axis showing a full family's nine named instances (Thin–Black), and a clamped output that keeps only Light–Bold (wght 300–700) as a variable range while the masters outside the purchase are removed](https://raw.githubusercontent.com/over-punch/vf-clamp/main/assets/design-space.png?v=2)
 
 ---
 
@@ -356,14 +356,14 @@ vf-clamp is available as a CLI and as native plugins for Glyphs.app, RoboFont, a
 
 | Integration | Distribution |
 |---|---|
-| [vf-clamp-cli](https://github.com/Liiift-Studio/vf-clamp-cli) | `npm install -g @overpunch/vf-clamp-cli` |
-| [vf-clamp-glyphs](https://github.com/Liiift-Studio/vf-clamp-glyphs) | `.glyphsPlugin` download |
-| [vf-clamp-robofont](https://github.com/Liiift-Studio/vf-clamp-robofont) | `.roboFontExt` download |
-| [vf-clamp-vscode](https://github.com/Liiift-Studio/vf-clamp-vscode) | `.vsix` download / VS Code Marketplace |
+| [vf-clamp-cli](https://github.com/over-punch/vf-clamp-cli) | `npm install -g @overpunch/vf-clamp-cli` |
+| [vf-clamp-glyphs](https://github.com/over-punch/vf-clamp-glyphs) | `.glyphsPlugin` download |
+| [vf-clamp-robofont](https://github.com/over-punch/vf-clamp-robofont) | `.roboFontExt` download |
+| [vf-clamp-vscode](https://github.com/over-punch/vf-clamp-vscode) | `.vsix` download / VS Code Marketplace |
 
 The CLI in action — inspect a font, then clamp it:
 
-![vf-clamp CLI: inspecting Inter's axes and 9 named instances, then clamping Regular–Bold to a Text WOFF2](https://raw.githubusercontent.com/Liiift-Studio/vf-clamp-cli/main/assets/demo.gif?v=1)
+![vf-clamp CLI: inspecting Inter's axes and 9 named instances, then clamping Regular–Bold to a Text WOFF2](https://raw.githubusercontent.com/over-punch/vf-clamp-cli/main/assets/demo.gif?v=1)
 
 ---
 
