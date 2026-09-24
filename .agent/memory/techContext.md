@@ -60,5 +60,5 @@ Brotli is loaded automatically by the Pyodide init in `@web-alchemy/fonttools`.
 - Env vars: `VF_CLAMP_API_KEY`
 
 ## Git remotes (in type-tools/vfClamp submodule)
-- `origin`: https://github.com/Liiift-Studio/vf-clamp.git
-- `deploy`: git@github-liiift:Liiift-Studio/vf-clamp.git
+- `origin`: https://github.com/over-punch/vf-clamp.git
+- `deploy`: git@github-liiift:over-punch/vf-clamp.git

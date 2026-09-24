@@ -86,10 +86,10 @@ vf-clamp/
 │       ├── components/Demo.tsx  # interactive demo component
 │       └── lib/            # server utilities
 ├── plugins/                # plugin submodules (see below)
-│   ├── cli/                → Liiift-Studio/vf-clamp-cli
-│   ├── glyphs/             → Liiift-Studio/vf-clamp-glyphs
-│   ├── robofont/           → Liiift-Studio/vf-clamp-robofont
-│   └── vscode/             → Liiift-Studio/vf-clamp-vscode
+│   ├── cli/                → over-punch/vf-clamp-cli
+│   ├── glyphs/             → over-punch/vf-clamp-glyphs
+│   ├── robofont/           → over-punch/vf-clamp-robofont
+│   └── vscode/             → over-punch/vf-clamp-vscode
 ├── shared/
 │   └── plugin-views/       # canonical hull_plot.py + preview_view.py
 │                           # synced into glyphs and robofont plugins

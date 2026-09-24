@@ -56,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				/>
 			</head>
 			<body className="min-h-full flex flex-col">
-				<SiteHeader current="vfClamp" githubUrl="https://github.com/Liiift-Studio/vf-clamp" />{children}</body>
+				<SiteHeader current="vfClamp" githubUrl="https://github.com/over-punch/vf-clamp" />{children}</body>
 		</html>
 	)
 }

@@ -40,6 +40,6 @@ type ClampResult = { name: string; buffer: Uint8Array; format: 'ttf' | 'woff2' }
 
 ## Sites and repos
 - npm: `vf-clamp` (published under Liiift Studio)
-- GitHub: github.com/Liiift-Studio/vf-clamp
+- GitHub: github.com/over-punch/vf-clamp
 - Site: vfclamp.com (hosted on Vercel, project: vf-clamp, team: liiift)
 - type-tools: registered as `vfClamp` submodule in type-tools monorepo
