@@ -1,11 +1,11 @@
 # vf-clamp
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Fvf-clamp.svg)](https://www.npmjs.com/package/@liiift-studio/vf-clamp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Fvf-clamp.svg)](https://www.npmjs.com/package/@overpunch/vf-clamp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
 
 The delivery layer for per-purchase micro-VFs. Restrict a variable font's axis ranges to exactly the named instances a customer bought — like CSS `clamp()` for design space.
 
 ```
-npm install @liiift-studio/vf-clamp
+npm install @overpunch/vf-clamp
 ```
 
 **[Interactive demo at vfclamp.com →](https://vfclamp.com)**
@@ -52,7 +52,7 @@ Pinning an axis outright (e.g. a fixed width or optical size) removes its master
 ### Inspect a font first
 
 ```ts
-import { getInstances } from '@liiift-studio/vf-clamp'
+import { getInstances } from '@overpunch/vf-clamp'
 import { readFile } from 'fs/promises'
 
 const font = await readFile('MyFont-VF.ttf')
@@ -67,7 +67,7 @@ Use the named instances to figure out what to clamp — adjacent instances natur
 ### Clamp from named instances
 
 ```ts
-import { clampFont } from '@liiift-studio/vf-clamp'
+import { clampFont } from '@overpunch/vf-clamp'
 import { readFile, writeFile } from 'fs/promises'
 
 const source = await readFile('Omnes-VF.ttf')
@@ -295,8 +295,8 @@ type SubfamilyConfig = OutputConfig
 - **Input format**: TTF, OTF, WOFF, and WOFF2 are all accepted as input.
 - **Outputs are processed sequentially** — Pyodide is single-threaded.
 - **Name table patching**: each output font's family name, full name, and PostScript name are updated to reflect the output's name.
-- **Next.js**: add `@liiift-studio/vf-clamp` to `serverExternalPackages` in `next.config.ts` to prevent webpack bundling the Pyodide runtime.
-- **Vite / other bundlers**: externalise `@liiift-studio/vf-clamp` and run it server-side or at build time, so the multi-MB Pyodide runtime isn't shipped to the browser.
+- **Next.js**: add `@overpunch/vf-clamp` to `serverExternalPackages` in `next.config.ts` to prevent webpack bundling the Pyodide runtime.
+- **Vite / other bundlers**: externalise `@overpunch/vf-clamp` and run it server-side or at build time, so the multi-MB Pyodide runtime isn't shipped to the browser.
 
 ---
 
@@ -336,7 +336,7 @@ Pyodide is single-threaded and warms up once per process (~10–20 s cold, then 
 
 ```ts
 import PQueue from 'p-queue'
-import { clampFont } from '@liiift-studio/vf-clamp'
+import { clampFont } from '@overpunch/vf-clamp'
 
 // one warm engine, requests queued — the checkout response isn't blocked on the clamp
 const queue = new PQueue({ concurrency: 1 }) // the engine is single-threaded
@@ -356,7 +356,7 @@ vf-clamp is available as a CLI and as native plugins for Glyphs.app, RoboFont, a
 
 | Integration | Distribution |
 |---|---|
-| [vf-clamp-cli](https://github.com/Liiift-Studio/vf-clamp-cli) | `npm install -g @liiift-studio/vf-clamp-cli` |
+| [vf-clamp-cli](https://github.com/Liiift-Studio/vf-clamp-cli) | `npm install -g @overpunch/vf-clamp-cli` |
 | [vf-clamp-glyphs](https://github.com/Liiift-Studio/vf-clamp-glyphs) | `.glyphsPlugin` download |
 | [vf-clamp-robofont](https://github.com/Liiift-Studio/vf-clamp-robofont) | `.roboFontExt` download |
 | [vf-clamp-vscode](https://github.com/Liiift-Studio/vf-clamp-vscode) | `.vsix` download / VS Code Marketplace |
