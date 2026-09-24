@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`@liiift-studio/vf-clamp` is the **delivery layer for per-purchase micro-VFs**.
+`@overpunch/vf-clamp` is the **delivery layer for per-purchase micro-VFs**.
 
 Foundries license typefaces per-instance. A customer who buys specific named instances
 should receive a variable font scoped to exactly those instances — not the full family,
@@ -23,10 +23,10 @@ not a predefined subfamily. vf-clamp generates that file at purchase/delivery ti
 
 ---
 
-## npm Package API (`@liiift-studio/vf-clamp`)
+## npm Package API (`@overpunch/vf-clamp`)
 
 ```ts
-import { clampFont, getInstances } from '@liiift-studio/vf-clamp'
+import { clampFont, getInstances } from '@overpunch/vf-clamp'
 
 // Get all axes and named instances from a font
 const { axes, instances } = await getInstances(fontBuffer)
@@ -128,7 +128,7 @@ inside the vf-clamp parent repo checkout.
 
 | Plugin | Language | Runtime | Distribution |
 |--------|----------|---------|--------------|
-| `cli`      | TypeScript | Node.js | npm (`@liiift-studio/vf-clamp-cli`) |
+| `cli`      | TypeScript | Node.js | npm (`@overpunch/vf-clamp-cli`) |
 | `glyphs`   | Python     | Glyphs.app built-in Python 3 + fonttools | `.glyphsPlugin` zip |
 | `robofont` | Python     | RoboFont built-in Python 3 + fonttools | `.roboFontExt` zip |
 | `vscode`   | TypeScript | VS Code extension host (Node.js) | VS Code Marketplace |

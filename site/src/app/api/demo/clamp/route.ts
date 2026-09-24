@@ -3,8 +3,8 @@
 // Using multipart avoids the ~33% base64 inflation of the previous JSON approach,
 // so fonts up to 20 MB can reach the handler without hitting platform body limits. (#2)
 import { type NextRequest, NextResponse } from 'next/server'
-import { clampFont } from '@liiift-studio/vf-clamp'
-import type { OutputConfig, OutputFormat } from '@liiift-studio/vf-clamp'
+import { clampFont } from '@overpunch/vf-clamp'
+import type { OutputConfig, OutputFormat } from '@overpunch/vf-clamp'
 import { checkRateLimit, getClientIp } from '../../../../lib/rateLimit'
 
 const MAX_BYTES  = 20 * 1024 * 1024 // 20 MB

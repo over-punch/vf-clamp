@@ -15,7 +15,7 @@ export default function Home() {
 			<Hero
 				eyebrow="variable-font subsetting"
 				title={[{ text: "Restrict the range," }, { text: "keep what varies.", italic: true, subtle: true }]}
-				install="@liiift-studio/vf-clamp"
+				install="@overpunch/vf-clamp"
 				github="https://github.com/Liiift-Studio/vf-clamp"
 				tech={["TypeScript", "fonttools varLib.instancer", "Pyodide WASM", "TTF · OTF · WOFF · WOFF2"]}
 			>
@@ -281,7 +281,7 @@ export default function Home() {
 
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">From named instances — design-space range computed automatically</p>
-						<CodeBlock code={`import { clampFont } from '@liiift-studio/vf-clamp'
+						<CodeBlock code={`import { clampFont } from '@overpunch/vf-clamp'
 import { readFile, writeFile } from 'fs/promises'
 
 const source = await readFile('Omnes-VF.ttf')
@@ -336,7 +336,7 @@ for (const result of results) {
 
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Inspect a font first</p>
-						<CodeBlock code={`import { getInstances } from '@liiift-studio/vf-clamp'
+						<CodeBlock code={`import { getInstances } from '@overpunch/vf-clamp'
 import { readFile } from 'fs/promises'
 
 const font = await readFile('MyFont-VF.ttf')
@@ -349,7 +349,7 @@ const { axes, instances } = await getInstances(font)
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">CLI — from the shell</p>
 						<CodeBlock code={`# Pin wght, restrict wdth, keep all other axes
-npx @liiift-studio/vf-clamp-cli clamp font.ttf \\
+npx @overpunch/vf-clamp-cli clamp font.ttf \\
   --output out/ \\
   --axis wght:400 \\
   --axis wdth:75:100 \\

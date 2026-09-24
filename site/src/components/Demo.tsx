@@ -2,7 +2,7 @@
 // Demo.tsx — instance-based vf-clamp demo: select named instances, preview restricted VF groups, download.
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
-import type { AxisDefinition, FontInstance, OutputFormat } from '@liiift-studio/vf-clamp'
+import type { AxisDefinition, FontInstance, OutputFormat } from '@overpunch/vf-clamp'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -129,7 +129,7 @@ function generateCode(groups: InstanceGroup[], fontName: string, format: OutputF
 	]
 
 	return [
-		`import { clampFont } from '@liiift-studio/vf-clamp'`,
+		`import { clampFont } from '@overpunch/vf-clamp'`,
 		`import { readFile, writeFile } from 'fs/promises'`,
 		``,
 		`const source = await readFile('${safe}.ttf')`,
