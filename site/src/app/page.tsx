@@ -389,7 +389,7 @@ npx @overpunch/vf-clamp-cli clamp font.ttf \\
 					This is how a storefront wires vf-clamp into checkout: turn a purchase event into a
 					delivered file. vfclamp.com exposes two endpoints — one to read a font&rsquo;s instances,
 					one to clamp and return scoped fonts by URL. Both require an API key. Contact{" "}
-					<a href="mailto:hello@liiift.studio" className="opacity-100 hover:underline underline-offset-2">hello@liiift.studio</a> to request access.
+					<a href="mailto:hello@overpunch.ca" className="opacity-100 hover:underline underline-offset-2">hello@overpunch.ca</a> to request access.
 				</p>
 				<CodeBlock code={`POST https://vfclamp.com/api/clamp
 X-API-Key: <your-key>

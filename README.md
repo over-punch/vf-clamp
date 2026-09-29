@@ -302,7 +302,7 @@ type SubfamilyConfig = OutputConfig
 
 ## REST API
 
-The delivery layer: wire vf-clamp into a storefront so a purchase event becomes a delivered file. vfclamp.com exposes hosted endpoints — one to read a font's instances, one to clamp and return scoped fonts by URL. Useful for server-side workflows where the font is fetched by URL. Contact [hello@liiift.studio](mailto:hello@liiift.studio) to request an API key.
+The delivery layer: wire vf-clamp into a storefront so a purchase event becomes a delivered file. vfclamp.com exposes hosted endpoints — one to read a font's instances, one to clamp and return scoped fonts by URL. Useful for server-side workflows where the font is fetched by URL. Contact [hello@overpunch.ca](mailto:hello@overpunch.ca) to request an API key.
 
 ```
 POST https://vfclamp.com/api/clamp
@@ -369,4 +369,4 @@ The CLI in action — inspect a font, then clamp it:
 
 ## License
 
-MIT — [Liiift Studio](https://liiift.studio)
+MIT — [Liiift Studio](https://overpunch.ca)
