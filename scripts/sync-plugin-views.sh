@@ -85,7 +85,7 @@ SKIPPED=0
 for sub_dir in $SUB_CHANGED; do
 	cd "$ROOT/$sub_dir"
 	branch="$(git rev-parse --abbrev-ref HEAD)"
-	git -c user.name="Liiift" -c user.email="hello@liiift.studio" \
+	git -c user.name="Liiift" -c user.email="hello@overpunch.ca" \
 		commit -m "Sync shared plugin-views (hull_plot.py / preview_view.py)"
 	if git push origin "$branch" 2>&1 | tail -1 | grep -q "rejected\|error"; then
 		echo "  $sub_dir: committed but push failed"
