@@ -17,5 +17,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			changeFrequency: 'monthly',
 			priority: 0.6,
 		},
+		{
+			url: 'https://vfclamp.com/talk/paper',
+			lastModified: '2026-10-03',
+			changeFrequency: 'monthly',
+			priority: 0.7,
+		},
+		{
+			url: 'https://vfclamp.com/talk/data',
+			lastModified: '2026-10-03',
+			changeFrequency: 'monthly',
+			priority: 0.5,
+		},
 	]
 }
