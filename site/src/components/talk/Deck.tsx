@@ -590,7 +590,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'ask', tool: 'ragtooth', steps: 3,
 		footer: <>{TALK_TITLE} · The ask · <A href={SRC.balEula}>BAL Foundry EULA</A></>,
-		notes: 'Three asks. Foundries: sell the styles people buy, and ship the variable font scoped to their range. [Next] Storefronts: add a clamp step at fulfilment. [Next] Licence authors: define the licence by design space. BAL Foundry’s EULA already allows instances within the licensed scope.',
+		notes: 'Three asks. Foundries: keep selling styles, and ship the variable font scoped to the range bought. [Next] Storefronts: add a clamp step at fulfilment. [Next] Licence authors: of 35 licences we read, 27 never mention variable fonts, and most of their modification bans would technically forbid this. Define the licensed range on the invoice, grant any instance inside it, fence the rest. BAL Foundry’s EULA already does exactly that.',
 		render: s => (
 			<Frame eyebrow="The ask" gap={56}>
 				<Title a="What to change now." size={96} />
@@ -598,7 +598,7 @@ const SLIDES: Slide[] = [
 					{[
 						['01', 'Foundries', 'Keep selling styles. Ship the VF scoped to the range bought, alongside the statics.'],
 						['02', 'Storefronts', 'Add a clamp step at fulfilment. Today VFs exist only as fixed, pre-cut products.'],
-						['03', 'Licence authors', 'Define the licence by design space: instances within the licensed scope.'],
+						['03', 'Licence authors', '77% of EULAs never mention VFs. Define the licensed range, grant instances inside it, fence the rest.'],
 					].map(([n, h, b]) => <Card key={n} style={{ height: '100%' }}><Numeral>{n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{h}</p><Body size={32}>{b}</Body></Card>)}
 				</ThreeUp>
 			</Frame>

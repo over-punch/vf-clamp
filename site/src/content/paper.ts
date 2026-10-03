@@ -124,6 +124,17 @@ Clamping sells a range, not a set of styles: a Light-and-Bold purchase also deli
 
 Nobody serves ranges yet either. We tested the [Google Fonts CSS2 API](https://developers.google.com/fonts/docs/css2): Inter requested at \`wght@100..900\`, \`400..700\` or \`500..600\` returns the same 85,272-byte file. Google and [Fontsource](https://fontsource.org/docs/getting-started/variable) drop or pin whole axes on the fly; neither narrows a range. [vf-clamp](https://vfclamp.com) is one implementation of the full pipeline, as an npm package, CLI, REST API and plugins for Glyphs, RoboFont and VS Code.
 
+## Licensing language
+
+Most licences cannot yet express a range. We read 35 foundry and distributor EULAs in October 2026: 27 never mention variable fonts at all, including 15 of the 20 subfamily-VF sellers whose licences we could read, and four mention them only as a file format. Most define the licence as a set of files, so their blanket bans on modification technically forbid the instancing a range workflow depends on. Commercial Type forbids "creating additional weights"; Production Type forbids "the creation of additional weights, styles, or variations". Others already point the way:
+
+- **BAL Foundry** grants and fences in one clause: "For Variable Font formats, the use and generation of instances within the permitted licensed scope is allowed. However, extraction or reconstruction of axis data, modification of the variation space or interpolation models … is strictly prohibited" ([BAL EULA](https://www.bal-foundry.com/eula)).
+- **Displaay** ties axis rights to the invoice: buyers of the "Variable" option "are allowed to modify the available axes of the variable Fonts" ([Displaay](https://displaay.net/help/licenses)).
+- **NaN** states the commercial idea plainly: "a variable font covering the styles bought" ([NaN EULA](https://www.nan.xyz/eula)).
+- **Dalton Maag** keeps derived files inside the licence: "Font Software includes all subsets or transformations derived from the Font Software" ([Dalton Maag licence](https://www.daltonmaag.com/download/dama/LicenceAgreement.pdf)).
+
+A range licence needs four parts. **Scope:** the licensed axis ranges, or the named instances they span, listed on the invoice. **Grant:** use and generation of any instance inside that scope. **Optimisation right:** subsetting and further narrowing for performance, with derived files under the same licence. **Fence:** no widening, extrapolating or reconstructing the variation space beyond the licensed range.
+
 ## Delivery and app support
 
 **In applications.** Apps fall into two groups. Adobe Illustrator, Photoshop and InDesign, Figma, Affinity, Sketch and CorelDRAW let users choose any in-between value; Microsoft Word, PowerPoint, Apple Keynote and Pages "show only the styles the foundry chose to name" ([FontLab, 2026](https://blog.fontlab.com/2026/09/02/transtype-5/)). Windows exposes named instances only, projected through the STAT table ([Microsoft](https://learn.microsoft.com/en-us/windows/win32/directwrite/opentype-variable-fonts)). For a range licence both groups behave well: a file clamped to Regular–Bold shows exactly the purchased named styles in Word, and a 400–700 slider in InDesign or Figma. Slider interfaces themselves remain rough ([Phinney, 2026](https://www.thomasphinney.com/2026/07/variable-font-ui-is-broken/)), which is one more reason to ship the statics alongside.
@@ -163,8 +174,8 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 
 **For licence authors**
 
-6. Define a variable-font licence by design space. BAL Foundry's EULA is a working model: "the use and generation of instances within the permitted licensed scope is allowed" ([BAL Foundry](https://www.bal-foundry.com/eula)).
-7. Say whether customers may clamp a font themselves for performance. Clauses that forbid "modification of the variation space" may forbid it by accident.
+6. Define a variable-font licence by design space, in four parts: scope on the invoice, a grant for instances inside it, a right to optimise, and a fence against widening (see *Licensing language*). 77% of the licences we read never mention variable fonts.
+7. Say explicitly that customers may subset or clamp a font further for performance. Blanket bans on modification currently forbid it by accident.
 
 ## Open questions
 
@@ -179,6 +190,8 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 **Survey.** The full list of 394 foundries was extracted from typefoundry.directory in October 2026. Each foundry was screened for variable fonts, and every seller's buy pages, licences and store data (including public store APIs such as Fontdue GraphQL and Shopify product JSON) were read and classified. A second, adversarial pass re-checked every category; 27 classifications changed. A "subfamily VF" must drop, pin or narrow an axis of a larger variable font in the same family and be obtainable without the complete family.
 
 **Benchmark.** Inter 4 (vf-clamp's test fixture, \`wght\` 100–900 and \`opsz\` 14–32) and Merriweather (the Type Tools display face, \`wght\` 300–900, \`wdth\` 87–112, \`opsz\` 7–144) were instanced with fontTools 4.63. Static sizes are full instances at each named instance's coordinates; clamped sizes restrict \`wght\` to the purchased span with other axes either pinned or kept. All files are WOFF2.
+
+**Licences.** 35 EULAs from the subfamily-VF sellers and major foundries and distributors were read in full and coded for variable-font clauses, the licensed unit, instance generation and modification rights.
 
 **Quotes.** TypeDrawers quotes were taken from the thread pages themselves, with poster and date.
 
@@ -212,5 +225,5 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 - [Type Foundry Directory](https://typefoundry.directory/) · [our survey data](/talk/data)
 - María Ramos and Ana Moliz, [Font Licensing Mess](https://fontlicensingmess.com/) ([Alphabettes, 2025](https://www.alphabettes.org/font-licensing-mess-2/)) · Tiro Typeworks, [Something like a typeface](https://www.tiro.com/articles/something-like-a-typeface), 2025
 - [Fontdue: variable fonts](https://www.fontdue.com/docs/platform/variable-fonts) · [Fontdue watermarks](https://www.fontdue.com/docs/platform/watermark-lookup)
-- EULAs: [NaN](https://www.nan.xyz/eula/) · [BAL Foundry](https://www.bal-foundry.com/eula) · [Displaay](https://displaay.net/help/licenses)
+- EULAs: [NaN](https://www.nan.xyz/eula/) · [BAL Foundry](https://www.bal-foundry.com/eula) · [Displaay](https://displaay.net/help/licenses) · [Dalton Maag](https://www.daltonmaag.com/download/dama/LicenceAgreement.pdf) · [Commercial Type](https://commercialtype.com/eula) · [Production Type](https://help.productiontype.com/docs/EULA/) · [DJR](https://djr.com/license) · [Tiro](https://www.tiro.com/license/general-license-agreement) (35 read in total)
 `
