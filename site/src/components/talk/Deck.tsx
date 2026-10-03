@@ -4,6 +4,33 @@
 import { Children, Fragment, useCallback, useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { MagnetChar } from '@overpunch/magnettype'
 import { toolBg, toolFg, toolFgMuted, toolFgSubtle, toolFgFaint, toolPanel, type ToolId } from '../../lib/toolColors'
+import { TOOLS } from '../ToolDirectory'
+
+/** External link styled for the deck: inherits colour, hairline underline, opens in a new tab. */
+function A({ href, children }: { href: string; children: ReactNode }) {
+	return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textDecorationThickness: 1, textUnderlineOffset: 4, textDecorationColor: 'color-mix(in oklch, currentColor 35%, transparent)' }}>{children}</a>
+}
+
+/** Source URLs cited in footers. */
+const SRC = {
+	td1813: 'https://typedrawers.com/discussion/1813/variable-font-ui-and-licensing',
+	td2976: 'https://typedrawers.com/discussion/2976/the-current-state-of-variable-fonts-end-of-2018',
+	td4252: 'https://typedrawers.com/discussion/4252/',
+	td4329: 'https://typedrawers.com/discussion/4329/variable-fonts',
+	td4579: 'https://typedrawers.com/discussion/4579/fonttools-level-4-variable-font-instancing-opens-up-new-retail-option',
+	td4647: 'https://typedrawers.com/discussion/4647/are-customers-buying-or-using-variable-fonts',
+	almanac25: 'https://almanac.httparchive.org/en/2025/fonts',
+	almanac22: 'https://almanac.httparchive.org/en/2022/fonts',
+	directory: 'https://typefoundry.directory/',
+	paper: '/talk/paper',
+	data: '/talk/data',
+	fontdue: 'https://www.fontdue.com/docs/platform/watermark-lookup',
+	gfCss2: 'https://developers.google.com/fonts/docs/css2',
+	fontsource: 'https://fontsource.org/docs/getting-started/variable',
+	instancer: 'https://fonttools.readthedocs.io/en/latest/varLib/instancer.html',
+	balEula: 'https://www.bal-foundry.com/eula',
+	vfclampGithub: 'https://github.com/over-punch/vf-clamp',
+}
 
 /** Stage size in CSS px; the stage is scaled to fit the viewport. */
 const STAGE_W = 1920
@@ -186,6 +213,41 @@ function AdoptionChart() {
 	)
 }
 
+/** Inter 4 WOFF2 sizes in KB by number of contiguous styles bought (benchmark, fontTools 4.63, October 2026). */
+const CROSSOVER = {
+	statics: [111, 226, 340, 456, 571, 683, 797, 910, 1020],
+	clamped: [111, 163, 169, 173, 177, 181, 225, 230, 234],
+	clampedOpsz: [164, 232, 243, 250, 256, 261, 334, 343, 345],
+	full: 345,
+}
+
+/** Crossover chart: total static size vs a range-clamped VF as more styles are bought; series reveal by step. */
+function CrossoverChart({ step }: { step: number }) {
+	const W = 1664, H = 470, x0 = 90, x1 = W - 240, y0 = 30, y1 = H - 60, max = 1050
+	const x = (k: number) => x0 + ((k - 1) / 8) * (x1 - x0)
+	const y = (kb: number) => y1 - (kb / max) * (y1 - y0)
+	const path = (arr: number[]) => arr.map((v, i) => `${i ? 'L' : 'M'}${x(i + 1)} ${y(v)}`).join(' ')
+	const series: { key: string; d: string; label: string; end: number; style: CSSProperties; at: number }[] = [
+		{ key: 'statics', d: path(CROSSOVER.statics), label: 'Static fonts', end: CROSSOVER.statics[8], style: { stroke: 'var(--t-subtle)', strokeWidth: 3 }, at: 0 },
+		{ key: 'full', d: `M${x(1)} ${y(CROSSOVER.full)} L${x(9)} ${y(CROSSOVER.full)}`, label: 'Full VF', end: CROSSOVER.full, style: { stroke: 'var(--t-faint)', strokeWidth: 2, strokeDasharray: '8 8' }, at: 0 },
+		{ key: 'opsz', d: path(CROSSOVER.clampedOpsz), label: 'Clamped, opsz kept', end: CROSSOVER.clampedOpsz[8], style: { stroke: 'var(--t-muted)', strokeWidth: 3 }, at: 2 },
+		{ key: 'clamped', d: path(CROSSOVER.clamped), label: 'Clamped VF', end: CROSSOVER.clamped[8], style: { stroke: 'var(--t-fg)', strokeWidth: 5 }, at: 1 },
+	]
+	return (
+		<div style={{ position: 'relative', width: W, height: H }}>
+			<svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Inter 4 WOFF2 size by styles bought: static fonts grow from 111 KB to 1,020 KB; a weight-clamped variable font grows from 111 KB to 234 KB; the full variable font is 345 KB.">
+				<line x1={x0} x2={x1} y1={y1} y2={y1} strokeWidth="2" style={{ stroke: 'var(--t-fg)', strokeOpacity: 0.1 }} />
+				{series.map(s => <path key={s.key} d={s.d} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ ...s.style, opacity: step >= s.at ? 1 : 0, transition: 'opacity 500ms ease' }} />)}
+			</svg>
+			{series.map(s => (
+				<span key={s.key} style={{ position: 'absolute', left: x1 + 20, top: y(s.end) - 18 + (s.key === 'full' ? -32 : s.key === 'opsz' ? 4 : s.key === 'clamped' ? 26 : 0), fontSize: 24, fontWeight: s.key === 'clamped' ? 500 : 300, color: s.key === 'clamped' ? 'var(--t-fg)' : 'var(--t-muted)', opacity: step >= s.at ? 1 : 0, transition: 'opacity 500ms ease', whiteSpace: 'nowrap' }}>{s.label} · {s.end} KB</span>
+			))}
+			{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => <span key={k} style={{ position: 'absolute', left: x(k), top: y1 + 16, transform: 'translateX(-50%)', fontSize: 22, color: 'var(--t-subtle)' }}>{k}</span>)}
+			<span style={{ position: 'absolute', left: x0, top: y1 + 48, fontSize: 22, color: 'var(--t-subtle)' }}>Styles bought, from Regular upward · WOFF2</span>
+		</div>
+	)
+}
+
 /** One funnel row; the bar grows to its width when revealed. */
 function FunnelRow({ label, count, total, on, strong }: { label: string; count: number; total: number; on: boolean; strong?: boolean }) {
 	const w = (count / total) * 720
@@ -237,7 +299,7 @@ const SLIDES: Slide[] = [
 					<Magnet>Sell the styles,</Magnet><br />
 					<Magnet style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>ship the space.</Magnet>
 				</h1>
-				<p style={{ fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>Survey of 394 foundries · TypeDrawers 2016–2026 · vfclamp.com/talk</p>
+				<p style={{ fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>Survey of 394 foundries · TypeDrawers 2016–2026 · <A href={SRC.paper}>Read the paper</A></p>
 			</div>
 		),
 	},
@@ -257,7 +319,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'unused', tool: 'axisRhythm', steps: 3,
-		footer: 'TypeDrawers threads 4252 (2021) and 4647 (2022)',
+		footer: <>TypeDrawers: <A href={SRC.td4252}>Why don’t we hear about more use of variable fonts on the Web?</A> (2021) · <A href={SRC.td4647}>Are customers buying or using variable fonts?</A> (2022)</>,
 		notes: 'Nearly every foundry now makes variable fonts. Almost nobody licenses them. [Next] Kris Sowersby, of Klim: maybe four requests since launch. [Next] Type Network, which promoted them hard: not exactly burning up the charts. [Next] And Sowersby says why in the same post: they have to be priced as the full family.',
 		render: s => (
 			<Frame eyebrow="The problem" gap={56}>
@@ -272,8 +334,8 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'price', tool: 'hoverBoldly', steps: 2,
-		footer: 'Mark Simonson, TypeDrawers “Variable fonts”, February 2022',
-		notes: 'Why? Price. Mark Simonson has the clearest numbers. [Next] Only a tiny percent of his customers buy an entire family; most buy one to six styles out of 48. [Next] So he priced Proxima Vara at 99 dollars, against 744 for the 48-style Proxima Nova. His warning: variable fonts will not catch on if they are only available at a full static family price.',
+		footer: <>Mark Simonson, TypeDrawers <A href={SRC.td4329}>“Variable fonts”</A>, 2022 · list prices from <A href="https://www.daltonmaag.com/font-library/aktiv-grotesk.html">Dalton Maag</A> and <A href="https://www.marksimonson.com/fonts/view/proxima-vara">Mark Simonson</A>, October 2026</>,
+		notes: 'Why? Price. Mark Simonson has the clearest view. [Next] Only a tiny percent of his customers buy an entire family; most buy one to six styles out of 48. Klim says about half its sales are singles or pairs. [Next] So look at what a two-style buyer pays to get a variable font today: one and a half to six times the price of the two styles they need. Dalton Maag’s cheapest variable tier is 95 pounds against 63 for two singles; the full design space is 380.',
 		render: s => (
 			<Frame eyebrow="Why" gap={56}>
 				<Title a="The price is the whole family." b="The purchase is one to six styles." size={96} />
@@ -283,8 +345,8 @@ const SLIDES: Slide[] = [
 						<div style={{ marginTop: 24 }}><Eyebrow>Mark Simonson · 2022</Eyebrow></div>
 					</Reveal>
 					<Reveal at={2} step={s} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-						<p style={display(160)}>$99 <span style={{ color: 'var(--t-faint)' }}>$744</span></p>
-						<Body size={30}>Proxima Vara, priced by its three axes, against the 48-style Proxima Nova family.</Body>
+						<p style={display(160)}>1.5–6×</p>
+						<Body size={30}>What a two-style buyer pays to get a variable font today, against two single styles. Dalton Maag’s cheapest tier is £95 against £63; a full design space runs £380.</Body>
 					</Reveal>
 				</div>
 			</Frame>
@@ -292,7 +354,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'styles', tool: 'textBreath', steps: 2,
-		footer: 'Nick Shinn and John Hudson, TypeDrawers “Are customers buying or using variable fonts?”, January 2023',
+		footer: <>Nick Shinn and John Hudson, TypeDrawers <A href={`${SRC.td4647}/p2`}>“Are customers buying or using variable fonts?”</A>, January 2023</>,
 		notes: 'There is a deeper mismatch. Designers think of a typeface as a series of named styles. Foundries build design spaces, from masters, and the variable font is that space. [Next] Nick Shinn: dispensing with the names Regular and Bold seems impossible. [Next] John Hudson: named instances are signposts, pins on a map, in a space people struggle to picture. The question is not how to make designers think in sliders. It is how to sell them the styles they think in, and ship the space anyway.',
 		render: s => (
 			<Frame eyebrow="Styles and spaces" gap={52}>
@@ -307,7 +369,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'adoption', tool: 'stabilType', steps: 0,
-		footer: 'HTTP Archive Web Almanac · Fonts 2022 and 2025 · mobile pages',
+		footer: <>HTTP Archive Web Almanac · Fonts <A href={SRC.almanac22}>2022</A> and <A href={SRC.almanac25}>2025</A> · mobile pages</>,
 		notes: 'Meanwhile the web chose variable. 11 percent of mobile pages in 2020, 41 percent in 2025. But about 60 percent of all variable font requests come from four free families. The demand is real; paid foundries are not capturing it.',
 		render: () => (
 			<Frame eyebrow="The market" gap={32}>
@@ -318,7 +380,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'suite', tool: 'magnetType', steps: 4,
-		footer: 'Type Tools READMEs · axisRhythm · hoverBoldly · magnetType',
+		footer: <>Type Tools READMEs · <A href="https://axisrhythm.com">axisRhythm</A> · <A href="https://hoverboldly.com">hoverBoldly</A> · <A href="https://magnettype.com">magnetType</A></>,
 		notes: 'And partial buyers lose more than bytes. Of our own type tools, three do nothing at all without a variable font, and five more lose their main effect. [Next ×3] [Next] hoverBoldly is the clearest number: bolding a word on hover shifts the line 5.8 pixels with static fonts, and zero with a variable one.',
 		render: s => {
 			const cards: { tool: ToolId; quote: string }[] = [
@@ -349,8 +411,19 @@ const SLIDES: Slide[] = [
 		},
 	},
 	{
+		id: 'crossover', tool: 'fitFlush', steps: 2,
+		footer: <>Benchmark: Inter 4 and Merriweather, <A href={SRC.instancer}>fontTools</A> 4.63, WOFF2, October 2026 · <A href={SRC.paper}>method in the paper</A></>,
+		notes: 'And the old file-size objection flips once the font is clamped. Here is Inter 4. Static fonts grow by about 110 kilobytes per style. [Next] A variable font clamped to the purchased weights is already smaller than the statics at two styles: Regular plus Bold is 173 KB against 226. At seven styles it is 72 percent smaller. [Next] Keep the optical-size axis and it still beats the statics from three styles on. Merriweather shows the same: Regular to Bold clamped is 131 KB against 161. The rule: pin the axes the customer did not license; keep the ones that add value for free.',
+		render: s => (
+			<Frame eyebrow="File size" gap={32}>
+				<Title a="Two styles in, the clamped VF is smaller." b="Seven styles in, it is 72% smaller." size={80} />
+				<CrossoverChart step={s} />
+			</Frame>
+		),
+	},
+	{
 		id: 'survey', tool: 'typsettle', steps: 2,
-		footer: 'typefoundry.directory · checked October 2026',
+		footer: <><A href={SRC.directory}>typefoundry.directory</A> · checked October 2026 · <A href={SRC.data}>full data</A></>,
 		notes: 'So how are variable fonts actually sold? We checked all 394 foundries in the Type Foundry Directory. [Next] Buy pages, licences, store data. [Next] Then a second pass tried to overturn every classification; 27 changed.',
 		render: s => (
 			<Frame eyebrow="The survey">
@@ -366,15 +439,15 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'funnel', tool: 'typsettle', steps: 4,
-		footer: 'Subfamily VF · one whole width, optical size, posture or corner style of a larger VF',
-		notes: 'Of 394 foundries, [Next] 225 sell variable fonts. [Next] 117 offer one without the complete family, usually a full-range product at the family price. [Next] 22 sell a smaller variable font, and every one is a complete subfamily. [Next] And zero scope a variable font to the styles a customer bought.',
+		footer: <>Subfamily VF · one whole width, optical size, posture or corner style of a larger VF · <A href={SRC.data}>full data</A></>,
+		notes: 'Of 394 foundries, [Next] 227 sell variable fonts. [Next] 119 offer one without the complete family, usually a full-range product at the family price. [Next] 22 sell a smaller variable font, and every one is a complete subfamily. [Next] And zero scope a variable font to the styles a customer bought.',
 		render: s => (
 			<Frame eyebrow="The survey" gap={40}>
 				<Title a="Subfamily VFs exist." b="Purchase-scoped ones don’t." size={80} />
 				<div>
 					<FunnelRow label="Listed in the directory" count={394} total={394} on />
-					<FunnelRow label="Sell variable fonts" count={225} total={394} on={s >= 1} />
-					<FunnelRow label="Offer a VF without the complete family" count={117} total={394} on={s >= 2} />
+					<FunnelRow label="Sell variable fonts" count={227} total={394} on={s >= 1} />
+					<FunnelRow label="Offer a VF without the complete family" count={119} total={394} on={s >= 2} />
 					<FunnelRow label="Sell subfamily VFs" count={22} total={394} on={s >= 3} strong />
 					<FunnelRow label="Scope a VF to the styles bought" count={0} total={394} on={s >= 4} strong />
 				</div>
@@ -383,7 +456,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'precedent', tool: 'floodText', steps: 0,
-		footer: 'Each verified against its buy page or store data',
+		footer: <>Each verified against its buy page or store data · <A href={SRC.data}>sources for all 22</A></>,
 		notes: 'Smaller variable fonts are not hypothetical: 22 foundries sell them. But every one is a complete subfamily: one width, one optical size, upright only. Dalton Maag sells Aktiv Grotesk by number of axes. NaN’s licence even promises a variable font covering the styles bought, but only for whole subfamilies. They cost about a third of the full family, and these foundries still sell full families.',
 		render: () => (
 			<Frame eyebrow="Precedent" gap={44}>
@@ -400,7 +473,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'gap', tool: 'fitWidth', steps: 0,
-		footer: `${TALK_TITLE} · The survey`,
+		footer: <>{TALK_TITLE} · The survey · <A href={SRC.paper}>read the paper</A></>,
 		notes: 'This is the gap. Of 394 foundries, zero scope a variable font to the styles you bought. Buy Regular and Bold, ask for Regular to Bold, and no store will sell it to you. Not subfamilies: instance ranges. That is the missing product.',
 		render: () => (
 			<Frame eyebrow="The gap">
@@ -416,22 +489,22 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'asked', tool: 'wrapType', steps: 3,
-		footer: 'TypeDrawers threads 2976 (2018), 4252 (2022), 4579 (2022)',
-		notes: 'And the type community has asked for exactly this, for years. [Next] John Hudson in 2018: a design-space subsetting tool, so customers get smaller variable fonts with only what they need. [Next] Nick Shinn in 2022: an app on the distributor site that generates the variable font with only the weights requested. [Next] And Dave Crossland the same year, when fontTools added range instancing: this is very good news for anyone selling sub-spaces of a family at a discount. Nobody reports actually doing it.',
+		footer: <><A href="https://alistapart.com/blog/post/variable-fonts-for-responsive-design/">A List Apart, 2015</A> · TypeDrawers threads <A href={SRC.td2976}>2976</A> (2018) and <A href={SRC.td4252}>4252</A> (2022)</>,
+		notes: 'And the idea is older than the format. In January 2015 Nick Sherman proposed licensing ranges: Light to Medium should cost less than Thin to Black. [Next] In 2018 John Hudson asked for a design-space subsetting tool so customers get smaller variable fonts with only what they need. [Next] In 2022 Nick Shinn: an app on the distributor site that generates the VF with only the weights requested. [Next] When fontTools shipped range instancing that year, Dave Crossland called it very good news for selling sub-spaces at a discount. Eleven years on, nobody reports building the shop. What is new here is not range pricing; it is the file that makes it enforceable.',
 		render: s => (
-			<Frame eyebrow="Asked for since 2016" gap={56}>
+			<Frame eyebrow="Asked for since 2015" gap={56}>
 				<Title a="The community asked for this." b="Nobody built the shop." size={96} />
 				<ThreeUp step={s}>
+					<Quote size={38} q="“it would cost less to license a limited weight range from Light to Medium (300–500) than a wide gamut from Thin to Black”" who="Nick Sherman · 2015" />
 					<Quote size={38} q="“a variable design space subsetting tool, that would enable customers to generate smaller variable fonts containing only the axes and deltas they need”" who="John Hudson · 2018" />
 					<Quote size={38} q="“An app on the distributor site could do that, and generate the VF with only the weight instances requested.”" who="Nick Shinn · 2022" />
-					<Quote size={38} q="“to offer sub-spaces of the full family design space for a discount of the full retail price”" who="Dave Crossland · 2022" />
 				</ThreeUp>
 			</Frame>
 		),
 	},
 	{
 		id: 'opportunity', tool: 'speechType', steps: 3,
-		footer: 'Survey data · Fontdue docs · Google Fonts and Fontsource, tested October 2026 · fontTools',
+		footer: <><A href={SRC.data}>Survey data</A> · <A href={SRC.fontdue}>Fontdue docs</A> · <A href={SRC.gfCss2}>Google Fonts</A> and <A href={SRC.fontsource}>Fontsource</A>, tested October 2026 · <A href={SRC.instancer}>fontTools</A></>,
 		notes: 'Every piece already exists. [Next] 22 foundries already license part of a design space. [Next] Fonts are already built per order: Fontdue watermarks every file with its order ID. [Next] And variable fonts are already cut at delivery: Google Fonts drops whole axes on the fly. But neither narrows a range: ask Google for weight 400 to 700 and you get the same file as 100 to 900. That missing step is one fontTools call.',
 		render: s => (
 			<Frame eyebrow="The opportunity" gap={56}>
@@ -448,7 +521,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'how', tool: 'glyphShaper', steps: 5,
-		footer: 'fontTools varLib.instancer · partial instancing',
+		footer: <><A href={SRC.instancer}>fontTools varLib.instancer</A> · partial instancing</>,
 		notes: 'So: sell the styles, ship the space. [Next ×4] The customer buys named styles, as they always have. At checkout the full variable font is clamped to the span of what they bought; axes that do not affect licensing, like optical size, stay variable: clamp, never pin. The name and STAT tables list only what was bought. One file is delivered. [Next] And notice what that makes a static font: a variable font clamped to a single point. Today’s model is a special case of this one.',
 		render: s => (
 			<Frame eyebrow="How it works" gap={56}>
@@ -471,7 +544,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'demo', tool: 'vfClamp', steps: 0,
-		footer: 'Benchmark from the vf-clamp README · one implementation, not the point',
+		footer: <><A href="https://vfclamp.com">vfclamp.com</A> · <A href={SRC.vfclampGithub}>GitHub</A> · −28% reproduced independently, October 2026</>,
 		notes: 'Is it practical? One implementation is vf-clamp, built on fontTools. Clamping Inter’s weight to 400 to 700 cut the WOFF2 by 28 percent. [Cut to live demo on vfclamp.com: load a font, pick Regular and Bold, download, show the weight stopping at the limits.] The tool is not the point; range-scoped delivery at checkout takes seconds.',
 		render: () => (
 			<Frame eyebrow="Proof it’s practical" gap={56}>
@@ -492,7 +565,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'objections', tool: 'steadyGray', steps: 0,
-		footer: 'TypeDrawers: Thomas Phinney 2016 · Scott-Martin Kosofsky 2016 · Nick Shinn 2022 · Peter Constable 2021',
+		footer: <>TypeDrawers: <A href={SRC.td1813}>Phinney and Kosofsky, 2016</A> · <A href={SRC.td4329}>Shinn, 2022</A> · <A href={SRC.td4252}>Constable, 2021</A></>,
 		notes: 'The objections are old and worth taking seriously. Phinney in 2016: slicing makes retail more complicated. Today it is one call at checkout, and customers still pick named styles. Shinn: cheap variable fonts erode family prices. 22 foundries already sell subfamily variable fonts and still sell families. Kosofsky: sell the whole toolkit or be undercut. Sell both: the range now, the space as the upgrade. Constable: two statics are often smaller than a variable font. Which is exactly why it should be clamped.',
 		render: () => (
 			<Frame eyebrow="Objections" gap={48}>
@@ -516,7 +589,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'ask', tool: 'ragtooth', steps: 3,
-		footer: `${TALK_TITLE} · The ask`,
+		footer: <>{TALK_TITLE} · The ask · <A href={SRC.balEula}>BAL Foundry EULA</A></>,
 		notes: 'Three asks. Foundries: sell the styles people buy, and ship the variable font scoped to their range. [Next] Storefronts: add a clamp step at fulfilment. [Next] Licence authors: define the licence by design space. BAL Foundry’s EULA already allows instances within the licensed scope.',
 		render: s => (
 			<Frame eyebrow="The ask" gap={56}>
@@ -543,12 +616,46 @@ const SLIDES: Slide[] = [
 					<Magnet style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>ship the space.</Magnet>
 				</h1>
 				<p style={{ fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>
-					<a href="https://typefoundry.directory/" style={{ color: 'inherit' }}>typefoundry.directory ↗</a>
+					<A href={SRC.paper}>The paper</A>
 					<span aria-hidden="true"> · </span>
-					<a href="https://typedrawers.com/discussion/4252" style={{ color: 'inherit' }}>typedrawers.com ↗</a>
+					<A href={SRC.data}>Survey data</A>
 					<span aria-hidden="true"> · </span>
-					<a href="https://vfclamp.com" style={{ color: 'inherit' }}>vfclamp.com ↗</a>
+					<A href={SRC.directory}>typefoundry.directory</A>
+					<span aria-hidden="true"> · </span>
+					<A href="https://vfclamp.com">vfclamp.com</A>
 				</p>
+			</div>
+		),
+	},
+	{
+		id: 'about', tool: 'opticalMargin', steps: 0,
+		notes: 'Who we are. We are Overpunch. We make type tools for the web: techniques CSS alone cannot do, from per-line axis rhythm to hanging punctuation to motion-adaptive type. vf-clamp is one of twenty. Try it at vfclamp.com, or inside your editor: there are plugins for Glyphs, RoboFont and VS Code, a CLI, an npm package and a REST API. The paper and all the survey data are at vfclamp.com/talk/paper.',
+		render: () => (
+			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', gap: 48 }}>
+				<Eyebrow>About</Eyebrow>
+				<Title a="We’re Overpunch." b="We make type tools for the web." size={96} />
+				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+					{TOOLS.map(t => {
+						const id = t.id as ToolId
+						return (
+							<a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '16px 20px', borderRadius: 14, background: toolBg(id), color: toolFg(id), textDecoration: 'none' }}>
+								<span style={{ fontSize: 24, fontWeight: 500 }}>{t.name}</span>
+								<span style={{ fontSize: 18, color: toolFgMuted(id) }}>{t.short}</span>
+							</a>
+						)
+					})}
+				</div>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+					<p style={display(44)}>Start with vf-clamp: <A href="https://vfclamp.com">vfclamp.com</A></p>
+					<p style={{ fontSize: 26, color: 'var(--t-muted)' }}>
+						<A href="https://vfclamp.com/integrations/glyphs-robofont">Glyphs and RoboFont plugins</A>
+						<span aria-hidden="true"> · </span><A href="https://github.com/over-punch/vf-clamp-vscode">VS Code extension</A>
+						<span aria-hidden="true"> · </span><A href="https://github.com/over-punch/vf-clamp-cli">CLI</A>
+						<span aria-hidden="true"> · </span><A href="https://www.npmjs.com/package/@overpunch/vf-clamp">npm</A>
+						<span aria-hidden="true"> · </span><A href={SRC.vfclampGithub}>GitHub</A>
+						<span aria-hidden="true"> · </span><A href={SRC.paper}>The paper and data</A>
+					</p>
+				</div>
 			</div>
 		),
 	},
