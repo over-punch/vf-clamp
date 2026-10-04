@@ -420,7 +420,7 @@ function AxisRangeBar({
 
 	return (
 		<div className="flex items-center gap-3 text-xs">
-			<span className="font-mono opacity-40 w-10 shrink-0">{axis.tag}</span>
+			<span className="font-mono text-subtle w-10 shrink-0">{axis.tag}</span>
 			{/* Bar is purely decorative — numeric range in the adjacent span conveys the same info */}
 			<div className="flex-1 h-1.5 bg-foreground/10 rounded-full relative" aria-hidden="true">
 				<div
@@ -428,7 +428,7 @@ function AxisRangeBar({
 					style={{ left: `${leftPct}%`, width: `${Math.max(widthPct, 0.5)}%` }}
 				/>
 			</div>
-			<span className="font-mono opacity-40 tabular-nums w-24 text-right shrink-0">
+			<span className="font-mono text-subtle tabular-nums w-24 text-right shrink-0">
 				{range.min === range.max ? range.min : `${range.min}–${range.max}`}
 			</span>
 		</div>
@@ -505,7 +505,7 @@ function TextPreview({
 				onClick={() => setEditing((v) => !v)}
 				aria-label={editing ? 'Finish editing preview text' : 'Edit preview text'}
 				title={editing ? 'Confirm and stop editing preview text' : 'Edit the preview text rendered in this font'}
-				className="shrink-0 mt-2 p-1.5 rounded opacity-25 group-hover/preview:opacity-60 hover:!opacity-100 hover:bg-foreground/10 transition-all"
+				className="shrink-0 mt-2 p-1.5 rounded text-faint group-hover/preview:text-muted hover:text-foreground hover:bg-foreground/10 transition-all"
 			>
 				{editing ? (
 					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -871,12 +871,12 @@ export default function Demo() {
 				<div className="flex-1 min-w-0">
 					{(loadState === 'idle' || loadState === 'error') && (
 						<div className="flex flex-col gap-1.5">
-							<p className="text-sm opacity-60">
+							<p className="text-sm text-muted">
 								Load{' '}
 								<button
 									onClick={handleLoadDefault}
 									title="Load Encode Sans as the demo variable font"
-									className="underline underline-offset-2 hover:opacity-100 transition-opacity"
+									className="underline underline-offset-2 text-foreground transition-opacity"
 								>
 									Encode Sans
 								</button>{' '}
@@ -889,16 +889,16 @@ export default function Demo() {
 					)}
 					{loadState === 'loading' && (
 						<div className="flex flex-col gap-1">
-							<p className="text-sm opacity-70 animate-pulse">Reading font instances…</p>
-							<p className="text-xs opacity-40">
+							<p className="text-sm text-muted animate-pulse">Reading font instances…</p>
+							<p className="text-xs text-subtle">
 								First load may take 10–20 s while the font engine warms up
 							</p>
 						</div>
 					)}
 					{loadState === 'ready' && (
 						<div className="flex flex-col gap-0.5">
-							<p className="text-sm opacity-80 font-mono">{fontName}</p>
-							<p className="text-xs opacity-30 font-mono tabular-nums">
+							<p className="text-sm text-foreground font-mono">{fontName}</p>
+							<p className="text-xs text-subtle font-mono tabular-nums">
 								{axes.map((a) => `${a.tag} ${a.minimum}–${a.maximum}`).join(' · ')}
 								{fontBuffer ? ` · ${formatBytes(fontBuffer.byteLength)}` : ''}
 							</p>
@@ -921,17 +921,17 @@ export default function Demo() {
 			{/* Instance selection grid — grouped by subfamily */}
 			{loadState === 'ready' && instances.length > 0 && (
 				<div className="flex flex-col gap-4">
-					<p className="text-xs opacity-35 uppercase tracking-widest">
+					<p className="text-xs text-subtle uppercase tracking-widest">
 						Named instances — adjacent selections merge into one output file
 					</p>
 
 					{subfamilyGroups.map((group) => (
 						<div key={group.key} className="flex flex-col gap-2">
 							{group.label && (
-								<p className="text-[10px] font-mono opacity-30 uppercase tracking-widest">
+								<p className="text-[10px] font-mono text-subtle uppercase tracking-widest">
 									{group.label}
 									{group.hasNamePrefix && (
-										<span className="opacity-50 normal-case tracking-normal ml-1.5">
+										<span className="text-subtle normal-case tracking-normal ml-1.5">
 											({group.axisTag} {group.axisValue})
 										</span>
 									)}
@@ -965,12 +965,12 @@ export default function Demo() {
 															? 'border-amber-400/60 bg-amber-400/5'
 															: isSelected
 															? 'border-foreground/40 bg-foreground/5'
-															: 'border-foreground/10 opacity-50 hover:opacity-80 hover:border-foreground/25',
+															: 'border-foreground/15 text-muted hover:text-foreground hover:border-foreground/35',
 													].join(' ')}
 												>
 													<span className="text-xs font-mono">{inst.name}</span>
 													{coordEntries.length > 0 && (
-														<span className="text-[10px] opacity-40 font-mono">
+														<span className="text-[10px] text-subtle font-mono">
 															{coordEntries.map(([k, v]) => `${k} ${v}`).join(' ')}
 														</span>
 													)}
@@ -1001,7 +1001,7 @@ export default function Demo() {
 						<button
 							onClick={() => setSelected(new Set())}
 							title="Deselect all named instances"
-							className="self-start text-xs opacity-25 hover:opacity-60 transition-opacity"
+							className="self-start text-xs text-subtle hover:text-foreground transition-colors"
 						>
 							Clear selection
 						</button>
@@ -1015,14 +1015,14 @@ export default function Demo() {
 					<button
 						onClick={() => setShowAdvanced((v) => !v)}
 						title={showAdvanced ? 'Hide advanced axis range controls' : 'Show controls to manually set axis ranges not covered by named instances'}
-						className="self-start flex items-center gap-1.5 text-xs opacity-30 hover:opacity-60 transition-opacity"
+						className="self-start flex items-center gap-1.5 text-xs text-subtle hover:text-foreground transition-colors"
 					>
 						<span>{showAdvanced ? '▾' : '▸'}</span>
 						<span>Advanced</span>
 					</button>
 					{showAdvanced && (
 						<div className="flex flex-col gap-4 pl-4 border-l border-foreground/10">
-							<p className="text-xs opacity-35 leading-relaxed max-w-sm">
+							<p className="text-xs text-subtle leading-relaxed max-w-sm">
 								{freeAxes.length === 1
 									? `The ${freeAxes[0].name} axis isn't set by named instances — add a range to include it in all output files.`
 									: `These axes aren't set by named instances — add ranges to include them in all output files.`}
@@ -1033,8 +1033,8 @@ export default function Demo() {
 								const curMax = override?.max ?? axis.default
 								return (
 									<div key={axis.tag} className="flex items-center gap-3 flex-wrap text-xs">
-										<span className="font-mono opacity-40 w-10 shrink-0">{axis.tag}</span>
-										<span className="opacity-30 shrink-0">{axis.name}</span>
+										<span className="font-mono text-subtle w-10 shrink-0">{axis.tag}</span>
+										<span className="text-subtle shrink-0">{axis.name}</span>
 										<div className="flex items-center gap-2">
 											<input
 												type="number"
@@ -1049,7 +1049,7 @@ export default function Demo() {
 												title={`Minimum value for the ${axis.name} (${axis.tag}) axis in all output files (range: ${axis.minimum}–${axis.maximum})`}
 												className="w-20 bg-foreground/5 border border-foreground/10 rounded px-2 py-1 font-mono text-center focus:outline-none focus:border-foreground/30 transition-colors"
 											/>
-											<span className="opacity-20" aria-hidden="true">–</span>
+											<span className="text-faint" aria-hidden="true">–</span>
 											<input
 												type="number"
 												min={curMin}
@@ -1064,11 +1064,11 @@ export default function Demo() {
 												className="w-20 bg-foreground/5 border border-foreground/10 rounded px-2 py-1 font-mono text-center focus:outline-none focus:border-foreground/30 transition-colors"
 											/>
 										</div>
-										<span className="opacity-20 font-mono tabular-nums">{axis.minimum}–{axis.maximum}</span>
+										<span className="text-subtle font-mono tabular-nums">{axis.minimum}–{axis.maximum}</span>
 										{override && (
 											<button
 												onClick={() => setAxisOverrides((prev) => { const next = { ...prev }; delete next[axis.tag]; return next })}
-												className="opacity-20 hover:opacity-60 transition-opacity"
+												className="text-faint hover:text-foreground transition-colors"
 												aria-label={`Reset ${axis.name}`}
 												title={`Reset ${axis.name} (${axis.tag}) to its default value`}
 											>
@@ -1086,7 +1086,7 @@ export default function Demo() {
 			{/* Group previews */}
 			{groups.length > 0 && (
 				<div className="flex flex-col gap-6">
-					<p className="text-xs opacity-35 uppercase tracking-widest">
+					<p className="text-xs text-subtle uppercase tracking-widest">
 						{groups.length === 1 ? '1 output file' : `${groups.length} output files`}
 					</p>
 
@@ -1114,7 +1114,7 @@ export default function Demo() {
 								{/* Header */}
 								<div className="flex flex-col gap-1">
 									<div className="flex items-center gap-2 flex-wrap">
-										<span className="text-sm font-mono opacity-80">{label}</span>
+										<span className="text-sm font-mono text-foreground">{label}</span>
 										{isIsolated && (
 											<span className="text-xs text-amber-400/60">
 												⚠ isolated — single-instance file
@@ -1122,12 +1122,12 @@ export default function Demo() {
 										)}
 									</div>
 									<div className="flex items-center gap-3 flex-wrap">
-										<p className="text-[10px] font-mono opacity-25">{filename}</p>
-										<p className="text-[10px] font-mono opacity-25">
+										<p className="text-[10px] font-mono text-subtle">{filename}</p>
+										<p className="text-[10px] font-mono text-subtle">
 											{group.instances.length} {group.instances.length === 1 ? 'instance' : 'instances'}
 										</p>
 										{outputSizes[i] !== undefined && fontBuffer && (
-											<p className="text-[10px] font-mono opacity-40">
+											<p className="text-[10px] font-mono text-subtle">
 												{formatBytes(fontBuffer.byteLength)} → {formatBytes(outputSizes[i])}
 												{fontBuffer.byteLength > outputSizes[i] && (
 													<span className="text-green-400/60 ml-1">
@@ -1156,7 +1156,7 @@ export default function Demo() {
 								</div>
 
 								{/* Instance list */}
-								<p className="text-[10px] font-mono opacity-20">
+								<p className="text-[10px] font-mono text-subtle">
 									{group.instances.map((inst) => inst.name).join(' · ')}
 								</p>
 
@@ -1166,7 +1166,7 @@ export default function Demo() {
 										<button
 											onClick={() => setExpandedNameTable(expandedNameTable === i ? null : i)}
 											title={expandedNameTable === i ? 'Hide the OpenType name table for this output file' : 'Show the OpenType name table embedded in this downloaded file'}
-											className="self-start flex items-center gap-1 text-[10px] opacity-30 hover:opacity-60 transition-opacity"
+											className="self-start flex items-center gap-1 text-[10px] text-subtle hover:text-foreground transition-colors"
 										>
 											<span>{expandedNameTable === i ? '▾' : '▸'}</span>
 											<span>Name table</span>
@@ -1176,8 +1176,8 @@ export default function Demo() {
 												<tbody>
 													{nameTable.map(({ nameId, label: nameLabel, value }) => (
 														<tr key={nameId} className="border-t border-foreground/5">
-															<td className="py-1 pr-4 opacity-30 shrink-0 whitespace-nowrap">{nameLabel}</td>
-															<td className="py-1 opacity-60 break-all">{value}</td>
+															<td className="py-1 pr-4 text-subtle shrink-0 whitespace-nowrap">{nameLabel}</td>
+															<td className="py-1 text-muted break-all">{value}</td>
 														</tr>
 													))}
 												</tbody>
@@ -1236,8 +1236,8 @@ export default function Demo() {
 											className={[
 												'px-3 py-1.5 font-mono transition-colors',
 												outputFormat === fmt
-													? 'bg-foreground/10 opacity-100'
-													: 'opacity-30 hover:opacity-60',
+													? 'bg-foreground/10 text-foreground'
+													: 'text-subtle hover:text-foreground',
 											].join(' ')}
 										>
 											{fmt}
@@ -1258,7 +1258,7 @@ export default function Demo() {
 										aria-label="Remap wght axis to CSS 100–900"
 										className="w-3.5 h-3.5 rounded accent-white/60"
 									/>
-									<span className={normalizeWeightAxis ? 'opacity-70' : 'opacity-30 hover:opacity-50 transition-opacity'}>
+									<span className={normalizeWeightAxis ? 'text-foreground' : 'text-subtle hover:text-muted transition-colors'}>
 										Normalise wght to 100–900
 									</span>
 								</label>
@@ -1267,7 +1267,7 @@ export default function Demo() {
 						{!processing && (
 							<div className="flex flex-col gap-0.5">
 								{groups.map((group, i) => (
-									<p key={group.instances.map((inst) => inst.name).join('|')} className="text-[10px] font-mono opacity-20">
+									<p key={group.instances.map((inst) => inst.name).join('|')} className="text-[10px] font-mono text-subtle">
 										{groupFilenames[i]}
 									</p>
 								))}
@@ -1290,7 +1290,7 @@ export default function Demo() {
 								</div>
 								{/* Show cold-start hint only on the first download */}
 								{downloadCount === 0 && (
-									<p className="text-[10px] opacity-25">
+									<p className="text-[10px] text-subtle">
 										First run includes fonttools engine startup (~10 s)
 									</p>
 								)}
@@ -1303,12 +1303,12 @@ export default function Demo() {
 						<button
 							onClick={() => setShowCode((v) => !v)}
 							title={showCode ? 'Hide the npm code snippet' : 'Show the vf-clamp npm code snippet that reproduces this configuration'}
-							className="self-start text-xs px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 transition-colors opacity-60 hover:opacity-100"
+							className="self-start text-xs px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-muted hover:text-foreground transition-colors"
 						>
 							{showCode ? 'Hide code' : 'See code'}
 						</button>
 						{showCode && (
-							<pre className="bg-foreground/5 rounded-xl p-4 overflow-x-auto text-xs leading-relaxed font-mono opacity-75 whitespace-pre">
+							<pre className="bg-foreground/5 rounded-xl p-4 overflow-x-auto text-xs leading-relaxed font-mono text-muted whitespace-pre">
 								<code>{codeSnippet}</code>
 							</pre>
 						)}

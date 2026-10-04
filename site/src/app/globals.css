@@ -13,3 +13,11 @@
 	--accent: rgba(80, 190, 200, 0.85);
 	--font-sans: var(--font-inter), sans-serif;
 }
+
+/* vfClamp overrides — a second :root block, so npm run sync (which rewrites only the first --panel/--btn-bg) leaves them alone.
+   The system's dark-tool panel desaturates to grey at this hue (#2e4958); a deep navy inset keeps the hue and lifts
+   text contrast on it: foreground 13.4:1, muted 7.9:1, subtle 5.1:1. */
+:root {
+	--panel: oklch(0.270 0.0800 234);
+	--btn-bg: oklch(0.390 0.0750 234);
+}
