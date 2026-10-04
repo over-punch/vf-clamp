@@ -112,7 +112,7 @@ export function PipelineFigure() {
 					</div>
 				))}
 			</div>
-			<Caption>A static font is a variable font clamped to a single point.</Caption>
+			<Caption>In licensing terms, a static is a range of one point.</Caption>
 		</div>
 	)
 }

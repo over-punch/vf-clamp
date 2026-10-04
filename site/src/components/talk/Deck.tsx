@@ -1,6 +1,7 @@
 // Talk deck for "Sell the Styles, Ship the Space" — a keyboard-driven 1920×1080 slide stage built from the Type Tools site system (tool palettes, Merriweather opsz 144, Inter, MagnetChar).
 'use client'
 
+import { SCRIPT_NOTES } from '../../content/talkScript'
 import { Children, Fragment, useCallback, useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { MagnetChar } from '@overpunch/magnettype'
 import { toolBg, toolFg, toolFgMuted, toolFgSubtle, toolFgFaint, toolPanel, type ToolId } from '../../lib/toolColors'
@@ -290,7 +291,7 @@ const SUBFAMILY_FOUNDRIES = ['BAL Foundry', 'CJ Type', 'CSTM', 'Dalton Maag', 'D
 const SLIDES: Slide[] = [
 	{
 		id: 'cover', tool: 'vfClamp', steps: 0,
-		notes: 'Open on the motif: three axes of one variable font. Weight clamps to the range a customer bought, 400 to 700, while width and optical size stay fully variable. The argument of this talk is in the title: let customers keep buying styles, and ship them the design space between those styles.',
+		notes: SCRIPT_NOTES.cover,
 		render: () => (
 			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 				<Eyebrow>A talk on variable font licensing</Eyebrow>
@@ -306,7 +307,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'hook', tool: 'axisRhythm', steps: 2,
 		footer: `${TALK_TITLE} · The problem`,
-		notes: 'Say you license two styles of a family, Regular and Bold. Today you get two static files. [Next] What you could have had is one variable font, scoped to exactly those styles. [Next] It does everything a variable font does inside your licence, and contains nothing outside it. Almost nobody sells this.',
+		notes: SCRIPT_NOTES.hook,
 		render: s => (
 			<Frame eyebrow="The problem" gap={48}>
 				<Title a="You bought Regular and Bold." b="You got two static files." size={96} />
@@ -320,7 +321,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'unused', tool: 'axisRhythm', steps: 3,
 		footer: <>TypeDrawers: <A href={SRC.td4252}>Why don’t we hear about more use of variable fonts on the Web?</A> (2021) · <A href={SRC.td4647}>Are customers buying or using variable fonts?</A> (2022)</>,
-		notes: 'Nearly every foundry now makes variable fonts. Almost nobody licenses them. [Next] Kris Sowersby, of Klim: maybe four requests since launch. [Next] Type Network, which promoted them hard: not exactly burning up the charts. [Next] And Sowersby says why in the same post: they have to be priced as the full family.',
+		notes: SCRIPT_NOTES.unused,
 		render: s => (
 			<Frame eyebrow="The problem" gap={56}>
 				<Title a="Foundries make variable fonts." b="Almost nobody licenses them." size={96} />
@@ -335,7 +336,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'price', tool: 'hoverBoldly', steps: 2,
 		footer: <>Mark Simonson, TypeDrawers <A href={SRC.td4329}>“Variable fonts”</A>, 2022 · list prices from <A href="https://www.daltonmaag.com/font-library/aktiv-grotesk.html">Dalton Maag</A> and <A href="https://www.marksimonson.com/fonts/view/proxima-vara">Mark Simonson</A>, October 2026</>,
-		notes: 'Why? Price. Mark Simonson has the clearest view. [Next] Only a tiny percent of his customers buy an entire family; most buy one to six styles out of 48. Klim says about half its sales are singles or pairs. [Next] So look at what a two-style buyer pays to get a variable font today: one and a half to six times the price of the two styles they need. Dalton Maag’s cheapest variable tier is 95 pounds against 63 for two singles; the full design space is 380.',
+		notes: SCRIPT_NOTES.price,
 		render: s => (
 			<Frame eyebrow="Why" gap={56}>
 				<Title a="The price is the whole family." b="The purchase is one to six styles." size={96} />
@@ -355,7 +356,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'styles', tool: 'textBreath', steps: 2,
 		footer: <>Nick Shinn and John Hudson, TypeDrawers <A href={`${SRC.td4647}/p2`}>“Are customers buying or using variable fonts?”</A>, January 2023</>,
-		notes: 'There is a deeper mismatch. Designers think of a typeface as a series of named styles. Foundries build design spaces, from masters, and the variable font is that space. [Next] Nick Shinn: dispensing with the names Regular and Bold seems impossible. [Next] John Hudson: named instances are signposts, pins on a map, in a space people struggle to picture. The question is not how to make designers think in sliders. It is how to sell them the styles they think in, and ship the space anyway.',
+		notes: SCRIPT_NOTES.styles,
 		render: s => (
 			<Frame eyebrow="Styles and spaces" gap={52}>
 				<Title a="Designers buy styles." b="Foundries build spaces." size={96} />
@@ -370,7 +371,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'adoption', tool: 'stabilType', steps: 0,
 		footer: <>HTTP Archive Web Almanac · Fonts <A href={SRC.almanac22}>2022</A> and <A href={SRC.almanac25}>2025</A> · mobile pages</>,
-		notes: 'Meanwhile the web chose variable. 11 percent of mobile pages in 2020, 41 percent in 2025. But about 60 percent of all variable font requests come from four free families. The demand is real; paid foundries are not capturing it.',
+		notes: SCRIPT_NOTES.adoption,
 		render: () => (
 			<Frame eyebrow="The market" gap={32}>
 				<Title a="The web chose variable anyway." b="60% of requests: four free families." size={88} />
@@ -381,7 +382,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'suite', tool: 'magnetType', steps: 4,
 		footer: <>Type Tools READMEs · <A href="https://axisrhythm.com">axisRhythm</A> · <A href="https://hoverboldly.com">hoverBoldly</A> · <A href="https://magnettype.com">magnetType</A></>,
-		notes: 'And partial buyers lose more than bytes. Of our own type tools, three do nothing at all without a variable font, and five more lose their main effect. [Next ×3] [Next] hoverBoldly is the clearest number: bolding a word on hover shifts the line 5.8 pixels with static fonts, and zero with a variable one.',
+		notes: SCRIPT_NOTES.suite,
 		render: s => {
 			const cards: { tool: ToolId; quote: string }[] = [
 				{ tool: 'axisRhythm', quote: '“The effect is invisible with fonts that do not have variable axis support.”' },
@@ -413,7 +414,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'crossover', tool: 'fitFlush', steps: 2,
 		footer: <>Benchmark: Inter 4 and Merriweather, <A href={SRC.instancer}>fontTools</A> 4.63, WOFF2, October 2026 · <A href={SRC.paper}>method in the paper</A></>,
-		notes: 'And the old file-size objection flips once the font is clamped. Here is Inter 4. Static fonts grow by about 110 kilobytes per style. [Next] A variable font clamped to the purchased weights is already smaller than the statics at two styles: Regular plus Bold is 173 KB against 226. At seven styles it is 72 percent smaller. [Next] Keep the optical-size axis and it still beats the statics from three styles on. Merriweather shows the same: Regular to Bold clamped is 131 KB against 161. The rule: pin the axes the customer did not license; keep the ones that add value for free.',
+		notes: SCRIPT_NOTES.crossover,
 		render: s => (
 			<Frame eyebrow="File size" gap={32}>
 				<Title a="Two styles in, the clamped VF is smaller." b="Seven styles in, it is 72% smaller." size={80} />
@@ -424,7 +425,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'survey', tool: 'typsettle', steps: 2,
 		footer: <><A href={SRC.directory}>typefoundry.directory</A> · checked October 2026 · <A href={SRC.data}>full data</A></>,
-		notes: 'So how are variable fonts actually sold? We checked all 394 foundries in the Type Foundry Directory. [Next] Buy pages, licences, store data. [Next] Then a second pass tried to overturn every classification; 27 changed.',
+		notes: SCRIPT_NOTES.survey,
 		render: s => (
 			<Frame eyebrow="The survey">
 				<div style={{ display: 'flex', alignItems: 'flex-start', gap: 72, marginTop: 72 }}>
@@ -440,7 +441,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'funnel', tool: 'typsettle', steps: 4,
 		footer: <>Subfamily VF · one whole width, optical size, posture or corner style of a larger VF · <A href={SRC.data}>full data</A></>,
-		notes: 'Of 394 foundries, [Next] 227 sell variable fonts. [Next] 119 offer one without the complete family, usually a full-range product at the family price. [Next] 22 sell a smaller variable font, and every one is a complete subfamily. [Next] And zero scope a variable font to the styles a customer bought.',
+		notes: SCRIPT_NOTES.funnel,
 		render: s => (
 			<Frame eyebrow="The survey" gap={40}>
 				<Title a="Subfamily VFs exist." b="Purchase-scoped ones don’t." size={80} />
@@ -457,7 +458,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'precedent', tool: 'floodText', steps: 0,
 		footer: <>Each verified against its buy page or store data · <A href={SRC.data}>sources for all 22</A></>,
-		notes: 'Smaller variable fonts are not hypothetical: 22 foundries sell them. But every one is a complete subfamily: one width, one optical size, upright only. Dalton Maag sells Aktiv Grotesk by number of axes. NaN’s licence even promises a variable font covering the styles bought, but only for whole subfamilies. They cost about a third of the full family, and these foundries still sell full families.',
+		notes: SCRIPT_NOTES.precedent,
 		render: () => (
 			<Frame eyebrow="Precedent" gap={44}>
 				<Title a="22 foundries sell subfamily VFs." b="Every one a whole width, size or posture." size={88} />
@@ -474,7 +475,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'gap', tool: 'fitWidth', steps: 0,
 		footer: <>{TALK_TITLE} · The survey · <A href={SRC.paper}>read the paper</A></>,
-		notes: 'This is the gap. Of 394 foundries, zero scope a variable font to the styles you bought. Buy Regular and Bold, ask for Regular to Bold, and no store will sell it to you. Not subfamilies: instance ranges. That is the missing product.',
+		notes: SCRIPT_NOTES.gap,
 		render: () => (
 			<Frame eyebrow="The gap">
 				<div style={{ display: 'flex', alignItems: 'center', gap: 96, flex: 1 }}>
@@ -490,7 +491,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'asked', tool: 'wrapType', steps: 3,
 		footer: <><A href="https://alistapart.com/blog/post/variable-fonts-for-responsive-design/">A List Apart, 2015</A> · TypeDrawers threads <A href={SRC.td2976}>2976</A> (2018) and <A href={SRC.td4252}>4252</A> (2022)</>,
-		notes: 'And the idea is older than the format. In January 2015 Nick Sherman proposed licensing ranges: Light to Medium should cost less than Thin to Black. [Next] In 2018 John Hudson asked for a design-space subsetting tool so customers get smaller variable fonts with only what they need. [Next] In 2022 Nick Shinn: an app on the distributor site that generates the VF with only the weights requested. [Next] When fontTools shipped range instancing that year, Dave Crossland called it very good news for selling sub-spaces at a discount. Eleven years on, nobody reports building the shop. What is new here is not range pricing; it is the file that makes it enforceable.',
+		notes: SCRIPT_NOTES.asked,
 		render: s => (
 			<Frame eyebrow="Asked for since 2015" gap={56}>
 				<Title a="The community asked for this." b="Nobody built the shop." size={96} />
@@ -505,7 +506,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'opportunity', tool: 'speechType', steps: 3,
 		footer: <><A href={SRC.data}>Survey data</A> · <A href={SRC.fontdue}>Fontdue docs</A> · <A href={SRC.gfCss2}>Google Fonts</A> and <A href={SRC.fontsource}>Fontsource</A>, tested October 2026 · <A href={SRC.instancer}>fontTools</A></>,
-		notes: 'Every piece already exists. [Next] 22 foundries already license part of a design space. [Next] Fonts are already built per order: Fontdue watermarks every file with its order ID. [Next] And variable fonts are already cut at delivery: Google Fonts drops whole axes on the fly. But neither narrows a range: ask Google for weight 400 to 700 and you get the same file as 100 to 900. That missing step is one fontTools call.',
+		notes: SCRIPT_NOTES.opportunity,
 		render: s => (
 			<Frame eyebrow="The opportunity" gap={56}>
 				<Title a="Every piece already exists." b="Nobody has put them together." size={96} />
@@ -513,7 +514,7 @@ const SLIDES: Slide[] = [
 					{[
 						{ n: '01', h: 'Partial licences', b: '22 foundries already license part of a design space as a subfamily VF.' },
 						{ n: '02', h: 'Per-order files', b: 'Fontdue watermarks every delivered font with its order ID.' },
-						{ n: '03', h: 'Cuts at delivery', b: 'Google Fonts drops whole axes on the fly. Nobody narrows a range: that is one fontTools call.' },
+						{ n: '03', h: 'Cuts at delivery', b: 'Google Fonts drops whole axes on the fly. Nobody narrows a range, though fontTools can.' },
 					].map(c => <Card key={c.n} style={{ height: '100%' }}><Numeral>{c.n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{c.h}</p><Body size={32}>{c.b}</Body></Card>)}
 				</ThreeUp>
 			</Frame>
@@ -522,7 +523,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'how', tool: 'glyphShaper', steps: 5,
 		footer: <><A href={SRC.instancer}>fontTools varLib.instancer</A> · partial instancing</>,
-		notes: 'So: sell the styles, ship the space. [Next ×4] The customer buys named styles, as they always have. At checkout the full variable font is clamped to the span of what they bought; axes that do not affect licensing, like optical size, stay variable: clamp, never pin. The name and STAT tables list only what was bought. One file is delivered. [Next] And notice what that makes a static font: a variable font clamped to a single point. Today’s model is a special case of this one.',
+		notes: SCRIPT_NOTES.how,
 		render: s => (
 			<Frame eyebrow="How it works" gap={56}>
 				<Title a="Sell the styles. Ship the space." size={96} />
@@ -538,14 +539,14 @@ const SLIDES: Slide[] = [
 						</Reveal>
 					))}
 				</div>
-				<Reveal at={5} step={s}><p style={display(56, { fontStyle: 'italic' })}>A static font is a variable font clamped to a single point.</p></Reveal>
+				<Reveal at={5} step={s}><p style={display(56, { fontStyle: 'italic' })}>In licensing terms, a static is a range of one point.</p></Reveal>
 			</Frame>
 		),
 	},
 	{
 		id: 'demo', tool: 'vfClamp', steps: 0,
 		footer: <><A href="https://vfclamp.com">vfclamp.com</A> · <A href={SRC.vfclampGithub}>GitHub</A> · −28% reproduced independently, October 2026</>,
-		notes: 'Is it practical? One implementation is vf-clamp, built on fontTools. Clamping Inter’s weight to 400 to 700 cut the WOFF2 by 28 percent. [Cut to live demo on vfclamp.com: load a font, pick Regular and Bold, download, show the weight stopping at the limits.] The tool is not the point; range-scoped delivery at checkout takes seconds.',
+		notes: SCRIPT_NOTES.demo,
 		render: () => (
 			<Frame eyebrow="Proof it’s practical" gap={56}>
 				<Title a="vf-clamp." b="Restrict the range, keep what varies." size={96} />
@@ -566,13 +567,13 @@ const SLIDES: Slide[] = [
 	{
 		id: 'objections', tool: 'steadyGray', steps: 0,
 		footer: <>TypeDrawers: <A href={SRC.td1813}>Phinney and Kosofsky, 2016</A> · <A href={SRC.td4329}>Shinn, 2022</A> · <A href={SRC.td4252}>Constable, 2021</A></>,
-		notes: 'The objections are old and worth taking seriously. Phinney in 2016: slicing makes retail more complicated. Today it is one call at checkout, and customers still pick named styles. Shinn: cheap variable fonts erode family prices. 22 foundries already sell subfamily variable fonts and still sell families. Kosofsky: sell the whole toolkit or be undercut. Sell both: the range now, the space as the upgrade. Constable: two statics are often smaller than a variable font. Which is exactly why it should be clamped.',
+		notes: SCRIPT_NOTES.objections,
 		render: () => (
 			<Frame eyebrow="Objections" gap={48}>
 				<Title a="Objections, answered." size={96} />
 				<div>
 					{[
-						['“Slicing makes retail more complicated”', 'It’s one fontTools call at checkout. Customers still pick named styles.'],
+						['“Slicing makes retail more complicated”', 'The clamp is one call, about 3 s. Pricing the styles in between is the real decision.'],
 						['“Cheap VFs will erode family prices”', '22 foundries sell subfamily VFs and still sell families.'],
 						['“Sell the whole toolkit or be undercut”', 'Sell both: the range now, the full space as the upgrade.'],
 						['“Two statics are smaller than a VF”', 'Often true for a full VF. That is why the VF should be clamped.'],
@@ -590,7 +591,7 @@ const SLIDES: Slide[] = [
 	{
 		id: 'ask', tool: 'ragtooth', steps: 3,
 		footer: <>{TALK_TITLE} · The ask · <A href={SRC.balEula}>BAL Foundry EULA</A></>,
-		notes: 'Three asks. Foundries: keep selling styles, and ship the variable font scoped to the range bought. [Next] Storefronts: add a clamp step at fulfilment. [Next] Licence authors: of 35 licences we read, 27 never mention variable fonts, and most of their modification bans would technically forbid this. Define the licensed range on the invoice, grant any instance inside it, fence the rest. BAL Foundry’s EULA already does exactly that.',
+		notes: SCRIPT_NOTES.ask,
 		render: s => (
 			<Frame eyebrow="The ask" gap={56}>
 				<Title a="What to change now." size={96} />
@@ -598,7 +599,7 @@ const SLIDES: Slide[] = [
 					{[
 						['01', 'Foundries', 'Keep selling styles. Ship the VF scoped to the range bought, alongside the statics.'],
 						['02', 'Storefronts', 'Add a clamp step at fulfilment. Today VFs exist only as fixed, pre-cut products.'],
-						['03', 'Licence authors', '77% of EULAs never mention VFs. Define the licensed range, grant instances inside it, fence the rest.'],
+						['03', 'Licence authors', '27 of 35 EULAs never mention VFs. Define the licensed range, grant instances inside it, fence the rest.'],
 					].map(([n, h, b]) => <Card key={n} style={{ height: '100%' }}><Numeral>{n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{h}</p><Body size={32}>{b}</Body></Card>)}
 				</ThreeUp>
 			</Frame>
@@ -606,7 +607,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'close', tool: 'vfClamp', steps: 0,
-		notes: 'Designers will keep thinking in styles, and that is fine. Foundries can keep selling styles. They just need to ship the space between them. Thank you.',
+		notes: SCRIPT_NOTES.close,
 		render: () => (
 			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 				<Eyebrow>{TALK_TITLE}</Eyebrow>
@@ -629,7 +630,7 @@ const SLIDES: Slide[] = [
 	},
 	{
 		id: 'about', tool: 'opticalMargin', steps: 0,
-		notes: 'Who we are. We are Overpunch. We make type tools for the web: techniques CSS alone cannot do, from per-line axis rhythm to hanging punctuation to motion-adaptive type. vf-clamp is one of twenty. Try it at vfclamp.com, or inside your editor: there are plugins for Glyphs, RoboFont and VS Code, a CLI, an npm package and a REST API. The paper and all the survey data are at vfclamp.com/talk/paper.',
+		notes: SCRIPT_NOTES.about,
 		render: () => (
 			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', gap: 48 }}>
 				<Eyebrow>About</Eyebrow>

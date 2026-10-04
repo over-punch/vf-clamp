@@ -49,6 +49,8 @@ export default function PaperPage() {
 					<span aria-hidden="true">·</span>
 					<Link href="/talk/data" className="hover:text-foreground transition-colors">Survey data ↗</Link>
 					<span aria-hidden="true">·</span>
+					<Link href="/talk/transcript" className="hover:text-foreground transition-colors">Transcript ↗</Link>
+					<span aria-hidden="true">·</span>
 					<Link href="/" className="hover:text-foreground transition-colors">vf-clamp ↗</Link>
 				</div>
 				<nav aria-label="Contents" className="flex flex-col gap-2 pt-2">

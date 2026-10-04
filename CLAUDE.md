@@ -97,7 +97,7 @@ vf-clamp/
 ├── scripts/
 │   └── sync-plugin-views.sh
 └── fixtures/
-    └── Inter-Variable.ttf  # test font (wght 100–900, slnt -10–0)
+    └── Inter-Variable.ttf  # test font (wght 100–900, opsz 14–32; Inter 4)
 ```
 
 ---
@@ -195,7 +195,7 @@ def clamp_and_patch(font_path, selected_names, output_name, output_path):
 - **Comments**: one-line summary at top of each file; comment every function
 - **Constants**: ALL_CAPS
 - **No extra abstractions**: solve the problem directly; don't design for hypotheticals
-- **Test fonts**: use Inter Variable (wght 100–900, slnt -10–0) — freely available from
+- **Test fonts**: use Inter Variable (wght 100–900, opsz 14–32; Inter 4) — freely available from
   Google Fonts. The fixture at `fixtures/Inter-Variable.ttf` is available in this repo.
 
 ---

@@ -4,6 +4,8 @@
 export const PAPER_MD = `
 Designers buy type as named styles. Foundries build it as design spaces. Today's licensing makes them choose: a variable font usually costs the whole family, so almost nobody licenses one. This paper argues for keeping the styles and shipping the space: deliver a variable font clamped to exactly the range a customer bought.
 
+*Disclosure: the authors make [vf-clamp](https://vfclamp.com) and other variable-font tools. Every measurement here uses plain fontTools, and no recommendation requires our tool.*
+
 ## Summary
 
 Nearly every foundry now makes variable fonts, and the web has adopted them: 41% of mobile pages used one in 2025. But commercial variable fonts are rarely licensed, because most foundries sell them only with the complete family, and most customers buy one to six styles.
@@ -26,11 +28,11 @@ The deeper mismatch is conceptual. Type designers build a family as a design spa
 
 The answer is not to make customers think in sliders. It is to let them keep buying the styles they think in, and deliver the space between those styles. A purchase of Regular and Bold becomes a variable font spanning Regular to Bold, with the named instances still listed as the signposts. As vf-clamp's own design notes put it: not subfamilies, instance ranges.
 
-## The market chose variable
+## The web chose variable
 
 {{figure:adoption}}
 
-The share of mobile pages using a variable font rose from 11% in 2020 to 41% in 2025; desktop reached 39.4% ([Web Almanac 2025](https://almanac.httparchive.org/en/2025/fonts), [2022](https://almanac.httparchive.org/en/2022/fonts)). But the growth is driven by free fonts: Noto Sans JP, Roboto, Open Sans and Montserrat make up almost 60% of all variable font requests. Supply on the paid side is thin: variable fonts are 28% of the Google Fonts library but only 7% of Adobe Fonts ([Phinney, 2026](https://www.thomasphinney.com/2026/07/variable-font-ui-is-broken/)).
+The share of mobile pages using a variable font rose from 11% in 2020 to 41% in 2025; desktop reached 39.4% ([Web Almanac 2025](https://almanac.httparchive.org/en/2025/fonts), [2022](https://almanac.httparchive.org/en/2022/fonts)). But the growth is driven by free fonts: Noto Sans JP, Roboto, Open Sans and Montserrat make up almost 60% of all variable font requests. Supply on the paid side is thin: variable fonts are 28% of the Google Fonts library but only 7% of Adobe Fonts ([Phinney, 2026](https://www.thomasphinney.com/2026/07/variable-font-ui-is-broken/)). This shows the format is used where price is no barrier; it does not show that customers will pay for it. That question is open (see *Open questions*).
 
 ## What static buyers lose
 
@@ -55,7 +57,7 @@ We measured Inter 4 and Merriweather in WOFF2, comparing the total size of stati
 | Regular + Bold | Merriweather | 161 KB | **131 KB** (−18%) | 511 KB |
 | Seven weights | Inter 4 | 797 KB | **225 KB** (−72%) | 345 KB |
 
-The crossover comes at two styles. Keeping a free axis costs something: Inter with optical size kept is 250 KB for Regular to Bold, still smaller than the statics from three styles on, and Merriweather Regular to Bold with optical size kept is 238 KB, less than half the full variable font. Keeping width as well brings Merriweather back to 495 KB. So the rule is: **pin the axes the customer did not license, and keep the ones that add value for free.** A second check on five Fontsource families (Inter, Roboto, Open Sans, Montserrat and Source Sans 3, Latin subsets) found the same pattern: a variable font clamped to Regular–Bold was 0.4–0.5 times the size of the four equivalent static files. Where the range excludes the font's default, the saving against the full variable font shrinks to almost nothing (see *Engineering caveats*). Our measurement also reproduces vf-clamp's own figure: Inter's full WOFF2 at 345 KB falls to 250 KB clamped to weights 400–700, a 28% saving.
+The crossover comes at two styles. Keeping a free axis costs something: Inter with optical size kept is 250 KB for Regular to Bold, still smaller than the statics from three styles on, and Merriweather Regular to Bold with optical size kept is 238 KB, less than half the full variable font. Keeping width as well brings Merriweather back to 495 KB. So the rule is: **pin the axes the customer did not license, and keep the ones that add value for free.** Web fonts are usually subset, so we repeated the two-style test on Google Fonts' Latin range: two statics total 64,104 bytes; the clamped VF is 50,168 bytes, 22% smaller. Keeping optical size makes it 76,096 bytes, 19% larger than the statics, so for a two-style web buyer optical size is worth pinning. A second check on five Fontsource families (Inter, Roboto, Open Sans, Montserrat and Source Sans 3, Latin subsets) found the same pattern: a variable font clamped to Regular–Bold was 0.4–0.5 times the size of the four equivalent static files. Where the range excludes the font's default, the saving against the full variable font shrinks to almost nothing (see *Engineering caveats*). Our measurement also reproduces vf-clamp's own figure: Inter's full WOFF2 at 345 KB falls to 250 KB clamped to weights 400–700, a 28% saving.
 
 ## What a two-style buyer pays
 
@@ -120,13 +122,13 @@ The same year Andrew Johnson suggested "allowing people to pick what areas of th
 
 fontTools' instancer restricts an axis to a new minimum and maximum, for example \`wght=400:700\`, and returns a valid variable font covering only that range ([fontTools docs](https://fonttools.readthedocs.io/en/latest/varLib/instancer.html)). In our tests it also prunes the font's tables: clamped to 400–700, Inter keeps only the Regular, Medium, SemiBold and Bold named instances, and its STAT table drops Thin, Light, ExtraBold and Black while keeping the optical-size values. That is what keeps unbought styles out of application menus.
 
-Clamping sells a range, not a set of styles: a Light-and-Bold purchase also delivers the weights in between. Seen this way, today's static font is a variable font clamped to a single point, and the range model includes it.
+Clamping sells a range, not a set of styles: a Light-and-Bold purchase also delivers the weights in between. In licensing terms, today's static licence is a range of one point, and the range model includes it. As files they still differ: foundry statics may carry hinting and hand corrections that an instance does not.
 
-Nobody serves ranges yet either. We tested the [Google Fonts CSS2 API](https://developers.google.com/fonts/docs/css2): Inter requested at \`wght@100..900\`, \`400..700\` or \`500..600\` returns the same 85,272-byte file. Google and [Fontsource](https://fontsource.org/docs/getting-started/variable) drop or pin whole axes on the fly; neither narrows a range. [vf-clamp](https://vfclamp.com) is one implementation of the full pipeline, as an npm package, CLI, REST API and plugins for Glyphs, RoboFont and VS Code.
+Nobody serves ranges yet either. We tested the [Google Fonts CSS2 API](https://developers.google.com/fonts/docs/css2): Inter requested at \`wght@100..900\`, \`400..700\` or \`500..600\` returns the same file: a 48,432-byte Latin subset whose weight axis still runs 100–900 (tested 4 October 2026 with a Chrome 140 user agent). Adding \`opsz\` or \`text=\` changes the subset, never the range. Google and [Fontsource](https://fontsource.org/docs/getting-started/variable) drop or pin whole axes on the fly; neither narrows a range. [vf-clamp](https://vfclamp.com) is one implementation of the full pipeline, as an npm package, CLI, REST API and plugins for Glyphs, RoboFont and VS Code.
 
 ## Licensing language
 
-Most licences cannot yet express a range. We read 35 foundry and distributor EULAs in October 2026: 27 never mention variable fonts at all, including 15 of the 20 subfamily-VF sellers whose licences we could read, and four mention them only as a file format. Most define the licence as a set of files, so their blanket bans on modification technically forbid the instancing a range workflow depends on. Commercial Type forbids "creating additional weights"; Production Type forbids "the creation of additional weights, styles, or variations". Others already point the way:
+Most licences cannot yet express a range. We read 35 foundry and distributor EULAs in October 2026: 27 never mention variable fonts at all, including 15 of the 20 subfamily-VF sellers whose licences we could read, and four mention them only as a file format. Most define the licence as a set of files, so their blanket bans on modification technically forbid a customer from clamping or subsetting a file further. Commercial Type forbids "creating additional weights"; Production Type forbids "the creation of additional weights, styles, or variations". Others already point the way:
 
 - **BAL Foundry** grants and fences in one clause: "For Variable Font formats, the use and generation of instances within the permitted licensed scope is allowed. However, extraction or reconstruction of axis data, modification of the variation space or interpolation models … is strictly prohibited" ([BAL EULA](https://www.bal-foundry.com/eula)).
 - **Displaay** ties axis rights to the invoice: buyers of the "Variable" option "are allowed to modify the available axes of the variable Fonts" ([Displaay](https://displaay.net/help/licenses)).
@@ -137,11 +139,11 @@ A range licence needs four parts. **Scope:** the licensed axis ranges, or the na
 
 ## Delivery and app support
 
-**In applications.** Apps fall into two groups. Adobe Illustrator, Photoshop and InDesign, Figma, Affinity, Sketch and CorelDRAW let users choose any in-between value; Microsoft Word, PowerPoint, Apple Keynote and Pages "show only the styles the foundry chose to name" ([FontLab, 2026](https://blog.fontlab.com/2026/09/02/transtype-5/)). Windows exposes named instances only, projected through the STAT table ([Microsoft](https://learn.microsoft.com/en-us/windows/win32/directwrite/opentype-variable-fonts)). For a range licence both groups behave well: a file clamped to Regular–Bold shows exactly the purchased named styles in Word, and a 400–700 slider in InDesign or Figma. Slider interfaces themselves remain rough ([Phinney, 2026](https://www.thomasphinney.com/2026/07/variable-font-ui-is-broken/)), which is one more reason to ship the statics alongside.
+**In applications.** Apps fall into two groups. Adobe Illustrator, Photoshop and InDesign, Figma, Affinity, Sketch and CorelDRAW let users choose any in-between value; Microsoft Word, PowerPoint, Apple Keynote and Pages "show only the styles the foundry chose to name" ([FontLab, 2026](https://blog.fontlab.com/2026/09/02/transtype-5/)). Windows exposes named instances only, projected through the STAT table ([Microsoft](https://learn.microsoft.com/en-us/windows/win32/directwrite/opentype-variable-fonts)). For a range licence both groups behave well: a file clamped to Regular–Bold lists only the named styles inside the range. We checked with macOS CoreText, the text system behind Pages and Keynote: full Inter lists nine weights, while Inter clamped to Regular–Bold lists Regular, Medium, SemiBold and Bold, with a 400–700 weight axis. InDesign and Figma show a 400–700 slider. Slider interfaces themselves remain rough ([Phinney, 2026](https://www.thomasphinney.com/2026/07/variable-font-ui-is-broken/)), which is one more reason to ship the statics alongside.
 
-**On the web.** CSS already treats a clamped file correctly: weights outside the font's range are "clamped to the closest value supported by the font" ([CSS Fonts 4](https://www.w3.org/TR/css-fonts-4/)), so \`font-weight: 900\` on a Regular–Bold file renders at Bold rather than failing. The W3C's Incremental Font Transfer standard, a Candidate Recommendation since November 2025, can segment "design-variation space" into partial axis ranges ([IFT](https://www.w3.org/TR/IFT/)), but no browser ships it yet ([Chrome Status](https://chromestatus.com/feature/5135917565214720)), and it is a transfer mechanism, not a licence boundary.
+**On the web.** CSS already treats a clamped file correctly: weights outside the font's range are "clamped to the closest value supported by the font" ([CSS Fonts 4](https://www.w3.org/TR/css-fonts-4/)), so \`font-weight: 900\` on a Regular–Bold file renders at Bold rather than failing, provided \`@font-face\` declares \`font-weight: 400 700\`; without that descriptor browsers may synthesise a fake bold. The W3C's Incremental Font Transfer standard, a Candidate Recommendation since November 2025, can segment "design-variation space" into partial axis ranges ([IFT](https://www.w3.org/TR/IFT/)), but no browser ships it yet ([Chrome Status](https://chromestatus.com/feature/5135917565214720)), and it is a transfer mechanism, not a licence boundary.
 
-**Engineering caveats.** Clamping is reliable but not free of edge cases. If the purchased range excludes the font's default instance (Montserrat and Source Sans 3 default to their lightest weight), the default must move, the file saves little or nothing over the full VF, and the name table must be rewritten so the font is not still called "Thin". A purchase of Regular and Bold delivers Medium and SemiBold as named instances too, because a range is continuous. Partial instancing of the newest formats (avar2, VARC) arrived in fontTools only in 2026 ([release notes](https://github.com/fonttools/fonttools/releases)). A delivery pipeline should validate names and STAT after every clamp.
+**Engineering caveats.** Clamping is reliable but not free of edge cases. If the purchased range excludes the font's default instance (Montserrat and Source Sans 3 default to their lightest weight), the default must move, the file saves little or nothing over the full VF, and the name table must be rewritten so the font is not still called "Thin". A purchase of Regular and Bold delivers Medium and SemiBold as named instances too, because a range is continuous. Partial instancing of the newest formats (avar2, VARC) arrived in fontTools only in 2026 ([release notes](https://github.com/fonttools/fonttools/releases)). A delivery pipeline should validate names and STAT after every clamp, and set a per-order unique ID (name ID 3), which vf-clamp leaves unchanged. Clamping limits what a file contains, not what can be computed: in a simple two-master design, the remaining deltas can be extrapolated past the range. The file makes the scope clear; the licence's fence does the enforcing. Speed is not a constraint: clamping and saving a Latin Inter took about 3 seconds, and a family has few possible ranges, so files can be cached.
 
 ## Objections, answered
 
@@ -149,13 +151,13 @@ The strongest objections come from TypeDrawers itself.
 
 | Objection | Answer |
 | --- | --- |
-| "Slicing up variable fonts … would make the retail aspects much more complicated" (Phinney, 2016) | It is one fontTools call at checkout. Customers still pick named styles; no new SKUs are needed. |
+| "Slicing up variable fonts … would make the retail aspects much more complicated" (Phinney, 2016) | The clamp is one fontTools call, about 3 seconds, plus name and STAT validation. Customers still pick named styles. Pricing the in-between styles is the real decision (see *Open questions*). |
 | Sellers of slices "will, before long, be undercut by someone who selling the whole thing as a unit" (Kosofsky, 2016) | Sell both: the range now, the full space as the upgrade. 22 foundries already sell subfamily VFs alongside families. |
-| Cheap VFs will "erode the price of buying a complete family" (Shinn, 2022) | Phinney's reply: "is that a problem, and if so, why?" The partial buyer was never going to buy the family. |
+| Cheap VFs will "erode the price of buying a complete family" (Shinn, 2022) | Phinney's reply: "is that a problem, and if so, why?" Whether partial buyers would otherwise buy the family is untested; 22 foundries already take that risk with subfamily VFs. |
 | File-size benefits hold "only sometimes" (Constable, 2021) | True for a full VF. Clamped, the VF wins from two styles. |
 | Between two masters there are infinite weights, so a range is worth more | Customers pay for styles they can name. A premium is fair; the full-family price is not. |
 | Desktop apps handle variable fonts badly | True today. Ship the VF alongside the statics, not instead of them. |
-| "I see no evidence that variable fonts are something my customers want" (Butterick) | They want the styles they use, and the web adopted variable fonts where they were free: 41% of mobile pages. Full-family pricing hides the demand. |
+| "I see no evidence that variable fonts are something my customers want" (Butterick) | They want the styles they use, and the web adopted variable fonts where they were free: 41% of mobile pages. Whether full-family pricing hides paid demand is a hypothesis; a foundry pilot could test it. |
 
 Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-and-licensing), [4329](https://typedrawers.com/discussion/4329/variable-fonts), [4252](https://typedrawers.com/discussion/4252/).
 
@@ -174,7 +176,7 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 
 **For licence authors**
 
-6. Define a variable-font licence by design space, in four parts: scope on the invoice, a grant for instances inside it, a right to optimise, and a fence against widening (see *Licensing language*). 77% of the licences we read never mention variable fonts.
+6. Define a variable-font licence by design space, in four parts: scope on the invoice, a grant for instances inside it, a right to optimise, and a fence against widening (see *Licensing language*). 27 of the 35 licences we read, a sample weighted towards VF sellers, never mention variable fonts.
 7. Say explicitly that customers may subset or clamp a font further for performance. Blanket bans on modification currently forbid it by accident.
 
 ## Open questions
@@ -183,13 +185,17 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 - **Is usage-based pricing the better model?** Yehang Yin proposes "infinite style variations with a more reasonable usage-based pricing model" ([ATypI 2025](https://atypi.org/presentation/towards-infinite-styles-do-we-even-need-fonts/)). A range licence keeps today's style-based purchase; usage pricing replaces it.
 - **What remains unclassified?** 32 foundries could not be settled from public pages; 130 foundries that neither our first pass nor the directory flagged as selling VFs were not re-checked.
 - **Should upright/italic splits count?** 15 foundries sell sub-designs as separate full-range VFs. A looser definition would raise the precedent count from 22 to 37.
-- **How do clamped files behave in desktop apps?** The tables are pruned correctly at the file level; Word, InDesign and Figma behaviour still needs testing.
+- **How do clamped files behave in desktop apps?** macOS CoreText lists exactly the named styles in range. Word on Windows, InDesign and Figma still need testing.
+- **Does a range VF add revenue or cannibalise families?** No foundry publishes this. A pilot with one foundry, offering the clamped VF as an add-on, would answer it.
+- **What about non-adjacent purchases?** Light and Black span the whole weight axis. Foundries can sell such pairs as statics only, or price the span.
 
 ## Method
 
 **Survey.** The full list of 394 foundries was extracted from typefoundry.directory in October 2026. Each foundry was screened for variable fonts, and every seller's buy pages, licences and store data (including public store APIs such as Fontdue GraphQL and Shopify product JSON) were read and classified. A second, adversarial pass re-checked every category; 27 classifications changed. A "subfamily VF" must drop, pin or narrow an axis of a larger variable font in the same family and be obtainable without the complete family.
 
-**Benchmark.** Inter 4 (vf-clamp's test fixture, \`wght\` 100–900 and \`opsz\` 14–32) and Merriweather (the Type Tools display face, \`wght\` 300–900, \`wdth\` 87–112, \`opsz\` 7–144) were instanced with fontTools 4.63. Static sizes are full instances at each named instance's coordinates; clamped sizes restrict \`wght\` to the purchased span with other axes either pinned or kept. All files are WOFF2.
+**Benchmark.** Inter 4 (vf-clamp's test fixture, \`wght\` 100–900 and \`opsz\` 14–32) and Merriweather (the Type Tools display face, \`wght\` 300–900, \`wdth\` 87–112, \`opsz\` 7–144) were instanced with fontTools 4.63. Static sizes are full instances at each named instance's coordinates; clamped sizes restrict \`wght\` to the purchased span with other axes either pinned or kept. All files are WOFF2. Statics were generated with the instancer, not taken from foundry releases, so they are unhinted. The Latin check subset each file to Google Fonts' latin unicode range before instancing.
+
+**Google Fonts.** CSS2 API requests for Inter at three weight ranges, with and without \`opsz\` and \`text=\`, were made with a Chrome 140 user agent on 4 October 2026; each returned file's \`fvar\` table was read with fontTools.
 
 **Licences.** 35 EULAs from the subfamily-VF sellers and major foundries and distributors were read in full and coded for variable-font clauses, the licensed unit, instance generation and modification rights.
 

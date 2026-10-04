@@ -1,0 +1,40 @@
+// Speaker script for the talk "Sell the Styles, Ship the Space": one entry per slide, shared by the deck (presenter notes) and the transcript page.
+
+/** One slide's script: its deck id, a human label, and the spoken text with [bracketed] cues for builds and cuts. */
+export interface ScriptEntry {
+	id: string
+	label: string
+	text: string
+}
+
+/** The script in slide order. */
+export const SCRIPT: ScriptEntry[] = [
+	{ id: 'cover', label: 'Sell the Styles, Ship the Space', text: 'Three axes of one variable font. Weight stops at the range a customer bought, 400 to 700; width and optical size stay free. That is the whole talk: let customers keep buying styles, and ship them the space between.' },
+	{ id: 'hook', label: 'The problem', text: 'You license two styles, Regular and Bold. You get two static files. [Next] You could have had one variable font, scoped to exactly that range. [Next] Everything a variable font does inside your licence, and no styles outside it. Almost nobody sells this.' },
+	{ id: 'unused', label: 'Made, not licensed', text: 'Nearly every foundry makes variable fonts. Almost nobody licenses them. [Next] Kris Sowersby, of Klim: maybe four requests since launch. [Next] Type Network: not exactly burning up the charts. [Next] And Sowersby says why: they have to be priced as the full family.' },
+	{ id: 'price', label: 'The price', text: 'Why? Price. [Next] Mark Simonson: only a tiny percent of customers buy a whole family; most buy one to six styles. Klim: about half its sales are singles or pairs. [Next] So a two-style buyer pays one and a half to six times more to get a variable font. At Dalton Maag that is 95 pounds against 63 for two singles; the full design space is 380.' },
+	{ id: 'styles', label: 'Styles and spaces', text: 'There is a deeper mismatch. Designers think in named styles. Foundries build design spaces. [Next] Nick Shinn: dropping the names Regular and Bold seems impossible. [Next] John Hudson: named instances are signposts, pins on a map. So don’t make designers think in sliders. Sell the styles they think in, and ship the space anyway.' },
+	{ id: 'adoption', label: 'The web went variable', text: 'Meanwhile the web went variable: 11 percent of mobile pages in 2020, 41 percent in 2025. But almost 60 percent of those requests are four free families. That proves the format works when price is no barrier. Whether people will pay for it is still untested.' },
+	{ id: 'suite', label: 'What static buyers lose', text: 'Partial buyers lose more than bytes. Of our own type tools, three do nothing without a variable font, and five lose their main effect. [Next ×3] [Next] hoverBoldly is the clearest number: bolding a word on hover shifts the line 5.8 pixels with statics, and zero with a variable font.' },
+	{ id: 'crossover', label: 'File size', text: 'And the file-size objection flips once the font is clamped. Here is Inter: each static style adds about 110 kilobytes. [Next] Clamped to the weights bought, the variable font wins at two styles, 173 KB against 226, and is 72 percent smaller at seven. On a Latin web subset it is still 22 percent smaller at two. [Next] Keeping optical size costs more; it wins from three styles on. So pin the axes the customer did not license, and keep free ones where they pay for themselves.' },
+	{ id: 'survey', label: 'The survey', text: 'So how are variable fonts actually sold? We checked all 394 foundries in the Type Foundry Directory. [Next] Buy pages, licences, store data. [Next] Then a second pass tried to overturn every classification; 27 changed.' },
+	{ id: 'funnel', label: '394 foundries', text: 'Of 394 foundries, [Next] 227 sell variable fonts. [Next] 119 offer one without the complete family, usually a full-range product at the family price. [Next] 22 sell a smaller variable font, and every one is a complete subfamily. [Next] And zero scope a variable font to the styles a customer bought.' },
+	{ id: 'precedent', label: 'Precedent', text: 'Smaller variable fonts already exist: 22 foundries sell them. Every one is a complete subfamily: one width, one optical size, upright only. NaN’s licence even promises a variable font covering the styles bought, but only for whole subfamilies. They cost about a third of the family, and these foundries still sell families.' },
+	{ id: 'gap', label: 'The gap', text: 'This is the gap. Zero foundries scope a variable font to the styles you bought. Buy Regular and Bold, ask for Regular to Bold, and no store will sell it to you. Not subfamilies: instance ranges.' },
+	{ id: 'asked', label: 'Asked for since 2015', text: 'The idea is older than the format. In 2015 Nick Sherman proposed licensing ranges: Light to Medium should cost less than Thin to Black. [Next] In 2018 John Hudson asked for a design-space subsetting tool. [Next] In 2022 Nick Shinn asked for a distributor app that generates a variable font with only the weights requested. [Next] That same year fontTools shipped range instancing. Nobody has built the shop. Range pricing is not new; delivering the matching file is.' },
+	{ id: 'opportunity', label: 'Every piece exists', text: 'Every piece already exists. [Next] 22 foundries license part of a design space. [Next] Fontdue already builds a file per order. [Next] And Google Fonts cuts variable fonts at delivery, but only whole axes: ask for weight 400 to 700 and you still get 100 to 900. Narrowing the range is something fontTools already does.' },
+	{ id: 'how', label: 'How it works', text: 'So: sell the styles, ship the space. [Next ×4] The customer buys named styles. At checkout the variable font is clamped to the span of what they bought. Unlicensed axes are pinned; free ones like optical size can stay. In Keynote or Pages, the menu lists Regular through Bold, including the Medium and SemiBold between them. That is what a range is, and the price should say so. [Next] In licensing terms, a static is just a range of one point.' },
+	{ id: 'demo', label: 'Is it practical?', text: 'Is it practical? Full disclosure: vf-clamp is ours, but underneath it is plain fontTools. [Cut to live demo on vfclamp.com: load a font, pick Regular and Bold, download, show the weight stopping at the limits.] The clamp takes about three seconds, and each range can be cached.' },
+	{ id: 'objections', label: 'Objections', text: 'The objections are old and fair. Phinney: slicing complicates retail. The clamp is one call; pricing the styles in between is the real decision. Shinn: cheap variable fonts erode family prices. 22 foundries sell subfamily variable fonts and still sell families, though nobody publishes the numbers. Kosofsky: sell the whole toolkit. Sell both: the range now, the space as the upgrade. Constable: two statics are often smaller. Clamped, they aren’t.' },
+	{ id: 'ask', label: 'Three asks', text: 'Three asks. Foundries: keep selling styles, and ship the variable font for the range bought. [Next] Storefronts: add a clamp step at fulfilment, and run one pilot to measure demand. [Next] Licence authors: 27 of the 35 licences we read never mention variable fonts. Put the licensed range on the invoice, grant any instance inside it, fence the rest. BAL Foundry’s licence already does most of this.' },
+	{ id: 'close', label: 'Close', text: 'Designers will keep thinking in styles, and that is fine. Foundries can keep selling styles. They just need to ship the space between them. Thank you.' },
+	{ id: 'about', label: 'Who we are', text: 'Who we are. We’re Overpunch. We make type tools for the web: techniques CSS alone can’t do. vf-clamp is one of twenty. Try it at vfclamp.com or inside your editor, with plugins for Glyphs, RoboFont and VS Code, a CLI and an npm package. The paper and the survey data are at vfclamp.com/talk/paper.' },
+]
+
+/** Script text keyed by slide id, for the deck's presenter notes. */
+export const SCRIPT_NOTES: Record<string, string> = Object.fromEntries(SCRIPT.map(e => [e.id, e.text]))
+
+/** Strips [bracketed] build and cut cues, leaving only the spoken words. */
+export function spoken(text: string): string {
+	return text.replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim()
+}

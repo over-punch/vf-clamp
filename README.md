@@ -29,8 +29,8 @@ A variable font is usually all-or-nothing: customers buy the whole family to get
 Why it matters:
 
 - **A new revenue tier** — two adjacent styles become a variable purchase, not just two statics. Price a ladder: two-style VF → subfamily → full family.
-- **Licence containment** — a full VF ships every master, so customers can reach weights they never paid for. A clamped VF physically contains only the purchased range — nothing outside the licence is left in the file to leak.
-- **Branded, traceable files** — the name table (family, full name, PostScript name) is rewritten to the purchased range, so every delivered file is identifiable as that specific order.
+- **Licence scope you can see** — a full VF exposes every weight, including ones the customer never paid for. A clamped VF's axes, named instances and STAT entries stop at the purchased range, so the file matches the invoice. (A determined user could still extrapolate simple two-master designs past the range; the licence's terms do the enforcing.)
+- **Named for the purchase** — the name table (family, full name, PostScript name) is rewritten to the purchased range, so the file is identifiable as that range. It does not identify the order: name ID 3 is left unchanged, so add a watermark or unique ID at fulfilment if you need per-order tracing.
 - **Lighter files for the web** — a site that uses only Medium–Black shouldn't ship Thin–Light deadweight. Clamping prunes masters outside the licensed range: variation across what they bought, at a smaller download.
 - **Sell bespoke cuts** — pin an axis to a coordinate that was never a named instance (a custom optical size or width) and sell that exact cut, without shipping it in the retail family.
 - **Ready for `opsz` demand** — browsers drive the optical-size axis automatically via `font-optical-sizing: auto`, keyed off the rendered point size. Delivering `opsz` clamped to a usable range keeps files small as that axis matters more.
@@ -152,7 +152,7 @@ const { axes, instances } = await getInstances(text.buffer)
 // instances: Regular, Medium, SemiBold, Bold   (the 5 outside the range are gone)
 ```
 
-The output is a valid variable font you can drop into a build or hand to a customer: masters outside the range are physically removed, so nothing past the licence is reachable in the file.
+The output is a valid variable font you can drop into a build or hand to a customer: variation data is restricted to the range, and named instances and STAT values outside it are removed, so font menus show only what was bought.
 
 ---
 
