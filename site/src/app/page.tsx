@@ -34,7 +34,7 @@ export default function Home() {
 			</Hero>
 
 			{/* Interactive demo */}
-			<section id="demo" className="scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
+			<section id="demo" className="scroll-mt-28 sm:scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-4">
 				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Interactive demo</h2>
 				<p className="text-sm text-muted leading-relaxed max-w-lg">
 					This is what a customer&rsquo;s purchase produces. Load Encode Sans or drop any variable
@@ -49,7 +49,7 @@ export default function Home() {
 			</section>
 
 			{/* Integrations */}
-			<section id="plugins" className="scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+			<section id="plugins" className="scroll-mt-28 sm:scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">Integrations</h2>
 				<p className="text-sm text-muted leading-relaxed max-w-lg">
 					vf-clamp is available as a CLI, and as native plugins for Glyphs.app, RoboFont, and VS Code —
@@ -148,7 +148,7 @@ export default function Home() {
 			</section>
 
 			{/* For foundries */}
-			<section id="foundries" className="scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+			<section id="foundries" className="scroll-mt-28 sm:scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">For foundries</h2>
 				<p className="text-base text-muted leading-relaxed max-w-xl">
 					Today a variable font is almost always all-or-nothing: customers buy the whole family
@@ -237,7 +237,7 @@ export default function Home() {
 			</section>
 
 			{/* Research — the talk, paper and survey behind the tool */}
-			<section id="research" className="scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+			<section id="research" className="scroll-mt-28 sm:scroll-mt-20 w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">The research</h2>
 				<p className="text-base text-muted leading-relaxed max-w-xl">
 					<em>Sell the Styles, Ship the Space</em> — a talk and paper on why variable fonts should
