@@ -56,7 +56,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				/>
 			</head>
 			<body className="min-h-full flex flex-col">
-				<SiteHeader current="vfClamp" githubUrl="https://github.com/over-punch/vf-clamp" />{children}</body>
+				<SiteHeader
+					current="vfClamp"
+					sections={[
+						{ label: "Demo", href: "/#demo" },
+						{ label: "Plugins", href: "/#plugins" },
+						{ label: "Foundries", href: "/#foundries" },
+						{ label: "Paper", href: "/talk/paper" },
+					]}
+					npmUrl="https://www.npmjs.com/package/@overpunch/vf-clamp"
+					githubUrl="https://github.com/over-punch/vf-clamp"
+				/>{children}</body>
 		</html>
 	)
 }
