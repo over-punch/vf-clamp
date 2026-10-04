@@ -68,7 +68,7 @@ delivered file is identifiable as the purchased range:
 | 16     | Preferred family   | same as 1 (if present)   |
 | 25     | Variations PS prefix | same as 6 (if present) |
 
-nameIDs 2 (Subfamily), 3 (Unique ID), 5 (Version), 7–14 (legal/designer) are NOT changed.
+nameID 2 (Subfamily) is reset to 'Regular' and nameID 3 (Unique ID) is rewritten to `version;psName;family` (per range, not per order). nameIDs 5 (Version) and 7–14 (legal/designer) are NOT changed.
 
 ---
 
