@@ -75,7 +75,7 @@ export function CrossoverFigure() {
 	const series = [
 		{ label: 'Static fonts', d: path(CROSSOVER.statics), end: CROSSOVER.statics[8], style: { stroke: 'var(--foreground-subtle)', strokeWidth: 2 } },
 		{ label: 'Full VF', d: `M${x(1)} ${y(CROSSOVER.full)} L${x(9)} ${y(CROSSOVER.full)}`, end: CROSSOVER.full, style: { stroke: 'var(--foreground-faint)', strokeWidth: 1.5, strokeDasharray: '5 5' } },
-		{ label: 'Clamped, opsz kept', d: path(CROSSOVER.clampedOpsz), end: CROSSOVER.clampedOpsz[8], style: { stroke: 'var(--foreground-muted)', strokeWidth: 2 } },
+		{ label: 'Clamped + opsz', d: path(CROSSOVER.clampedOpsz), end: CROSSOVER.clampedOpsz[8], style: { stroke: 'var(--foreground-muted)', strokeWidth: 2 } },
 		{ label: 'Clamped VF', d: path(CROSSOVER.clamped), end: CROSSOVER.clamped[8], style: { stroke: 'var(--foreground)', strokeWidth: 3 } },
 	]
 	return (
@@ -84,11 +84,11 @@ export function CrossoverFigure() {
 			<svg viewBox="0 0 700 270" className="w-full h-auto" role="img" aria-label="Inter 4 WOFF2 size by styles bought: static fonts grow from 111 KB to 1,020 KB; a weight-clamped variable font grows from 111 KB to 234 KB; the full variable font is 345 KB.">
 				<line x1="40" x2="530" y1="230" y2="230" strokeWidth="1" style={{ stroke: 'var(--foreground)', strokeOpacity: 0.15 }} />
 				{series.map(s => <path key={s.label} d={s.d} fill="none" strokeLinecap="round" strokeLinejoin="round" style={s.style} />)}
-				{series.map(s => <text key={s.label} x={540} y={y(s.end) + (s.label === 'Full VF' ? -9 : s.label === 'Clamped, opsz kept' ? 16 : 4)} fontSize="12" style={{ fill: s.label === 'Clamped VF' ? 'var(--foreground)' : 'var(--foreground-muted)' }}>{s.label} · {s.end} KB</text>)}
+				{series.map(s => <text key={s.label} x={540} y={y(s.end) + (s.label === 'Full VF' ? -9 : s.label === 'Clamped + opsz' ? 5 : 8)} fontSize="12" style={{ fill: s.label === 'Clamped VF' ? 'var(--foreground)' : 'var(--foreground-muted)' }}>{s.label} · {s.end} KB</text>)}
 				{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => <text key={k} x={x(k)} y={250} textAnchor="middle" fontSize="11" style={{ fill: 'var(--foreground-subtle)' }}>{k}</text>)}
 				<text x={40} y={268} fontSize="11" style={{ fill: 'var(--foreground-subtle)' }}>Styles bought, from Regular upward</text>
 			</svg>
-			<Caption>Inter 4 (wght 100–900, opsz 14–32), WOFF2, fontTools 4.63 instancer, October 2026. “Clamped VF” pins opsz like the statics; “opsz kept” keeps it variable.</Caption>
+			<Caption>Inter 4 (wght 100–900, opsz 14–32), WOFF2, fontTools 4.63 instancer, October 2026. “Clamped VF” pins opsz like the statics; “Clamped + opsz” keeps it variable.</Caption>
 		</div>
 	)
 }
