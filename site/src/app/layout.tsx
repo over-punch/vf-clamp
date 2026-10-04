@@ -15,7 +15,7 @@ const inter = localFont({
 export const metadata: Metadata = {
 	title: "vf-clamp — Restrict variable font axis ranges | Type Tools",
 	icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/icon.svg" },
-	description: "Deliver a variable font scoped to the instances a customer bought. Restrict axes, pin values, rewrite the name table, download scoped VFs. Powered by fonttools via Pyodide WASM.",
+	description: "Deliver a variable font scoped to the styles a customer bought — never a style they didn't. Restrict axes, pin values, rewrite the name table, download scoped VFs. Powered by fonttools via Pyodide WASM.",
 	keywords: ["variable font", "vf-clamp", "font instancer", "axis range", "named instances", "typography", "npm", "fonttools", "pyodide", "wasm", "woff2", "design space", "font subsetting", "micro-vf", "font licensing", "per-instance licensing", "font delivery", "foundry tools", "type foundry", "liiift"],
 	openGraph: {
 		title: "vf-clamp — Restrict variable font axis ranges | Type Tools",

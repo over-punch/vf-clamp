@@ -3,6 +3,7 @@ import Image from "next/image"
 import CodeBlock from "../components/CodeBlock"
 import Hero from "../components/Hero"
 import SiteFooter from "../components/SiteFooter"
+import Link from "next/link"
 import Demo from "../components/Demo"
 import { version } from "../../../package.json"
 import { version as siteVersion } from "../../package.json"
@@ -20,7 +21,7 @@ export default function Home() {
 				tech={["TypeScript", "fonttools varLib.instancer", "Pyodide WASM", "TTF · OTF · WOFF · WOFF2"]}
 			>
 				<p className="text-base leading-relaxed max-w-lg">
-					Deliver a variable font scoped to exactly the instances a customer bought — not
+					Deliver a variable font scoped to the styles a customer bought — not
 					the whole family. vf-clamp is the delivery layer for per-purchase micro-VFs: a new
 					licensing tier between static styles and the full family.
 				</p>
@@ -150,17 +151,18 @@ export default function Home() {
 			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
 				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">For foundries</h2>
 				<p className="text-base text-muted leading-relaxed max-w-xl">
-					Today a variable font is all-or-nothing: customers buy the whole family to get one,
-					or they buy statics and lose interpolation entirely. vf-clamp adds the tier in
-					between — a variable font scoped to exactly the named instances a customer purchased,
-					generated and delivered at checkout.
+					Today a variable font is almost always all-or-nothing: customers buy the whole family
+					to get one, or they buy statics and lose interpolation entirely. vf-clamp adds the tier
+					in between — a variable font scoped to the named instances a customer purchased,
+					generated and delivered at checkout. It never hands over a named style that
+					wasn&rsquo;t bought.
 				</p>
 
 				{/* Purchase → Clamp → Deliver */}
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 					{[
-						{ n: "01", t: "Purchase", d: "A customer buys two or more adjacent styles — Light through Bold, or a single width across its weights." },
-						{ n: "02", t: "Clamp", d: "Your store POSTs the order to the vf-clamp API. The design space is clamped to the range of those instances; everything outside is pruned." },
+						{ n: "01", t: "Purchase", d: "A customer buys styles, as always. Adjacent ones (Light through Bold) become one VF; styles with unbought ones between them come back as separate files." },
+						{ n: "02", t: "Clamp", d: "Your store POSTs the order to the vf-clamp API. The design space is clamped to the range of those instances; variation outside it is dropped." },
 						{ n: "03", t: "Deliver", d: "A scoped VF comes back in seconds, name table rewritten to the purchased range, in the format the licence calls for." },
 					].map((step) => (
 						<div key={step.n} className="flex flex-col gap-2 rounded-xl p-5" style={{ background: "var(--panel)" }}>
@@ -184,20 +186,21 @@ export default function Home() {
 					</div>
 
 					<div className="flex flex-col gap-2 rounded-xl p-6" style={{ background: "var(--panel)" }}>
-						<span className="text-sm font-semibold">Licence containment</span>
+						<span className="text-sm font-semibold">Licence scope you can see</span>
 						<p className="text-xs text-muted leading-relaxed">
-							A full VF ships every master — customers can reach weights they never paid for.
-							A clamped VF physically contains only the purchased range. There&rsquo;s nothing
-							outside the licence left in the file to leak.
+							A full VF exposes every weight — including ones the customer never paid for. A
+							clamped VF&rsquo;s axes, named instances and STAT entries stop at the purchased
+							range, so the file matches the invoice. The licence&rsquo;s terms still do the
+							enforcing: simple two-master designs can be extrapolated past the range.
 						</p>
 					</div>
 
 					<div className="flex flex-col gap-2 rounded-xl p-6" style={{ background: "var(--panel)" }}>
-						<span className="text-sm font-semibold">Branded, traceable files</span>
+						<span className="text-sm font-semibold">Named for the purchase</span>
 						<p className="text-xs text-muted leading-relaxed">
-							The name table — family, full name, PostScript name — is rewritten to the
-							purchased range. Every delivered file is identifiable as that specific order,
-							which helps with support and tracing leaks.
+							The name table — family, full name, PostScript name, unique ID — is rewritten to
+							the purchased range, so menus and support tickets show exactly what was bought.
+							For per-order tracing, add a watermark or order ID at fulfilment.
 						</p>
 					</div>
 
@@ -205,8 +208,9 @@ export default function Home() {
 						<span className="text-sm font-semibold">Lighter files for the web</span>
 						<p className="text-xs text-muted leading-relaxed">
 							A site that uses only Medium&ndash;Black shouldn&rsquo;t ship Thin&ndash;Light
-							deadweight. Clamping prunes the masters outside the licensed range, so the
-							customer gets variation across what they bought — and a smaller download.
+							deadweight. Clamping drops the variation outside the licensed range: Inter
+							Regular&ndash;Bold clamped is 22% smaller than the two static files on a Latin
+							subset, and 72% smaller than the statics at seven styles.
 						</p>
 					</div>
 
@@ -229,6 +233,40 @@ export default function Home() {
 						</p>
 					</div>
 
+				</div>
+			</section>
+
+			{/* Research — the talk, paper and survey behind the tool */}
+			<section className="w-full max-w-2xl lg:max-w-5xl flex flex-col gap-6">
+				<h2 className="text-xs uppercase tracking-[0.18em] font-medium text-muted">The research</h2>
+				<p className="text-base text-muted leading-relaxed max-w-xl">
+					<em>Sell the Styles, Ship the Space</em> — a talk and paper on why variable fonts should
+					reach customers who buy styles. We checked all 394 foundries in the Type Foundry Directory.
+				</p>
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+					{[
+						{ n: "227", d: "sell variable fonts" },
+						{ n: "22", d: "sell a smaller, subfamily VF" },
+						{ n: "0", d: "scope a VF to the styles bought" },
+						{ n: "1.5–6×", d: "what a two-style buyer pays to get a VF today" },
+					].map((f) => (
+						<div key={f.d} className="flex flex-col gap-1 rounded-xl p-5" style={{ background: "var(--panel)" }}>
+							<span className="text-3xl" style={{ fontFamily: "var(--font-merriweather), serif", fontVariationSettings: '"wght" 300, "opsz" 72' }}>{f.n}</span>
+							<span className="text-xs text-muted leading-relaxed">{f.d}</span>
+						</div>
+					))}
+				</div>
+				<p className="text-sm text-muted leading-relaxed max-w-xl">
+					27 of the 35 licences we read never mention variable fonts. The paper sets out a four-part
+					range licence — scope on the invoice, a grant for instances inside it, a right to optimise,
+					and a fence against widening.
+				</p>
+				<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+					<Link href="/talk/paper" className="underline underline-offset-2 hover:text-foreground">Read the paper</Link>
+					<Link href="/talk" className="text-muted hover:text-foreground transition-colors">Slides ↗</Link>
+					<Link href="/talk/data" className="text-muted hover:text-foreground transition-colors">Survey data ↗</Link>
+					<Link href="/talk/transcript" className="text-muted hover:text-foreground transition-colors">Transcript ↗</Link>
+					<a href="/talk/sell-the-styles-ship-the-space.pdf" download className="text-muted hover:text-foreground transition-colors">PDF ↓</a>
 				</div>
 			</section>
 
@@ -420,8 +458,10 @@ X-API-Key: <your-key>
 						<p>
 							An output built from a single named instance — or from instances that all share the
 							same coordinates — pins every axis and removes it from the design space. The result
-							is a minimal font with no variation, not a variable font. Select at least two
-							instances with differing axis values to keep variation.
+							is a minimal font with no variation, not a variable font. Select a run of adjacent
+							instances to keep variation: the demo, like <code className="text-xs font-mono">planOutputs()</code>,
+							merges styles only when no unbought named style falls between them, so Regular and
+							Bold alone come back as two files.
 						</p>
 					</div>
 					<div className="flex flex-col gap-2">
