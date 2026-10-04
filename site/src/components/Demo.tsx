@@ -964,7 +964,7 @@ export default function Demo() {
 														isIsolated
 															? 'border-amber-400/60 bg-amber-400/5'
 															: isSelected
-															? 'border-foreground/40 bg-foreground/5'
+															? 'border-foreground/70 bg-foreground/15 text-foreground'
 															: 'border-foreground/15 text-muted hover:text-foreground hover:border-foreground/35',
 													].join(' ')}
 												>
