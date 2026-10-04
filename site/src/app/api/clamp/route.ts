@@ -10,6 +10,8 @@ interface ClampRequest {
 	outputs: OutputConfig[]
 	/** Output format — 'ttf' (default), 'otf', 'woff', or 'woff2' */
 	format?: OutputFormat
+	/** Refuse (422) any instances-based output whose range would include named instances that were not listed */
+	strict?: boolean
 }
 
 interface ClampResponseResult {
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
 		return badRequest('Request body must be valid JSON')
 	}
 
-	const { fontUrl, outputs, format } = body
+	const { fontUrl, outputs, format, strict } = body
 
 	if (!fontUrl || typeof fontUrl !== 'string') {
 		return badRequest('fontUrl is required and must be a string')
@@ -64,6 +66,10 @@ export async function POST(req: NextRequest) {
 
 	if (!Array.isArray(outputs) || outputs.length === 0) {
 		return badRequest('outputs must be a non-empty array')
+	}
+
+	if (strict !== undefined && typeof strict !== 'boolean') {
+		return badRequest('strict must be a boolean')
 	}
 
 	// Validate outputs shape
@@ -88,13 +94,18 @@ export async function POST(req: NextRequest) {
 	// Process
 	let clampResults
 	try {
-		clampResults = await clampFont(fontBuffer, { outputs, format })
+		clampResults = await clampFont(fontBuffer, { outputs, format, strict })
 	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err)
+		// Caller errors: a strict violation (422), or an unknown instance name / otf for a TrueType font (400)
+		if (message.includes('would include unselected instances')) {
+			return NextResponse.json({ error: message }, { status: 422 })
+		}
+		if (message.includes('not found in font') || message.includes("format 'otf'")) {
+			return badRequest(message)
+		}
 		console.error('clampFont failed:', err)
-		return NextResponse.json(
-			{ error: `Font processing failed: ${err instanceof Error ? err.message : String(err)}` },
-			{ status: 500 }
-		)
+		return NextResponse.json({ error: `Font processing failed: ${message}` }, { status: 500 })
 	}
 
 	// Encode results as base64
