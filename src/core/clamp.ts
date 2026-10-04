@@ -1,8 +1,7 @@
 // src/core/clamp.ts — clampFont() implementation wrapping @web-alchemy/fonttools
-import type { AxisValue, AxisDefinition, ClampOptions, ClampResult, FontInstance, OutputFormat } from './types.js'
+import type { AxisValue, ClampOptions, ClampResult, FontInstance, OutputFormat } from './types.js'
 import { convertToWoff, convertToWoff2 } from './convert.js'
 import { getInstances } from './instances.js'
-import { unboughtInstances } from './plan.js'
 import { preparePyodide, PyodideFile } from './pyodide.js'
 
 /**
@@ -356,7 +355,7 @@ function toPostScriptName(familyName: string): string {
 /**
  * Patch the name table of a font buffer to reflect the restricted instance range.
  * Updates nameIDs 1 (Family), 4 (Full name), 6 (PostScript), 16 and 25 if present.
- * Falls back to the original buffer if patching fails, and logs a warning.
+ * Throws if patching fails, so a file still carrying the retail names is never returned.
  */
 async function patchFontNames(buffer: Uint8Array, familyName: string): Promise<Uint8Array> {
 	if (!familyName) return buffer
@@ -565,14 +564,8 @@ export async function clampFont(
 
 	const format: OutputFormat = options.format ?? 'ttf'
 
-	// Read named instances once if any output uses the instances path
-	let fontInstances: FontInstance[] = []
-	let axisDefs: AxisDefinition[] = []
-	if (options.outputs.some((o) => o.instances?.length)) {
-		const result = await getInstances(bytes)
-		fontInstances = result.instances
-		axisDefs = result.axes
-	}
+	// Read axes and named instances once — needed for the instances path, the strict check and the default-range warning
+	const { instances: fontInstances, axes: axisDefs } = await getInstances(bytes)
 
 	const results: ClampResult[] = []
 
@@ -582,17 +575,24 @@ export async function clampFont(
 
 		if (output.instances?.length) {
 			axesConfig = computeHull(output.instances, fontInstances)
-			// strict: refuse an output whose range would hand over named instances that were not selected
-			if (options.strict) {
-				const extra = unboughtInstances({ axes: axisDefs, instances: fontInstances }, output.instances)
-				if (extra.length) {
-					throw new Error(`vf-clamp: output "${output.name ?? output.instances.join(', ')}" would include unselected instances (${extra.join(', ')}); use planOutputs() to split the selection`)
-				}
-			}
 		}
 
 		if (output.axes) {
 			axesConfig = { ...axesConfig, ...output.axes }
+		}
+
+		// strict: refuse an instances-based output whose final range (after any explicit axes) holds unselected named instances
+		if (options.strict && output.instances?.length) {
+			const listed = new Set(output.instances)
+			const extra = fontInstances.filter((inst) => !listed.has(inst.name) && axisDefs.every((ax) => {
+				const v = inst.coordinates[ax.tag] ?? ax.default
+				const c = axesConfig[ax.tag]
+				if (c === null || c === undefined) return true
+				return typeof c === 'number' ? v === c : v >= c.min && v <= c.max
+			})).map((inst) => inst.name)
+			if (extra.length) {
+				throw new Error(`vf-clamp: output "${output.name || output.instances.join(', ')}" would include unselected instances (${extra.join(', ')}); use planOutputs() to split the selection`)
+			}
 		}
 
 		// Warn if any axis default falls outside the restricted range — fonttools silently clamps it.
@@ -618,7 +618,7 @@ export async function clampFont(
 
 		// Derive name before patching so the name table reflects it
 		// Use ASCII hyphen (not en-dash) so toPostScriptName preserves the separator
-		const name = output.name ??
+		const name = output.name ||
 			(output.instances?.length
 				? output.instances.length === 1
 					? output.instances[0]
