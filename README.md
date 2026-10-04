@@ -433,15 +433,16 @@ X-API-Key: <your-key>
 
 | | `POST /api/clamp` | `POST /api/instances` |
 |---|---|---|
-| Body | `{ fontUrl, outputs, format? }`. Each output needs `instances`, `axes`, or both; `format` defaults to `'ttf'` | `{ fontUrl }` |
+| Body | `{ fontUrl, outputs, format?, strict? }`. Each output needs `instances`, `axes`, or both; `format` defaults to `'ttf'`; `strict` (boolean) works as in [`clampFont`](#clampfontinput-options) | `{ fontUrl }` |
 | `200` | `{ results: [{ name, data, format, size }] }`: `data` is the font **base64-encoded**, `size` is its length in **bytes** (decoded) | `{ axes: [...], instances: [...] }`, the same shape as `getInstances()` |
-| `400` | Body isn't JSON, `fontUrl` is missing, `outputs` is empty, an output has neither `instances` nor `axes`, or the font URL could not be fetched | Body isn't JSON, `fontUrl` is missing, or the font could not be fetched |
+| `400` | Body isn't JSON, `fontUrl` is missing, `outputs` is empty, an output has neither `instances` nor `axes`, `strict` isn't a boolean, an instance name isn't in the font, `'otf'` was requested for a TrueType font, or the font URL could not be fetched | Body isn't JSON, `fontUrl` is missing, or the font could not be fetched |
 | `401` | `X-API-Key` header missing or wrong | Same |
-| `500` | Processing failed: unknown instance name, `'otf'` for a TrueType font, a post-processing error. Nothing is returned for any output if one fails | Instance extraction failed |
+| `422` | `strict: true` and an output's range would include named instances that weren't listed; the message names them | — |
+| `500` | Processing failed (a post-processing error). Nothing is returned for any output if one fails | Instance extraction failed |
 
 Every error body is `{ "error": "<message>" }`. `fontUrl` is fetched server-side, so it must be reachable without cookies; a signed, expiring URL works. The service does not store your font.
 
-**Purchase-safe orders over HTTP.** The endpoint clamps exactly the outputs you send; it doesn't accept `strict` yet. Get the font's instances from `/api/instances`, group the customer's styles locally with [`planOutputs`](#selling-named-styles-safely) (a pure function, no Pyodide needed), then send those outputs to `/api/clamp`:
+**Purchase-safe orders over HTTP.** Send `strict: true` and the endpoint refuses (`422`) any output that would hand over an unbought style. To split a customer's selection into safe outputs, get the font's instances from `/api/instances`, group them locally with [`planOutputs`](#selling-named-styles-safely) (a pure function, no Pyodide needed), then send those outputs to `/api/clamp`:
 
 ```ts
 import { planOutputs } from '@overpunch/vf-clamp'
@@ -450,7 +451,7 @@ const headers = { 'X-API-Key': KEY, 'Content-Type': 'application/json' }
 const font = await (await fetch('https://vfclamp.com/api/instances', { method: 'POST', headers, body: JSON.stringify({ fontUrl }) })).json()
 const bought = ['Regular', 'Medium', 'SemiBold', 'Bold']   // the styles on the order
 const outputs = planOutputs(font, bought, 'Inter')   // never includes a style that wasn't bought
-const { results } = await (await fetch('https://vfclamp.com/api/clamp', { method: 'POST', headers, body: JSON.stringify({ fontUrl, outputs, format: 'woff2' }) })).json()
+const { results } = await (await fetch('https://vfclamp.com/api/clamp', { method: 'POST', headers, body: JSON.stringify({ fontUrl, outputs, format: 'woff2', strict: true }) })).json()
 const files = results.map((r) => ({ name: r.name, bytes: Buffer.from(r.data, 'base64') }))
 ```
 
