@@ -50,9 +50,15 @@ export interface ClampOptions {
 	/**
 	 * Output format — defaults to 'ttf'.
 	 * 'woff' and 'woff2' transcode the result to a web-compressed flavour.
-	 * 'otf' is a passthrough — the instancer preserves the input outline format.
+	 * 'otf' is a label, not a conversion — it requires a CFF/CFF2 source and throws for TrueType outlines.
 	 */
 	format?: OutputFormat
+	/**
+	 * Refuse any instances-based output whose range would include a named instance that was not listed
+	 * (e.g. Regular + Bold would also hand over Medium and SemiBold). Throws instead of clamping.
+	 * Use planOutputs() to split a customer's selection into safe outputs. Defaults to false.
+	 */
+	strict?: boolean
 	/**
 	 * Remap the wght axis so its minimum becomes 100, making CSS font-weight values
 	 * (100–900) work as expected. Instance and STAT axis value coordinates are
@@ -68,7 +74,7 @@ export interface ClampOptions {
 /**
  * Output format for clampFont() — defaults to 'ttf'.
  * 'woff' and 'woff2' transcode to web-compressed flavours.
- * 'otf' is a passthrough (no outline conversion); the instancer preserves the input flavour.
+ * 'otf' requires a CFF/CFF2 source (no outline conversion is done) and throws for TrueType outlines.
  */
 export type OutputFormat = 'ttf' | 'otf' | 'woff' | 'woff2'
 

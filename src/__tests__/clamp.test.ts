@@ -253,7 +253,8 @@ describe('clampFont', () => {
 	})
 
 	it('does not call any converter when format is otf', async () => {
-		const results = await clampFont(MOCK_INPUT, {
+		// 'OTTO' sfnt tag: a CFF-outline source, which 'otf' requires
+		const results = await clampFont(new Uint8Array([0x4f, 0x54, 0x54, 0x4f]), {
 			format: 'otf',
 			outputs: [{ name: 'Condensed', axes: { wdth: 75 } }],
 		})
@@ -261,6 +262,20 @@ describe('clampFont', () => {
 		expect(vi.mocked(convertToWoff2)).not.toHaveBeenCalled()
 		expect(vi.mocked(convertToWoff)).not.toHaveBeenCalled()
 		expect(results[0].format).toBe('otf')
+	})
+
+	it('rejects format otf for a TrueType-outline source', async () => {
+		await expect(clampFont(new Uint8Array([0, 1, 0, 0]), {
+			format: 'otf',
+			outputs: [{ name: 'Condensed', axes: { wdth: 75 } }],
+		})).rejects.toThrow("format 'otf' needs a CFF/CFF2 source")
+	})
+
+	it('throws instead of returning an unpatched file when name patching fails', async () => {
+		mockPatcherFn.mockImplementationOnce(() => { throw new Error('boom') })
+		await expect(clampFont(MOCK_INPUT, {
+			outputs: [{ name: 'Condensed', axes: { wdth: 75 } }],
+		})).rejects.toThrow('name table patching failed for "Condensed"')
 	})
 
 	describe('instances path', () => {

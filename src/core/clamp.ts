@@ -2,6 +2,7 @@
 import type { AxisValue, AxisDefinition, ClampOptions, ClampResult, FontInstance, OutputFormat } from './types.js'
 import { convertToWoff, convertToWoff2 } from './convert.js'
 import { getInstances } from './instances.js'
+import { unboughtInstances } from './plan.js'
 import { preparePyodide, PyodideFile } from './pyodide.js'
 
 /**
@@ -380,8 +381,7 @@ async function patchFontNames(buffer: Uint8Array, familyName: string): Promise<U
 		const result = outputFile.download()
 		return result as Uint8Array
 	} catch (err) {
-		console.warn(`vf-clamp: name table patching failed for "${familyName}" — returning unpatched buffer`, err)
-		return buffer
+		throw Object.assign(new Error(`vf-clamp: name table patching failed for "${familyName}"`), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -440,8 +440,7 @@ async function runStatPruner(bytes: Uint8Array): Promise<Uint8Array> {
 		const result = outputFile.download()
 		return result as Uint8Array
 	} catch (err) {
-		console.warn('vf-clamp: STAT prune failed — returning unpruned buffer', err)
-		return bytes
+		throw Object.assign(new Error('vf-clamp: STAT pruning failed'), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -468,8 +467,7 @@ async function runOs2Updater(bytes: Uint8Array): Promise<Uint8Array> {
 		const result = outputFile.download()
 		return result as Uint8Array
 	} catch (err) {
-		console.warn('vf-clamp: OS/2 + macStyle update failed — returning original buffer', err)
-		return bytes
+		throw Object.assign(new Error('vf-clamp: OS/2 and macStyle update failed'), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -496,8 +494,7 @@ async function runNormalizer(bytes: Uint8Array, newMin: number): Promise<Uint8Ar
 		const result = outputFile.download()
 		return result as Uint8Array
 	} catch (err) {
-		console.warn('vf-clamp: wght normalisation failed — returning unnormalised buffer', err)
-		return bytes
+		throw Object.assign(new Error('vf-clamp: wght normalisation failed'), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -537,6 +534,11 @@ function computeHull(
 		result[tag] = min === max ? min : { min, max }
 	}
 	return result
+}
+
+/** True when an sfnt buffer starts with the 'OTTO' tag (CFF/CFF2 outlines). */
+function isCffSfnt(buf: Uint8Array): boolean {
+	return buf.length >= 4 && buf[0] === 0x4f && buf[1] === 0x54 && buf[2] === 0x54 && buf[3] === 0x4f
 }
 
 /**
@@ -580,6 +582,13 @@ export async function clampFont(
 
 		if (output.instances?.length) {
 			axesConfig = computeHull(output.instances, fontInstances)
+			// strict: refuse an output whose range would hand over named instances that were not selected
+			if (options.strict) {
+				const extra = unboughtInstances({ axes: axisDefs, instances: fontInstances }, output.instances)
+				if (extra.length) {
+					throw new Error(`vf-clamp: output "${output.name ?? output.instances.join(', ')}" would include unselected instances (${extra.join(', ')}); use planOutputs() to split the selection`)
+				}
+			}
 		}
 
 		if (output.axes) {
@@ -617,6 +626,11 @@ export async function clampFont(
 				: 'output')
 
 		let buffer = await runInstancer(bytes, instancerAxes)
+
+		// 'otf' is a label, not a conversion: refuse it for TrueType-outline fonts rather than mislabel them
+		if (format === 'otf' && !isCffSfnt(buffer)) {
+			throw new Error("vf-clamp: format 'otf' needs a CFF/CFF2 source font; this font has TrueType outlines — use 'ttf'")
+		}
 
 		// Prune STAT records that reference axes pinned/removed by the instancer.
 		// Must run before OS/2 update + name patching so they see a clean table.
