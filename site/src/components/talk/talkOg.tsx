@@ -18,25 +18,25 @@ export async function talkOgImage(eyebrow: string, footnote: string) {
 	const interLight = await readFile(join(process.cwd(), 'public/fonts/inter-300.woff'))
 	return new ImageResponse(
 		(
-			<div style={{ background: '#fad3cf', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '72px 80px', fontFamily: 'Inter, sans-serif' }}>
-				<span style={{ fontSize: 15, letterSpacing: '0.18em', color: '#5d4745', textTransform: 'uppercase' }}>{eyebrow}</span>
+			<div style={{ background: '#00395d', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '72px 80px', fontFamily: 'Inter, sans-serif' }}>
+				<span style={{ fontSize: 15, letterSpacing: '0.18em', color: '#afc1cc', textTransform: 'uppercase' }}>{eyebrow}</span>
 				<div style={{ display: 'flex', flexDirection: 'column' }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 44 }}>
 						{AXES.map(a => (
 							<div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-								<span style={{ fontSize: 12, color: '#776361', fontFamily: 'monospace', width: 36 }}>{a.label}</span>
-								<div style={{ position: 'relative', width: 300, height: 4, background: '#93817f', borderRadius: 2, display: 'flex' }}>
+								<span style={{ fontSize: 12, color: '#8d9ba3', fontFamily: 'monospace', width: 36 }}>{a.label}</span>
+								<div style={{ position: 'relative', width: 300, height: 4, background: '#727c82', borderRadius: 2, display: 'flex' }}>
 									<div style={{ position: 'absolute', left: `${a.lo * 100}%`, width: `${(a.hi - a.lo) * 100}%`, height: '100%', background: 'rgba(80,190,200,0.75)', borderRadius: 2 }} />
 								</div>
 							</div>
 						))}
 					</div>
-					<div style={{ fontSize: 84, color: '#3b1816', lineHeight: 1.04, fontWeight: 300 }}>Sell the styles,</div>
-					<div style={{ fontSize: 84, color: '#5d4745', lineHeight: 1.04, fontWeight: 300, fontStyle: 'italic' }}>ship the space.</div>
+					<div style={{ fontSize: 84, color: '#f0f6fa', lineHeight: 1.04, fontWeight: 300 }}>Sell the styles,</div>
+					<div style={{ fontSize: 84, color: '#afc1cc', lineHeight: 1.04, fontWeight: 300, fontStyle: 'italic' }}>ship the space.</div>
 				</div>
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-					<span style={{ fontSize: 18, color: '#5d4745', letterSpacing: '0.02em' }}>{footnote}</span>
-					<span style={{ fontSize: 15, color: '#776361', letterSpacing: '0.04em' }}>vfclamp.com/talk</span>
+					<span style={{ fontSize: 18, color: '#afc1cc', letterSpacing: '0.02em' }}>{footnote}</span>
+					<span style={{ fontSize: 15, color: '#8d9ba3', letterSpacing: '0.04em' }}>vfclamp.com/talk</span>
 				</div>
 			</div>
 		),
