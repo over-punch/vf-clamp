@@ -1,7 +1,7 @@
 {
 	"name": "@overpunch/vf-clamp",
 	"version": "2.1.4",
-	"description": "Restrict a variable font's axis ranges to a specific subfamily scope — like CSS clamp() for design space.",
+	"description": "Restrict a variable font's axis ranges to the named styles a customer bought — like CSS clamp() for design space.",
 	"type": "module",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",

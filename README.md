@@ -455,8 +455,8 @@ For higher throughput, run **N worker processes** (each with its own warm Pyodid
 
 For font engineers — the pipeline, in order, per output:
 
-1. **Instance** — fontTools [`varLib.instancer.instantiateVariableFont`](https://fonttools.readthedocs.io/en/latest/varLib/instancer.html) with each axis pinned (`number`) or restricted (`{ min, max }`, a range instance). Variation data outside the range is dropped and the rest renormalised; there are no "masters" in a binary VF to remove. If the range excludes an axis's default, the default moves to the nearest edge (vf-clamp logs a warning), which re-bases the default outlines and metrics; such files save little over the full VF.
-2. **STAT** — axis records and axis values for pinned or out-of-range positions are pruned, so OS font menus don't surface unlicensed names.
+1. **Instance** — fontTools [`varLib.instancer.instantiateVariableFont`](https://fonttools.readthedocs.io/en/latest/varLib/instancer.html) with each axis pinned (`number`) or restricted (`{ min, max }`, a range instance). Variation data outside the range is dropped and the rest renormalised; there are no "masters" in a binary VF to remove. If the range excludes an axis's default, the default moves to the nearest edge (vf-clamp logs a warning for every output), which re-bases the default outlines and metrics; such files save little over the full VF.
+2. **STAT** — the fontTools instancer drops axis values outside the range; vf-clamp then prunes STAT records for axes that were pinned out of `fvar`, so OS font menus don't surface unlicensed names.
 3. **Weight normalisation** (only with `normalizeWeightAxis`) — the wght user-space range is remapped to start at 100; avar is unchanged because normalised values are preserved. This changes registered-axis semantics, so use it only when CSS `font-weight` must reach the lightest weight.
 4. **OS/2 and head** — `usWeightClass`, `fsSelection` and `macStyle` follow the new default.
 5. **Names** — see the name table note under [Notes](#notes).
@@ -485,7 +485,7 @@ npm run lint       # tsc --noEmit
 npm run build      # vite → dist/ (ESM + CJS + types)
 ```
 
-Layout: `src/core/` (the package: `clamp.ts`, `instances.ts`, `plan.ts`, `convert.ts`, `types.ts`), `src/__tests__/` (vitest; `fixtures/Inter-Variable.ttf` is Inter 4, wght 100–900 + opsz 14–32), `site/` (vfclamp.com, Next.js), `plugins/` (CLI, Glyphs, RoboFont and VS Code submodules), `shared/plugin-views/` (canonical NSView files synced into the Glyphs and RoboFont plugins with `npm run sync-plugin-views`).
+Layout: `src/core/` (the package: `clamp.ts`, `instances.ts`, `plan.ts`, `convert.ts`, `pyodide.ts`, `types.ts`, `utils.ts`), `src/__tests__/` (vitest), `fixtures/Inter-Variable.ttf` (test font: Inter 4, wght 100–900 + opsz 14–32), `site/` (vfclamp.com, Next.js), `plugins/` (CLI, Glyphs, RoboFont and VS Code submodules), `shared/plugin-views/` (canonical NSView files synced into the Glyphs and RoboFont plugins with `npm run sync-plugin-views`).
 
 Report bugs and requests in [GitHub issues](https://github.com/over-punch/vf-clamp/issues).
 
