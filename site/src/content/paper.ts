@@ -12,7 +12,7 @@ Nearly every foundry now makes variable fonts, and the web has adopted them: 41%
 
 We surveyed all 394 foundries in the [Type Foundry Directory](https://typefoundry.directory/). 227 sell variable fonts. 22 sell a smaller variable font without the complete family, and every one of those is a complete, foundry-defined subfamily: one width, one optical size, upright only. **None scopes a variable font to the styles a customer actually bought.** Nick Sherman proposed range-priced licences in 2015, and the type community has asked for the delivery tool on TypeDrawers ever since.
 
-The technique is a single, well-tested library call: fontTools' range instancing. Our benchmark shows a weight-clamped variable font is already smaller than the static files at two styles, and 72% smaller at seven. The change foundries need is in licences and storefronts, not in type design.
+The technique is fontTools' well-tested range instancing, plus checks on the font's names and STAT table. Our benchmark shows a weight-clamped variable font is already smaller than the static files at two styles (22% smaller on a Latin web subset), and 72% smaller at seven. The change foundries need is in licences and storefronts, not in type design.
 
 ## The problem: variable came to mean whole family
 

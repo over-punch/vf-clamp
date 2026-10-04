@@ -530,7 +530,7 @@ const SLIDES: Slide[] = [
 				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
 					{[
 						['01', 'Buy styles', 'Customer picks Regular and Bold, the way they always have.'],
-						['02', 'Clamp', 'wght limited to 400–700. opsz and GRAD kept, never pinned.'],
+						['02', 'Clamp', 'wght limited to 400–700. Free axes like opsz kept; unlicensed ones pinned.'],
 						['03', 'Rename', 'name and STAT tables list only what was bought.'],
 						['04', 'Deliver', 'One variable font, TTF or WOFF2, in seconds.'],
 					].map(([n, h, b], i) => (
