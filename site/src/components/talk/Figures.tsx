@@ -2,7 +2,7 @@
 
 /** Shared caption under each figure. */
 function Caption({ children }: { children: React.ReactNode }) {
-	return <figcaption className="mt-3 px-2 lg:px-8 text-xs text-subtle tracking-wide">{children}</figcaption>
+	return <figcaption className="mt-3 px-2 lg:px-8 text-xs text-muted tracking-wide">{children}</figcaption>
 }
 
 /** Survey funnel: 394 → 227 → 119 → 22 → 0. */
@@ -23,7 +23,7 @@ export function FunnelFigure() {
 						<span className={`text-sm ${r.strong ? 'font-semibold' : 'text-muted'}`}>{r.label}</span>
 						<span className="flex items-center gap-3">
 							<span className="fig-grow h-5 rounded-sm" style={{ ['--r' as string]: `entry ${25 + i * 12}% entry 100%`, width: `${Math.max((r.n / 394) * 100, 0.6)}%`, background: r.strong ? 'var(--foreground)' : 'color-mix(in oklch, var(--foreground) 22%, transparent)' }} />
-							<span className="text-sm tabular-nums">{r.n}{r.n > 0 && r.n < 394 && <span className="text-subtle"> · {Math.round((r.n / 394) * 100)}%</span>}</span>
+							<span className="text-sm tabular-nums">{r.n}{r.n > 0 && r.n < 394 && <span className="text-muted"> · {Math.round((r.n / 394) * 100)}%</span>}</span>
 						</span>
 					</div>
 				))}

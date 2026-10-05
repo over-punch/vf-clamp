@@ -64,7 +64,7 @@ export default function Prose({ source, figures }: { source: string; figures: Re
 			blocks.push(
 				<div key={k} className="paper-reveal overflow-x-auto -mx-2 lg:-mx-8">
 					<table className="w-full text-sm border-collapse">
-						<thead><tr>{head.map((c, j) => <th key={j} className="text-left font-normal text-subtle px-2 lg:px-3 py-2 border-b border-foreground/10">{inline(c, `${k}h${j}`)}</th>)}</tr></thead>
+						<thead><tr>{head.map((c, j) => <th key={j} className="text-left font-normal text-muted px-2 lg:px-3 py-2 border-b border-foreground/10">{inline(c, `${k}h${j}`)}</th>)}</tr></thead>
 						<tbody>{body.map((r, ri) => <tr key={ri} className="odd:bg-foreground/[0.04]">{r.map((c, j) => <td key={j} className="align-top px-2 lg:px-3 py-2 text-muted first:text-foreground">{inline(c, `${k}r${ri}c${j}`)}</td>)}</tr>)}</tbody>
 					</table>
 				</div>
