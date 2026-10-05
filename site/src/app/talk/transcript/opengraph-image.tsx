@@ -1,5 +1,6 @@
-// Open Graph image for vfclamp.com/talk/transcript, rendered by the shared talk OG component.
+// Open Graph image for vfclamp.com/talk/transcript, rendered by the shared talk OG component with vf-clamp's clamp motif.
 import { talkOgImage, TALK_OG_SIZE } from '../../../components/talk/talkOg'
+import { ClampOgMotif } from '../../../components/talk/ogMotif'
 
 export const alt = 'Sell the Styles, Ship the Space — Transcript'
 export const size = TALK_OG_SIZE
@@ -7,5 +8,5 @@ export const contentType = 'image/png'
 
 /** Renders this route's OG image. */
 export default function Image() {
-	return talkOgImage('Transcript · vf-clamp', 'The full spoken script of the talk.')
+	return talkOgImage({ tool: 'vfClamp', eyebrow: 'Transcript · vf-clamp', title: ['Sell the styles,', 'ship the space.'], footnote: 'The full spoken script of the talk.', path: 'vfclamp.com/talk/transcript', motif: <ClampOgMotif /> })
 }

@@ -1,6 +1,7 @@
 // Public paper route (vfclamp.com/paper) — "Sell the Styles, Ship the Space", rendered from content/paper.ts in the Type Tools site style.
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import '../talk.css'
 import Prose, { slug } from '../../components/talk/Prose'
 import { FunnelFigure, AdoptionFigure, CrossoverFigure, PipelineFigure } from '../../components/talk/Figures'
 import { PAPER_MD } from '../../content/paper'
