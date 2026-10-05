@@ -1,4 +1,4 @@
-// Shared 1200×630 Open Graph image for the talk routes (/talk, /talk/paper, /talk/data, /talk/transcript), in the vf-clamp site palette.
+// Shared 1200×630 Open Graph image for the talk routes (/talk, /paper, /paper/data, /talk/transcript), in the vf-clamp site palette.
 import { ImageResponse } from 'next/og'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -13,8 +13,8 @@ const AXES = [
 	{ label: 'opsz', lo: 0, hi: 1 },
 ]
 
-/** Renders a talk OG image with an eyebrow label, the two-line title, and a one-line footnote. */
-export async function talkOgImage(eyebrow: string, footnote: string) {
+/** Renders a talk OG image with an eyebrow label, the two-line title, a one-line footnote and the page's short URL. */
+export async function talkOgImage(eyebrow: string, footnote: string, path = 'vfclamp.com/talk') {
 	const interLight = await readFile(join(process.cwd(), 'public/fonts/inter-300.woff'))
 	return new ImageResponse(
 		(
@@ -36,7 +36,7 @@ export async function talkOgImage(eyebrow: string, footnote: string) {
 				</div>
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
 					<span style={{ fontSize: 18, color: '#afc1cc', letterSpacing: '0.02em' }}>{footnote}</span>
-					<span style={{ fontSize: 15, color: '#8d9ba3', letterSpacing: '0.04em' }}>vfclamp.com/talk</span>
+					<span style={{ fontSize: 15, color: '#8d9ba3', letterSpacing: '0.04em' }}>{path}</span>
 				</div>
 			</div>
 		),

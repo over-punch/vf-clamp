@@ -34,11 +34,11 @@ export default function TranscriptPage() {
 				<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
 					<Link href="/talk" className="hover:text-foreground transition-colors">Slides ↗</Link>
 					<span aria-hidden="true">·</span>
-					<Link href="/talk/paper" className="hover:text-foreground transition-colors">Paper ↗</Link>
+					<Link href="/paper" className="hover:text-foreground transition-colors">Paper ↗</Link>
 					<span aria-hidden="true">·</span>
-					<Link href="/talk/data" className="hover:text-foreground transition-colors">Survey data ↗</Link>
+					<Link href="/paper/data" className="hover:text-foreground transition-colors">Survey data ↗</Link>
 					<span aria-hidden="true">·</span>
-					<a href="/talk/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
+					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
 				</div>
 			</header>
 			<article className="w-full max-w-2xl flex flex-col gap-10">

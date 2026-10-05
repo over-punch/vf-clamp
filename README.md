@@ -19,7 +19,7 @@ npm install @overpunch/vf-clamp
 | A type designer or foundry | [For type designers](#for-type-designers) — plugins for Glyphs and RoboFont, no code |
 | Building a storefront's fulfilment step | [Selling named styles safely](#selling-named-styles-safely) and the [REST API](#rest-api) |
 | A web developer trimming fonts | [Quickstart](#quickstart) |
-| Curious why this matters | The talk and paper, [*Sell the Styles, Ship the Space*](https://vfclamp.com/talk/paper) |
+| Curious why this matters | The talk and paper, [*Sell the Styles, Ship the Space*](https://vfclamp.com/paper) |
 
 ---
 
@@ -31,7 +31,7 @@ Takes a variable font (TTF, OTF, WOFF, or WOFF2) and produces one restricted var
 
 ## For foundries
 
-A variable font is usually all-or-nothing: customers buy the whole family to get one, or they buy statics and lose interpolation. A survey of 394 foundries found 22 that sell subfamily variable fonts and none that scope one to the styles a customer bought ([paper](https://vfclamp.com/talk/paper), [data](https://vfclamp.com/talk/data)). vf-clamp adds the tier in between — a variable font scoped to exactly the named instances a customer purchased, generated and delivered at checkout.
+A variable font is usually all-or-nothing: customers buy the whole family to get one, or they buy statics and lose interpolation. A survey of 394 foundries found 22 that sell subfamily variable fonts and none that scope one to the styles a customer bought ([paper](https://vfclamp.com/paper), [data](https://vfclamp.com/paper/data)). vf-clamp adds the tier in between — a variable font scoped to exactly the named instances a customer purchased, generated and delivered at checkout.
 
 **Purchase → Clamp → Deliver.** A customer buys two or more adjacent styles ([`planOutputs`](#selling-named-styles-safely) splits any other selection so no unbought style is handed over); your store POSTs the order to the [REST API](#rest-api); a scoped VF comes back in seconds with its name table rewritten to the purchased range, in the format the licence calls for.
 
@@ -54,7 +54,7 @@ The npm package, CLI, and editor plugins all share the same axis-constraint mode
 
 Pinning an axis outright (e.g. a fixed width or optical size) removes that axis and its variation data entirely and saves more.
 
-Against the static files a two-style buyer would otherwise get (Inter 4, fontTools instancer, WOFF2, October 2026 — [method](https://vfclamp.com/talk/paper#method)):
+Against the static files a two-style buyer would otherwise get (Inter 4, fontTools instancer, WOFF2, October 2026 — [method](https://vfclamp.com/paper#method)):
 
 | Inter, Regular + Bold | Two statics | Clamped VF (wght 400–700, opsz pinned) |
 |---|---|---|
@@ -70,7 +70,7 @@ You don't need to write code:
 - **Glyphs.app or RoboFont** — install the [Glyphs plugin](https://github.com/over-punch/vf-clamp-glyphs#installation) or [RoboFont extension](https://github.com/over-punch/vf-clamp-robofont) (install steps are in each repo's README; screenshots on [vfclamp.com](https://vfclamp.com/integrations/glyphs-robofont)). Open your source or any exported variable font, tick the named instances a customer licensed, and export: the plugin names the file for the range (e.g. *Encode Sans Light-Bold*) and writes TTF, OTF, WOFF or WOFF2. Doing this automatically at checkout needs the [REST API](#rest-api) or the npm package, which means a developer.
 - **Try it in a browser** — the [demo at vfclamp.com](https://vfclamp.com) loads Encode Sans or any variable font you drop in, lets you pick styles as if placing an order, and downloads the result.
 - **What your customer sees** — on macOS (CoreText, which Pages and Keynote use), a file clamped to Regular–Bold lists Regular, Medium, SemiBold and Bold in the font menu, with a 400–700 weight axis; apps with sliders (InDesign, Figma) show a 400–700 slider. Word on Windows is not yet tested. Ship the statics alongside — many apps still prefer them.
-- **Licensing** — most licences don't mention variable fonts yet. The paper's [*Licensing language*](https://vfclamp.com/talk/paper#licensing-language) section sets out a four-part range licence (scope on the invoice, a grant for instances inside it, an optimisation right, and a fence against widening) with real clauses from BAL, Displaay, NaN and Dalton Maag.
+- **Licensing** — most licences don't mention variable fonts yet. The paper's [*Licensing language*](https://vfclamp.com/paper#licensing-language) section sets out a four-part range licence (scope on the invoice, a grant for instances inside it, an optimisation right, and a fence against widening) with real clauses from BAL, Displaay, NaN and Dalton Maag.
 
 ---
 

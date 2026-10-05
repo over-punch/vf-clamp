@@ -4,7 +4,7 @@
 export const PAPER_MD = `
 Designers buy type as named styles. Foundries build it as design spaces. Today's licensing makes them choose: a variable font usually costs the whole family, so almost nobody licenses one. This paper argues for keeping the styles and shipping the space: deliver a variable font clamped to exactly the range a customer bought.
 
-*Disclosure: the authors make [vf-clamp](https://vfclamp.com) and other variable-font tools. Every measurement here uses plain fontTools, and no recommendation requires our tool.*
+*Disclosure: the authors make [vf-clamp](https://vfclamp.com) and other variable-font tools, have built websites for type foundries for over fifteen years, and are building [Typetin](https://typetin.com), a storefront platform for independent foundries (not yet launched). Every measurement here uses plain fontTools, and no recommendation requires our tools.*
 
 ## Summary
 
@@ -75,7 +75,7 @@ So a two-style buyer pays 1.5 to 6 times more to get a variable font today. Per-
 
 {{figure:funnel}}
 
-We checked all 394 foundries in the Type Foundry Directory against their buy pages, licences and store data, then ran a second pass that tried to overturn every classification; 27 changed. Just over half of the foundries that sell variable fonts (119 of 227) offer one without the complete family, usually a standalone variable font covering the full design space, often priced exactly like the static family. Where both prices could be compared (120 foundries), the cheapest route to a variable font cost less than the complete family at 71 foundries, the same at 40 and more at 9. The other 94 sellers require the complete family. Every row, with its evidence link, is in the [survey data](/talk/data).
+We checked all 394 foundries in the Type Foundry Directory against their buy pages, licences and store data, then ran a second pass that tried to overturn every classification; 27 changed. Just over half of the foundries that sell variable fonts (119 of 227) offer one without the complete family, usually a standalone variable font covering the full design space, often priced exactly like the static family. Where both prices could be compared (120 foundries), the cheapest route to a variable font cost less than the complete family at 71 foundries, the same at 40 and more at 9. The other 94 sellers require the complete family. Every row, with its evidence link, is in the [survey data](/paper/data).
 
 ## Precedent: 22 foundries sell subfamily variable fonts
 
@@ -228,7 +228,7 @@ Sources: [thread 1813](https://typedrawers.com/discussion/1813/variable-font-ui-
 
 **Survey and licences**
 
-- [Type Foundry Directory](https://typefoundry.directory/) · [our survey data](/talk/data)
+- [Type Foundry Directory](https://typefoundry.directory/) · [our survey data](/paper/data)
 - María Ramos and Ana Moliz, [Font Licensing Mess](https://fontlicensingmess.com/) ([Alphabettes, 2025](https://www.alphabettes.org/font-licensing-mess-2/)) · Tiro Typeworks, [Something like a typeface](https://www.tiro.com/articles/something-like-a-typeface), 2025
 - [Fontdue: variable fonts](https://www.fontdue.com/docs/platform/variable-fonts) · [Fontdue watermarks](https://www.fontdue.com/docs/platform/watermark-lookup)
 - EULAs: [NaN](https://www.nan.xyz/eula/) · [BAL Foundry](https://www.bal-foundry.com/eula) · [Displaay](https://displaay.net/help/licenses) · [Dalton Maag](https://www.daltonmaag.com/download/dama/LicenceAgreement.pdf) · [Commercial Type](https://commercialtype.com/eula) · [Production Type](https://help.productiontype.com/docs/EULA/) · [DJR](https://djr.com/license) · [Tiro](https://www.tiro.com/license/general-license-agreement) (35 read in total)

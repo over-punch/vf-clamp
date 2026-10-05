@@ -157,6 +157,11 @@ export default function Home() {
 					generated and delivered at checkout. It never hands over a named style that
 					wasn&rsquo;t bought.
 				</p>
+				<p className="text-sm text-muted leading-relaxed max-w-xl">
+					Built by Overpunch: 15+ years building websites for type foundries, and the team behind{" "}
+					<a href="https://typetin.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">Typetin</a>,
+					a self-serve storefront for independent foundries (in development).
+				</p>
 
 				{/* Purchase → Clamp → Deliver */}
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -262,11 +267,11 @@ export default function Home() {
 					and a fence against widening.
 				</p>
 				<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-					<Link href="/talk/paper" className="underline underline-offset-2 hover:text-foreground">Read the paper</Link>
+					<Link href="/paper" className="underline underline-offset-2 hover:text-foreground">Read the paper</Link>
 					<Link href="/talk" className="text-muted hover:text-foreground transition-colors">Slides ↗</Link>
-					<Link href="/talk/data" className="text-muted hover:text-foreground transition-colors">Survey data ↗</Link>
+					<Link href="/paper/data" className="text-muted hover:text-foreground transition-colors">Survey data ↗</Link>
 					<Link href="/talk/transcript" className="text-muted hover:text-foreground transition-colors">Transcript ↗</Link>
-					<a href="/talk/sell-the-styles-ship-the-space.pdf" download className="text-muted hover:text-foreground transition-colors">PDF ↓</a>
+					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="text-muted hover:text-foreground transition-colors">PDF ↓</a>
 				</div>
 			</section>
 

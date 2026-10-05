@@ -1,4 +1,4 @@
-// Public survey data route (vfclamp.com/talk/data) — every foundry in typefoundry.directory that sells or may sell variable fonts, with evidence links.
+// Public survey data route (vfclamp.com/paper/data) — every foundry in typefoundry.directory that sells or may sell variable fonts, with evidence links.
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { FOUNDRIES, FOUNDRIES_WITHOUT_VF } from '../../../content/foundries'
@@ -9,7 +9,7 @@ import { version as siteVersion } from '../../../../package.json'
 export const metadata: Metadata = {
 	title: 'Variable font survey data — 394 foundries | vf-clamp',
 	description: 'How every foundry in the Type Foundry Directory sells variable fonts: subfamily VFs, VFs without the complete family, and price against the family, with an evidence link for each.',
-	alternates: { canonical: 'https://vfclamp.com/talk/data' },
+	alternates: { canonical: 'https://vfclamp.com/paper/data' },
 }
 
 /** Counts a column value across the table. */
@@ -39,7 +39,7 @@ export default function DataPage() {
 					</h1>
 				</div>
 				<p className="max-w-lg text-base leading-relaxed text-muted" style={{ textWrap: 'pretty' }}>
-					Every foundry in the <a href="https://typefoundry.directory/" target="_blank" rel="noopener noreferrer" className="underline decoration-foreground/30 underline-offset-4">Type Foundry Directory</a> that sells variable fonts, or that we could not classify, checked against its buy pages, licences and store data, then re-checked by a second pass. The other {FOUNDRIES_WITHOUT_VF} foundries were screened as not selling variable fonts. {sellers} rows have at least one verified answer. Read the <Link href="/talk/paper" className="underline decoration-foreground/30 underline-offset-4">paper</Link>.
+					Every foundry in the <a href="https://typefoundry.directory/" target="_blank" rel="noopener noreferrer" className="underline decoration-foreground/30 underline-offset-4">Type Foundry Directory</a> that sells variable fonts, or that we could not classify, checked against its buy pages, licences and store data, then re-checked by a second pass. The other {FOUNDRIES_WITHOUT_VF} foundries were screened as not selling variable fonts. {sellers} rows have at least one verified answer. Read the <Link href="/paper" className="underline decoration-foreground/30 underline-offset-4">paper</Link>.
 				</p>
 				<dl className="grid grid-cols-2 lg:grid-cols-3 gap-3">
 					{stats.map(([k, v]) => (

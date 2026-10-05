@@ -62,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 						{ label: "Demo", href: "/#demo" },
 						{ label: "Plugins", href: "/#plugins" },
 						{ label: "Foundries", href: "/#foundries" },
-						{ label: "Paper", href: "/talk/paper" },
+						{ label: "Paper", href: "/paper" },
 					]}
 					npmUrl="https://www.npmjs.com/package/@overpunch/vf-clamp"
 					githubUrl="https://github.com/over-punch/vf-clamp"

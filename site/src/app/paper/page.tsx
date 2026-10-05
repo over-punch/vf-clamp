@@ -1,21 +1,21 @@
-// Public paper route (vfclamp.com/talk/paper) — "Sell the Styles, Ship the Space", rendered from content/paper.ts in the Type Tools site style.
+// Public paper route (vfclamp.com/paper) — "Sell the Styles, Ship the Space", rendered from content/paper.ts in the Type Tools site style.
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Prose, { slug } from '../../../components/talk/Prose'
-import { FunnelFigure, AdoptionFigure, CrossoverFigure, PipelineFigure } from '../../../components/talk/Figures'
-import { PAPER_MD } from '../../../content/paper'
-import SiteFooter from '../../../components/SiteFooter'
-import { version } from '../../../../../package.json'
-import { version as siteVersion } from '../../../../package.json'
+import Prose, { slug } from '../../components/talk/Prose'
+import { FunnelFigure, AdoptionFigure, CrossoverFigure, PipelineFigure } from '../../components/talk/Figures'
+import { PAPER_MD } from '../../content/paper'
+import SiteFooter from '../../components/SiteFooter'
+import { version } from '../../../../package.json'
+import { version as siteVersion } from '../../../package.json'
 
 export const metadata: Metadata = {
 	title: 'Sell the Styles, Ship the Space — paper | vf-clamp',
 	description: 'Designers buy styles; foundries build design spaces. A survey of 394 foundries, ten years of TypeDrawers, and a file-size benchmark on delivering variable fonts clamped to the styles a customer bought.',
-	alternates: { canonical: 'https://vfclamp.com/talk/paper' },
+	alternates: { canonical: 'https://vfclamp.com/paper' },
 	openGraph: {
 		title: 'Sell the Styles, Ship the Space — paper',
 		description: 'A survey of 394 foundries: 22 sell subfamily variable fonts; none scope one to the styles a customer bought.',
-		url: 'https://vfclamp.com/talk/paper',
+		url: 'https://vfclamp.com/paper',
 		siteName: 'vf-clamp',
 		type: 'article',
 	},
@@ -47,9 +47,9 @@ export default function PaperPage() {
 				<div className="load-rise flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted" style={{ ['--d' as string]: '220ms' } as React.CSSProperties}>
 					<Link href="/talk" className="hover:text-foreground transition-colors">Slides ↗</Link>
 					<span aria-hidden="true">·</span>
-					<Link href="/talk/data" className="hover:text-foreground transition-colors">Survey data ↗</Link>
+					<Link href="/paper/data" className="hover:text-foreground transition-colors">Survey data ↗</Link>
 					<span aria-hidden="true">·</span>
-					<a href="/talk/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
+					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
 					<span aria-hidden="true">·</span>
 					<Link href="/talk/transcript" className="hover:text-foreground transition-colors">Transcript ↗</Link>
 					<span aria-hidden="true">·</span>
