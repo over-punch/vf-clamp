@@ -77,17 +77,42 @@ function display(size: number, extra?: CSSProperties): CSSProperties {
 	return { fontFamily: 'var(--font-merriweather), Georgia, serif', fontWeight: 300, fontVariationSettings: `"wght" 300, "opsz" ${opsz}`, fontSize: size, lineHeight: 1.05, ...extra }
 }
 
+/** Inline style that sets an entrance delay (ms) for the .vfd-rise keyframe. */
+function rise(ms: number): CSSProperties {
+	return { ['--d' as string]: `${ms}ms` } as CSSProperties
+}
+
+/** Counts from `from` to `to` (ease-out) once `run` is true; jumps straight to `to` when reduced motion is preferred. */
+function CountUp({ to, from = 0, decimals = 0, run = true, ms = 1100, delay = 250 }: { to: number; from?: number; decimals?: number; run?: boolean; ms?: number; delay?: number }) {
+	const [v, setV] = useState(from)
+	useEffect(() => {
+		let raf = 0
+		const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		const start = performance.now() + delay
+		const tick = (now: number) => {
+			if (!run) { setV(from); return }
+			if (still) { setV(to); return }
+			const t = Math.min(1, Math.max(0, (now - start) / ms))
+			setV(from + (to - from) * (1 - Math.pow(1 - t, 3)))
+			if (t < 1) raf = requestAnimationFrame(tick)
+		}
+		raf = requestAnimationFrame(tick)
+		return () => cancelAnimationFrame(raf)
+	}, [run, to, from, ms, delay])
+	return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{v.toFixed(decimals)}</span>
+}
+
 /** Uppercase tracked label — the sites' eyebrow / section heading style. */
 function Eyebrow({ children, color }: { children: ReactNode; color?: string }) {
-	return <p style={{ fontSize: 22, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: color ?? 'var(--t-muted)' }}>{children}</p>
+	return <p className="vfd-rise" style={{ fontSize: 22, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: color ?? 'var(--t-muted)' }}>{children}</p>
 }
 
 /** Two-line display title: line 1 in foreground, line 2 italic in the subtle step. */
 function Title({ a, b, size = 104 }: { a: ReactNode; b?: ReactNode; size?: number }) {
 	return (
 		<h2 style={display(size, { textWrap: 'balance' } as CSSProperties)}>
-			{a}
-			{b && <><br /><span style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>{b}</span></>}
+			<span className="vfd-rise" style={{ display: 'inline-block', ...rise(90) }}>{a}</span>
+			{b && <><br /><span className="vfd-rise" style={{ display: 'inline-block', fontStyle: 'italic', color: 'var(--t-subtle)', ...rise(200) }}>{b}</span></>}
 		</h2>
 	)
 }
@@ -126,7 +151,7 @@ function Reveal({ at, step, children, style }: { at: number; step: number; child
 /** OG-template bottom row: source chips left, page number right. */
 function Footer({ left, n, total }: { left: ReactNode; n: number; total: number }) {
 	return (
-		<div style={{ position: 'absolute', left: 128, right: 128, bottom: 72, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 48, fontSize: 22, letterSpacing: '0.04em' }}>
+		<div className="vfd-rise" style={{ ...rise(650), position: 'absolute', left: 128, right: 128, bottom: 72, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 48, fontSize: 22, letterSpacing: '0.04em' }}>
 			<p style={{ color: 'var(--t-muted)' }}>{left}</p>
 			<p style={{ color: 'var(--t-subtle)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{String(n).padStart(2, '0')} / {total}</p>
 		</div>
@@ -257,7 +282,7 @@ function FunnelRow({ label, count, total, on, strong }: { label: string; count: 
 			<p style={{ fontSize: 32, fontWeight: strong ? 500 : 300 }}>{label}</p>
 			<div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
 				<div style={{ width: on ? Math.max(w, 4) : 0, height: 52, borderRadius: 4, background: strong ? 'var(--t-fg)' : 'var(--t-panel)', transition: 'width 900ms cubic-bezier(.2,.7,.2,1)' }} />
-				<p style={display(52)}>{count}{count > 0 && count < total && <span style={{ color: 'var(--t-subtle)' }}> {Math.round((count / total) * 100)}%</span>}</p>
+				<p style={display(52)}><CountUp to={count} run={on} ms={900} delay={150} />{count > 0 && count < total && <span style={{ color: 'var(--t-subtle)' }}> {Math.round((count / total) * 100)}%</span>}</p>
 			</div>
 		</div>
 	)
@@ -270,7 +295,7 @@ function Frame({ eyebrow, children, gap = 40 }: { eyebrow: string; children: Rea
 		<div style={{ position: 'absolute', inset: 0, padding: '104px 128px 176px', display: 'flex', flexDirection: 'column', gap }}>
 			<Eyebrow>{eyebrow}</Eyebrow>
 			{head}
-			{rest.length > 0 && <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap }}>{rest}</div>}
+			{rest.length > 0 && <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap }}>{rest.map((c, i) => <div key={i} className="vfd-rise" style={rise(320 + i * 120)}>{c}</div>)}</div>}
 		</div>
 	)
 }
@@ -296,11 +321,11 @@ const SLIDES: Slide[] = [
 			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 				<Eyebrow>A talk on variable font licensing</Eyebrow>
 				<ClampMotif />
-				<h1 style={display(176)}>
+				<h1 className="vfd-rise" style={{ ...display(176), ...rise(160) }}>
 					<Magnet>Sell the styles,</Magnet><br />
 					<Magnet style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>ship the space.</Magnet>
 				</h1>
-				<p style={{ fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>Survey of 394 foundries · TypeDrawers 2016–2026 · <A href={SRC.paper}>Read the paper</A></p>
+				<p className="vfd-rise" style={{ ...rise(500), fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>Survey of 394 foundries · TypeDrawers 2016–2026 · <A href={SRC.paper}>Read the paper</A></p>
 			</div>
 		),
 	},
@@ -404,7 +429,7 @@ const SLIDES: Slide[] = [
 						})}
 					</ThreeUp>
 					<Reveal at={4} step={s} style={{ display: 'flex', alignItems: 'baseline', gap: 40 }}>
-						<p style={display(96)}>5.8px <span style={{ color: 'var(--t-faint)' }}>0.0px</span></p>
+						<p style={display(96)}><CountUp to={5.8} decimals={1} run={s >= 4} ms={900} />px <span style={{ color: 'var(--t-faint)' }}>0.0px</span></p>
 						<Body size={30}>How far hoverBoldly’s line shifts on hover: static fonts, then variable.</Body>
 					</Reveal>
 				</Frame>
@@ -429,7 +454,7 @@ const SLIDES: Slide[] = [
 		render: s => (
 			<Frame eyebrow="The survey">
 				<div style={{ display: 'flex', alignItems: 'flex-start', gap: 72, marginTop: 72 }}>
-					<p style={display(400, { lineHeight: 0.9 })}>394</p>
+					<p className="vfd-rise" style={{ ...display(400, { lineHeight: 0.9 }), ...rise(80) }}><CountUp to={394} ms={1300} /></p>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 40, paddingTop: 28 }}>
 						<Reveal at={1} step={s}><p style={display(72)}>foundries in the Type Foundry Directory.</p></Reveal>
 						<Reveal at={2} step={s}><Body size={32}>Each checked against its buy pages, licences and store data. Then a second pass tried to overturn every classification.</Body></Reveal>
@@ -463,7 +488,7 @@ const SLIDES: Slide[] = [
 			<Frame eyebrow="Precedent" gap={44}>
 				<Title a="22 foundries sell subfamily VFs." b="Every one a whole width, size or posture." size={88} />
 				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 32px' }}>
-					{SUBFAMILY_FOUNDRIES.map(f => <p key={f} style={{ fontSize: 28, color: 'var(--t-muted)' }}>{f}</p>)}
+					{SUBFAMILY_FOUNDRIES.map((f, i) => <p key={f} className="vfd-rise" style={{ ...rise(380 + i * 35), fontSize: 28, color: 'var(--t-muted)' }}>{f}</p>)}
 				</div>
 				<div style={{ display: 'flex', alignItems: 'baseline', gap: 40 }}>
 					<p style={display(96)}>a third</p>
@@ -479,10 +504,10 @@ const SLIDES: Slide[] = [
 		render: () => (
 			<Frame eyebrow="The gap">
 				<div style={{ display: 'flex', alignItems: 'center', gap: 96, flex: 1 }}>
-					<p style={display(460, { lineHeight: 0.9 })}>0</p>
+					<p className="vfd-rise" style={{ ...display(460, { lineHeight: 0.9 }), ...rise(80) }}><CountUp from={394} to={0} ms={1300} delay={350} /></p>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
-						<p style={display(88)}>of 394 foundries scope a VF to the styles bought.</p>
-						<p style={display(48, { fontStyle: 'italic', color: 'var(--t-subtle)', lineHeight: 1.3 })}>Not subfamilies. Instance ranges.</p>
+						<p className="vfd-rise" style={{ ...display(88), ...rise(1800) }}>of 394 foundries scope a VF to the styles bought.</p>
+						<p className="vfd-rise" style={{ ...display(48, { fontStyle: 'italic', color: 'var(--t-subtle)', lineHeight: 1.3 }), ...rise(2150) }}>Not subfamilies. Instance ranges.</p>
 					</div>
 				</div>
 			</Frame>
@@ -552,11 +577,11 @@ const SLIDES: Slide[] = [
 				<Title a="vf-clamp." b="Restrict the range, keep what varies." size={96} />
 				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 96, alignItems: 'start' }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-						<p style={display(220)}>−28%</p>
+						<p style={display(220)}>−<CountUp to={28} ms={1000} delay={450} />%</p>
 						<Body size={30}>Inter WOFF2, weights 100–900 clamped to 400–700: 337 KB to 243 KB.</Body>
 					</div>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-						{['Built on fontTools’ instancer', 'npm package, CLI and REST API', 'Glyphs, RoboFont and VS Code plugins'].map(t => <p key={t} style={{ fontSize: 32 }}>{t}</p>)}
+						{['Built on fontTools’ instancer', 'npm package, CLI and REST API', 'Glyphs, RoboFont and VS Code plugins'].map((t, i) => <p key={t} className="vfd-rise" style={{ ...rise(520 + i * 110), fontSize: 32 }}>{t}</p>)}
 						<p style={{ fontFamily: MONO, fontSize: 26, padding: '16px 24px', background: 'var(--t-panel)', borderRadius: 13, alignSelf: 'flex-start' }}>npm install @overpunch/vf-clamp</p>
 						<p style={{ fontSize: 28, color: 'var(--t-muted)' }}>Live demo · vfclamp.com ↗</p>
 					</div>
@@ -579,7 +604,7 @@ const SLIDES: Slide[] = [
 						['“Two statics are smaller than a VF”', 'Often true for a full VF. That is why the VF should be clamped.'],
 						['“Desktop apps handle VFs badly”', 'True today. Ship the VF alongside the statics, not instead.'],
 					].map(([q, a], i) => (
-						<div key={q} style={{ display: 'grid', gridTemplateColumns: '680px 1fr', gap: 48, padding: '20px 24px', margin: '0 -24px', background: i % 2 ? 'transparent' : 'color-mix(in oklch, var(--t-fg) 4%, transparent)' }}>
+						<div key={q} className="vfd-rise" style={{ ...rise(380 + i * 120), display: 'grid', gridTemplateColumns: '680px 1fr', gap: 48, padding: '20px 24px', margin: '0 -24px', background: i % 2 ? 'transparent' : 'color-mix(in oklch, var(--t-fg) 4%, transparent)' }}>
 							<p style={display(36, { fontStyle: 'italic', lineHeight: 1.35 })}>{q}</p>
 							<p style={{ fontSize: 30, lineHeight: 1.45, color: 'var(--t-muted)' }}>{a}</p>
 						</div>
@@ -612,11 +637,11 @@ const SLIDES: Slide[] = [
 			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 				<Eyebrow>{TALK_TITLE}</Eyebrow>
 				<ClampMotif />
-				<h1 style={display(176)}>
+				<h1 className="vfd-rise" style={{ ...display(176), ...rise(160) }}>
 					<Magnet>Sell the styles,</Magnet><br />
 					<Magnet style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>ship the space.</Magnet>
 				</h1>
-				<p style={{ fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>
+				<p className="vfd-rise" style={{ ...rise(500), fontSize: 22, letterSpacing: '0.04em', color: 'var(--t-muted)' }}>
 					<A href={SRC.paper}>The paper</A>
 					<span aria-hidden="true"> · </span>
 					<A href={SRC.data}>Survey data</A>
@@ -639,14 +664,14 @@ const SLIDES: Slide[] = [
 					{TOOLS.map(t => {
 						const id = t.id as ToolId
 						return (
-							<a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '16px 20px', borderRadius: 14, background: toolBg(id), color: toolFg(id), textDecoration: 'none' }}>
+							<a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="vfd-rise" style={{ ...rise(320 + TOOLS.indexOf(t) * 28), display: 'flex', flexDirection: 'column', gap: 6, padding: '16px 20px', borderRadius: 14, background: toolBg(id), color: toolFg(id), textDecoration: 'none' }}>
 								<span style={{ fontSize: 24, fontWeight: 500 }}>{t.name}</span>
 								<span style={{ fontSize: 18, color: toolFgMuted(id) }}>{t.short}</span>
 							</a>
 						)
 					})}
 				</div>
-				<div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+				<div className="vfd-rise" style={{ ...rise(950), display: 'flex', flexDirection: 'column', gap: 12 }}>
 					<p style={display(44)}>Start with vf-clamp: <A href="https://vfclamp.com">vfclamp.com</A></p>
 					<p style={{ fontSize: 26, color: 'var(--t-muted)' }}>
 						<A href="https://vfclamp.com/integrations/glyphs-robofont">Glyphs and RoboFont plugins</A>
@@ -671,7 +696,9 @@ const DECK_CSS = `
 .vfd-sweep { animation: vfd-sweep 3.2s ease-in-out infinite; }
 .vfd-dot { animation: vfd-dot 3.2s ease-in-out infinite; }
 .vfd-clamp { animation: vfd-clamp 6s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .vfd-sweep, .vfd-dot, .vfd-clamp { animation: none; } }
+@keyframes vfd-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.vfd-rise { animation: vfd-rise 700ms cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0ms); }
+@media (prefers-reduced-motion: reduce) { .vfd-sweep, .vfd-dot, .vfd-clamp, .vfd-rise { animation: none; } }
 `
 
 /** Reads the 1-based slide number from the URL hash. */

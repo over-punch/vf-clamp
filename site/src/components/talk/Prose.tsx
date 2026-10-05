@@ -46,13 +46,13 @@ export default function Prose({ source, figures }: { source: string; figures: Re
 		const k = `b${i}`
 		if (!line.trim()) { i++; continue }
 		const fig = line.trim().match(/^\{\{figure:([\w-]+)\}\}$/)
-		if (fig) { blocks.push(<figure key={k} className="my-4 -mx-2 lg:-mx-8">{figures[fig[1]]}</figure>); i++; continue }
+		if (fig) { blocks.push(<figure key={k} className="paper-reveal my-4 -mx-2 lg:-mx-8">{figures[fig[1]]}</figure>); i++; continue }
 		const h = line.match(/^(#{2,3})\s+(.*)$/)
 		if (h) {
 			const text = h[2]
 			blocks.push(h[1] === '##'
-				? <h2 key={k} id={slug(text)} className="scroll-mt-24 mt-16 text-3xl lg:text-5xl" style={{ fontFamily: SERIF, fontVariationSettings: '"wght" 300, "opsz" 72', lineHeight: 1.1, textWrap: 'balance' }}>{inline(text, k)}</h2>
-				: <h3 key={k} id={slug(text)} className="scroll-mt-24 mt-8 text-xs uppercase tracking-[0.18em] font-medium text-muted">{inline(text, k)}</h3>)
+				? <h2 key={k} id={slug(text)} className="paper-reveal scroll-mt-24 mt-16 text-3xl lg:text-5xl" style={{ fontFamily: SERIF, fontVariationSettings: '"wght" 300, "opsz" 72', lineHeight: 1.1, textWrap: 'balance' }}>{inline(text, k)}</h2>
+				: <h3 key={k} id={slug(text)} className="paper-reveal scroll-mt-24 mt-8 text-xs uppercase tracking-[0.18em] font-medium text-muted">{inline(text, k)}</h3>)
 			i++; continue
 		}
 		if (line.startsWith('|')) {
@@ -60,7 +60,7 @@ export default function Prose({ source, figures }: { source: string; figures: Re
 			while (i < lines.length && lines[i].startsWith('|')) { if (!/^\|\s*-/.test(lines[i])) rows.push(cells(lines[i])); i++ }
 			const [head, ...body] = rows
 			blocks.push(
-				<div key={k} className="overflow-x-auto -mx-2 lg:-mx-8">
+				<div key={k} className="paper-reveal overflow-x-auto -mx-2 lg:-mx-8">
 					<table className="w-full text-sm border-collapse">
 						<thead><tr>{head.map((c, j) => <th key={j} className="text-left font-normal text-subtle px-2 lg:px-3 py-2 border-b border-foreground/10">{inline(c, `${k}h${j}`)}</th>)}</tr></thead>
 						<tbody>{body.map((r, ri) => <tr key={ri} className="odd:bg-foreground/[0.04]">{r.map((c, j) => <td key={j} className="align-top px-2 lg:px-3 py-2 text-muted first:text-foreground">{inline(c, `${k}r${ri}c${j}`)}</td>)}</tr>)}</tbody>
@@ -74,18 +74,18 @@ export default function Prose({ source, figures }: { source: string; figures: Re
 			const items: string[] = []
 			while (i < lines.length && /^(- |\d+\. )/.test(lines[i])) { items.push(lines[i].replace(/^(- (\[[ x]\] )?|\d+\. )/, '')); i++ }
 			const Tag = ordered ? 'ol' : 'ul'
-			blocks.push(<Tag key={k} className={`${ordered ? 'list-decimal' : 'list-disc'} pl-5 flex flex-col gap-2 text-base leading-relaxed marker:text-faint`}>{items.map((t, j) => <li key={j}>{inline(t, `${k}l${j}`)}</li>)}</Tag>)
+			blocks.push(<Tag key={k} className={`paper-reveal ${ordered ? 'list-decimal' : 'list-disc'} pl-5 flex flex-col gap-2 text-base leading-relaxed marker:text-faint`}>{items.map((t, j) => <li key={j}>{inline(t, `${k}l${j}`)}</li>)}</Tag>)
 			continue
 		}
 		if (line.startsWith('> ')) {
 			const quote: string[] = []
 			while (i < lines.length && lines[i].startsWith('> ')) { quote.push(lines[i].slice(2)); i++ }
-			blocks.push(<blockquote key={k} className="pl-5 border-l border-foreground/20 text-xl lg:text-2xl" style={{ fontFamily: SERIF, fontStyle: 'italic', fontVariationSettings: '"wght" 300, "opsz" 36', lineHeight: 1.4 }}>{inline(quote.join(' '), k)}</blockquote>)
+			blocks.push(<blockquote key={k} className="paper-reveal pl-5 border-l border-foreground/20 text-xl lg:text-2xl" style={{ fontFamily: SERIF, fontStyle: 'italic', fontVariationSettings: '"wght" 300, "opsz" 36', lineHeight: 1.4 }}>{inline(quote.join(' '), k)}</blockquote>)
 			continue
 		}
 		const para: string[] = []
 		while (i < lines.length && lines[i].trim() && !/^(#{2,3}\s|\||- |\d+\. |> |\{\{figure:)/.test(lines[i])) { para.push(lines[i]); i++ }
-		blocks.push(<p key={k} className="text-base leading-relaxed" style={{ textWrap: 'pretty' }}>{inline(para.join(' '), k)}</p>)
+		blocks.push(<p key={k} className="paper-reveal text-base leading-relaxed" style={{ textWrap: 'pretty' }}>{inline(para.join(' '), k)}</p>)
 	}
 	return <>{blocks.map((b, j) => <Fragment key={j}>{b}</Fragment>)}</>
 }
