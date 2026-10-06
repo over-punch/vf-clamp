@@ -1,5 +1,6 @@
-// Transcript route (vfclamp.com/talk/transcript) — the spoken script of "Sell the Styles, Ship the Space", one section per slide, cues removed.
+// Transcript route (vfclamp.com/talk/transcript) — the spoken script of "Sell the Styles, Ship the Space", one section per slide, build cues removed and delivery marks (pauses, stress) typeset.
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { SCRIPT, spoken } from '../../../content/talkScript'
 import SiteFooter from '../../../components/SiteFooter'
@@ -19,7 +20,20 @@ export const metadata: Metadata = {
 	},
 }
 
-/** The transcript page: hero, links, one numbered section per slide, footer. */
+/**
+ * A slide's spoken text with its delivery marks typeset: " / " (short pause) and " // " (longer beat) as faint
+ * marks hidden from screen readers, and *stress* as emphasis.
+ */
+function Delivery({ text }: { text: string }): ReactNode {
+	return spoken(text).split(/(\s\/\/\s|\s\/\s|\*[^*]+\*)/).map((part, i) => {
+		if (part === ' // ') return <span key={i} aria-hidden="true" className="text-faint"> {'//'} </span>
+		if (part === ' / ') return <span key={i} aria-hidden="true" className="text-faint"> / </span>
+		if (/^\*[^*]+\*$/.test(part)) return <em key={i}>{part.slice(1, -1)}</em>
+		return part
+	})
+}
+
+/** The transcript page: hero, links, a key to the delivery marks, one numbered section per slide, footer. */
 export default function TranscriptPage() {
 	return (
 		<main className="flex flex-col items-center px-6 py-20 gap-16">
@@ -40,6 +54,7 @@ export default function TranscriptPage() {
 					<span aria-hidden="true">·</span>
 					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
 				</div>
+				<p className="text-sm text-muted">Marked for reading aloud: <span className="text-faint">/</span> a short pause, <span className="text-faint">{'//'}</span> a longer beat, <em>italics</em> for stress.</p>
 			</header>
 			<article className="w-full max-w-2xl flex flex-col gap-10">
 				{SCRIPT.map((e, i) => (
@@ -48,7 +63,7 @@ export default function TranscriptPage() {
 							<Link href={`/talk#${i + 1}`} className="font-mono text-faint tabular-nums hover:text-foreground transition-colors" aria-label={`Slide ${i + 1}`}>{String(i + 1).padStart(2, '0')}</Link>
 							<span>{e.label}</span>
 						</p>
-						<p className="text-base lg:text-lg leading-relaxed">{spoken(e.text)}</p>
+						<p className="text-base lg:text-lg leading-relaxed"><Delivery text={e.text} /></p>
 					</section>
 				))}
 			</article>
