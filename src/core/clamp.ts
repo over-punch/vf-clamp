@@ -3,6 +3,7 @@ import type { AxisValue, ClampOptions, ClampResult, FontInstance, OutputFormat }
 import { convertToWoff, convertToWoff2 } from './convert.js'
 import { getInstances } from './instances.js'
 import { preparePyodide, PyodideFile } from './pyodide.js'
+import { findInstance } from './utils.js'
 
 /**
  * Promise-singleton caches for Python functions — initialised once per process.
@@ -11,8 +12,7 @@ import { preparePyodide, PyodideFile } from './pyodide.js'
  */
 let _namePatcherFnP: Promise<(fileOptions: Map<string, string>) => void> | null = null
 let _instancerFnP: Promise<(fileOptions: Map<string, string>, axesJson: string) => void> | null = null
-let _normalizerFnP: Promise<(fileOptions: Map<string, string>, newMin: string) => void> | null = null
-let _statPrunerFnP: Promise<(fileOptions: Map<string, string>) => void> | null = null
+let _normalizerFnP: Promise<(fileOptions: Map<string, string>, newMin: string) => string | undefined> | null = null
 let _os2UpdaterFnP: Promise<(fileOptions: Map<string, string>) => void> | null = null
 
 async function getNamePatcher() {
@@ -29,6 +29,27 @@ def patch_font_names_fn(file_options):
     ps_name      = file_options['postscript-name']
 
     existing_ids = {r.nameID for r in name_table.names}
+
+    # A family name with no ASCII letters gives an empty PostScript name: fall back to the
+    # source PostScript name plus a short hash of the family name (passed in from JS).
+    if not ps_name:
+        source_ps = name_table.getDebugName(6) or 'Font'
+        ps_name = ('%s-%s' % (source_ps[:52], file_options['postscript-suffix']))[:63]
+
+    # nameID 2 must be a RIBBI style that matches OS/2 (already updated): Regular, Italic, Bold or Bold Italic.
+    fs = font['OS/2'].fsSelection if 'OS/2' in font else 0x40
+    is_italic = bool(fs & 0x01)
+    is_bold = bool(fs & 0x20)
+    ribbi = ('Bold Italic' if is_italic else 'Bold') if is_bold else ('Italic' if is_italic else 'Regular')
+
+    # nameID 17 (typographic subfamily): the name of the named instance at the new default, if any.
+    default_style = None
+    if 'fvar' in font:
+        defaults = {ax.axisTag: ax.defaultValue for ax in font['fvar'].axes}
+        for inst in font['fvar'].instances:
+            if all(abs(inst.coordinates.get(t, v) - v) < 0.01 for t, v in defaults.items()):
+                default_style = name_table.getDebugName(inst.subfamilyNameID)
+                break
 
     # nameID 1 = Family, 4 = Full name, 6 = PostScript name
     # nameID 2 = Subfamily — reset to 'Regular' so the restricted file does not
@@ -47,27 +68,45 @@ def patch_font_names_fn(file_options):
 
     updates = {
         1: family_name,
-        2: 'Regular',
+        2: ribbi,
         3: unique_id,
-        4: family_name,
+        4: family_name if ribbi == 'Regular' else '%s %s' % (family_name, ribbi),
         6: ps_name,
     }
     if 16 in existing_ids:
         updates[16] = family_name
+    if 17 in existing_ids and default_style:
+        updates[17] = default_style
     if 25 in existing_ids:
         updates[25] = ps_name
 
+    # Named instances' PostScript names must follow the new prefix, e.g. Inter-Regular-Bold-Medium.
+    if 'fvar' in font:
+        for inst in font['fvar'].instances:
+            pid = getattr(inst, 'postscriptNameID', 0xFFFF)
+            if pid in (None, 0xFFFF):
+                continue
+            style = (name_table.getDebugName(inst.subfamilyNameID) or '').replace(' ', '')
+            style = ''.join(c for c in style if c.isascii() and (c.isalnum() or c == '-'))
+            updates[pid] = ('%s-%s' % (ps_name, style))[:63]
+
+    # Rewrite every platform. A Mac (platform 1) record that can't be encoded in Mac Roman is dropped
+    # rather than filled with '?'; Windows and Unicode records always carry the full name.
+    keep = []
     for record in name_table.names:
         if record.nameID not in updates:
+            keep.append(record)
             continue
         value = updates[record.nameID]
-        if record.platformID == 3:
+        if record.platformID in (0, 3):
             record.string = value.encode('utf-16-be')
         elif record.platformID == 1:
             try:
                 record.string = value.encode('mac_roman')
             except Exception:
-                record.string = value.encode('ascii', errors='replace')
+                continue
+        keep.append(record)
+    name_table.names = keep
 
     font.save(file_options['output-file'])
 
@@ -96,6 +135,12 @@ import json
 def vf_clamp_instantiate(file_options, axes_json):
     font = TTFont(file_options['input-file'])
     axes_spec = json.loads(axes_json)
+
+    # The bundled fontTools can't restrict avar version 2 or VARC fonts correctly: refuse instead of mis-cutting.
+    if 'avar' in font and getattr(font['avar'], 'majorVersion', 1) >= 2:
+        raise ValueError('vf-clamp: avar version 2 fonts are not supported yet')
+    if 'VARC' in font:
+        raise ValueError('vf-clamp: fonts with a VARC table are not supported yet')
 
     limits = {}
     axes_by_tag = {ax.axisTag: ax for ax in font['fvar'].axes}
@@ -155,6 +200,10 @@ def vf_clamp_normalize_wght(file_options, new_min_str):
 
     old_min = wght_axis.minValue
     default = wght_axis.defaultValue
+    # With the default at the minimum there is no below-default range to stretch; leave the font as is.
+    if default <= old_min:
+        font.save(file_options['output-file'])
+        return 'skipped'
     scale = (default - new_min) / (default - old_min)
 
     def remap(v):
@@ -188,93 +237,19 @@ def vf_clamp_normalize_wght(file_options, new_min_str):
                     av.NominalValue = remap(av.NominalValue)
                     av.RangeMinValue = remap(av.RangeMinValue)
                     av.RangeMaxValue = remap(av.RangeMaxValue)
+                elif fmt == 4:
+                    for rec in getattr(av, 'AxisValueRecord', []) or []:
+                        if rec.AxisIndex == wght_idx:
+                            rec.Value = remap(rec.Value)
 
     font.save(file_options['output-file'])
+    return 'done'
 
 vf_clamp_normalize_wght
 `)
 		)
 	}
 	return _normalizerFnP!
-}
-
-/**
- * Prune STAT AxisValueRecords that reference an axis no longer present in fvar.
- * After the instancer pins/removes axes, the STAT table can still carry stale
- * AxisIndex references to removed axes — these confuse OS font selection.
- *
- * Format 1/2/3 records reference a single AxisIndex; remove if it is dead.
- * Format 4 records reference multiple AxisValueRecords; remove the entire record
- * if any inner AxisValueRecord points at a dead axis.
- *
- * After removal, surviving AxisIndex values are remapped to the new fvar order.
- */
-async function getStatPruner() {
-	if (!_statPrunerFnP) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		_statPrunerFnP = preparePyodide().then((pyodide: any) =>
-			pyodide.runPythonAsync(`
-from fontTools.ttLib import TTFont
-
-def vf_clamp_prune_stat(file_options):
-    font = TTFont(file_options['input-file'])
-
-    if 'STAT' not in font or 'fvar' not in font:
-        font.save(file_options['output-file'])
-        return
-
-    stat = font['STAT'].table
-    if not getattr(stat, 'DesignAxisRecord', None) or not stat.DesignAxisRecord.Axis:
-        font.save(file_options['output-file'])
-        return
-
-    fvar_tags = {ax.axisTag for ax in font['fvar'].axes}
-    stat_axes = list(stat.DesignAxisRecord.Axis)
-
-    # Map old STAT AxisIndex -> new index after pruning STAT axes that vanish from fvar.
-    surviving_indices = [i for i, ax in enumerate(stat_axes) if ax.AxisTag in fvar_tags]
-    if len(surviving_indices) == len(stat_axes):
-        # No axes removed — nothing to prune.
-        font.save(file_options['output-file'])
-        return
-    old_to_new = {old: new for new, old in enumerate(surviving_indices)}
-
-    # Rewrite the DesignAxisRecord.Axis list to surviving axes only.
-    stat.DesignAxisRecord.Axis = [stat_axes[i] for i in surviving_indices]
-    if hasattr(stat, 'DesignAxisCount'):
-        stat.DesignAxisCount = len(stat.DesignAxisRecord.Axis)
-
-    # Prune AxisValueArray entries that reference removed axes.
-    if stat.AxisValueArray and stat.AxisValueArray.AxisValue:
-        kept = []
-        for av in stat.AxisValueArray.AxisValue:
-            fmt = av.Format
-            if fmt in (1, 2, 3):
-                if av.AxisIndex not in old_to_new:
-                    continue  # references a removed axis
-                av.AxisIndex = old_to_new[av.AxisIndex]
-                kept.append(av)
-            elif fmt == 4:
-                inner = list(getattr(av, 'AxisValueRecord', []) or [])
-                if any(rec.AxisIndex not in old_to_new for rec in inner):
-                    continue  # whole record dies if any inner ref is dead
-                for rec in inner:
-                    rec.AxisIndex = old_to_new[rec.AxisIndex]
-                kept.append(av)
-            else:
-                # Unknown format — keep as-is to be safe.
-                kept.append(av)
-        stat.AxisValueArray.AxisValue = kept
-        if hasattr(stat, 'AxisValueCount'):
-            stat.AxisValueCount = len(kept)
-
-    font.save(file_options['output-file'])
-
-vf_clamp_prune_stat
-`)
-		)
-	}
-	return _statPrunerFnP!
 }
 
 /**
@@ -297,25 +272,26 @@ def vf_clamp_update_os2(file_options):
         return
 
     wght_axis = next((ax for ax in font['fvar'].axes if ax.axisTag == 'wght'), None)
-    if wght_axis is None:
+    if wght_axis is not None:
+        # OS/2.usWeightClass valid range is 1..1000.
+        weight_class = int(round(max(1, min(1000, wght_axis.defaultValue))))
+    elif 'OS/2' in font:
+        # wght was pinned: fontTools has already set usWeightClass to the pinned weight.
+        weight_class = font['OS/2'].usWeightClass
+    else:
         font.save(file_options['output-file'])
         return
-
-    new_default = wght_axis.defaultValue
-    # OS/2.usWeightClass valid range is 1..1000.
-    weight_class = int(round(max(1, min(1000, new_default))))
 
     if 'OS/2' in font:
         os2 = font['OS/2']
         os2.usWeightClass = weight_class
-        # fsSelection bits: 0x20 = BOLD, 0x40 = REGULAR.
-        # Mirror the convention: REGULAR when usWeightClass < 600, BOLD when >= 700.
+        # fsSelection: 0x01 ITALIC (kept), 0x20 BOLD, 0x40 REGULAR. REGULAR only when neither ITALIC nor BOLD.
         fs = os2.fsSelection
         fs &= ~(0x20 | 0x40)
         if weight_class >= 700:
-            fs |= 0x20  # BOLD
-        elif weight_class < 600:
-            fs |= 0x40  # REGULAR
+            fs |= 0x20
+        elif not fs & 0x01:
+            fs |= 0x40
         os2.fsSelection = fs
 
     if 'head' in font:
@@ -339,17 +315,32 @@ vf_clamp_update_os2
 
 /**
  * Convert a human-readable family name to a valid PostScript name.
- * Removes non-ASCII/non-alphanumeric characters, replaces spaces with hyphens,
- * strips leading/trailing hyphens, and truncates to the 63-character OpenType limit.
+ * Transliterates accents (Été → Ete), drops other non-ASCII characters, replaces spaces with
+ * hyphens, and keeps within the 63-character OpenType limit (long names end in a short hash).
+ * An empty result is replaced in Python by the source PostScript name plus a hash.
  */
-function toPostScriptName(familyName: string): string {
-	return familyName
+export function toPostScriptName(familyName: string): string {
+	const ascii = familyName
+		.normalize('NFKD')
+		.replace(/[\u0300-\u036f]/g, '')
 		.replace(/[^A-Za-z0-9 -]/g, '')
 		.trim()
 		.split(/\s+/)
 		.join('-')
+		.replace(/-+/g, '-')
 		.replace(/^-+|-+$/g, '')
-		.slice(0, 63)
+	// Over 63 characters: keep a readable prefix and add a hash of the full name so long names stay unique.
+	return ascii.length <= 63 ? ascii : `${ascii.slice(0, 56).replace(/-+$/, '')}-${shortHash(familyName)}`
+}
+
+/** Six-character FNV-1a hash of a string, used to keep shortened or transliterated PostScript names unique. */
+export function shortHash(text: string): string {
+	let h = 0x811c9dc5
+	for (const ch of text) {
+		h ^= ch.codePointAt(0)!
+		h = Math.imul(h, 0x01000193) >>> 0
+	}
+	return h.toString(36).padStart(6, '0').slice(-6)
 }
 
 /**
@@ -372,6 +363,7 @@ async function patchFontNames(buffer: Uint8Array, familyName: string): Promise<U
 			['output-file', outputFile.filename],
 			['family-name', familyName],
 			['postscript-name', psName],
+			['postscript-suffix', shortHash(familyName)],
 		])
 
 		const patcher = await getNamePatcher()
@@ -413,33 +405,6 @@ async function runInstancer(bytes: Uint8Array | Buffer, instancerAxes: Record<st
 
 		const result = outputFile.download()
 		return result as Uint8Array
-	} finally {
-		try { inputFile.delete() } catch { /* already cleaned */ }
-		try { outputFile.delete() } catch { /* already cleaned */ }
-	}
-}
-
-/** Prune STAT AxisValueRecords that reference axes removed by the instancer */
-async function runStatPruner(bytes: Uint8Array): Promise<Uint8Array> {
-	const pyodide = await preparePyodide()
-	const inputFile  = new PyodideFile({ pyodide })
-	const outputFile = new PyodideFile({ pyodide })
-
-	try {
-		await inputFile.upload(bytes)
-
-		const fileOptions = new Map([
-			['input-file',  inputFile.filename],
-			['output-file', outputFile.filename],
-		])
-
-		const fn = await getStatPruner()
-		fn(fileOptions)
-
-		const result = outputFile.download()
-		return result as Uint8Array
-	} catch (err) {
-		throw Object.assign(new Error('vf-clamp: STAT pruning failed'), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -488,7 +453,9 @@ async function runNormalizer(bytes: Uint8Array, newMin: number): Promise<Uint8Ar
 		])
 
 		const fn = await getNormalizer()
-		fn(fileOptions, String(newMin))
+		if (fn(fileOptions, String(newMin)) === 'skipped') {
+			console.warn('vf-clamp: normalizeWeightAxis skipped: the weight default is the axis minimum, so there is no lower range to remap')
+		}
 
 		const result = outputFile.download()
 		return result as Uint8Array
@@ -510,14 +477,10 @@ function computeHull(
 	requestedNames: string[],
 	fontInstances: FontInstance[],
 ): Record<string, AxisValue> {
-	// Pre-index by name for O(1) lookup instead of O(n) Array.find per name
-	const byName = new Map(fontInstances.map((i) => [i.name, i]))
-
 	const hull: Record<string, { min: number; max: number }> = {}
 
 	for (const name of requestedNames) {
-		const inst = byName.get(name)
-		if (!inst) throw new Error(`Named instance "${name}" not found in font`)
+		const inst = findInstance(name, fontInstances)
 
 		for (const [tag, val] of Object.entries(inst.coordinates)) {
 			if (!hull[tag]) hull[tag] = { min: val, max: val }
@@ -565,7 +528,7 @@ export async function clampFont(
 	const format: OutputFormat = options.format ?? 'ttf'
 
 	// Read axes and named instances once — needed for the instances path, the strict check and the default-range warning
-	const { instances: fontInstances, axes: axisDefs } = await getInstances(bytes)
+	const { instances: fontInstances, axes: axisDefs, family: sourceFamily } = await getInstances(bytes)
 
 	const results: ClampResult[] = []
 
@@ -581,17 +544,18 @@ export async function clampFont(
 			axesConfig = { ...axesConfig, ...output.axes }
 		}
 
-		// strict: refuse an instances-based output whose final range (after any explicit axes) holds unselected named instances
-		if (options.strict && output.instances?.length) {
-			const listed = new Set(output.instances)
-			const extra = fontInstances.filter((inst) => !listed.has(inst.name) && axisDefs.every((ax) => {
+		// strict: refuse any output whose final range (after any explicit axes) holds a named instance it did not list.
+		// An axes-only output lists none, so it passes only if its range holds no named instance at all.
+		if (options.strict) {
+			const listed = new Set((output.instances ?? []).map((n) => findInstance(n, fontInstances)))
+			const extra = fontInstances.filter((inst) => !listed.has(inst) && axisDefs.every((ax) => {
 				const v = inst.coordinates[ax.tag] ?? ax.default
 				const c = axesConfig[ax.tag]
 				if (c === null || c === undefined) return true
 				return typeof c === 'number' ? v === c : v >= c.min && v <= c.max
 			})).map((inst) => inst.name)
 			if (extra.length) {
-				throw new Error(`vf-clamp: output "${output.name || output.instances.join(', ')}" would include unselected instances (${extra.join(', ')}); use planOutputs() to split the selection`)
+				throw new Error(`vf-clamp: output "${output.name || (output.instances ?? []).join(', ') || 'axes-only'}" would include unselected instances (${extra.join(', ')}); use planOutputs() to split the selection`)
 			}
 		}
 
@@ -616,14 +580,15 @@ export async function clampFont(
 			if (value !== null) instancerAxes[tag] = toInstancerValue(value)
 		}
 
-		// Derive name before patching so the name table reflects it
+		// Derive name before patching so the name table reflects it. Without an explicit name, prefix the
+		// source family so the delivered file isn't called just "Regular-Bold".
 		// Use ASCII hyphen (not en-dash) so toPostScriptName preserves the separator
-		const name = output.name ||
-			(output.instances?.length
-				? output.instances.length === 1
-					? output.instances[0]
-					: `${output.instances[0]}-${output.instances[output.instances.length - 1]}`
-				: 'output')
+		const range = output.instances?.length
+			? output.instances.length === 1
+				? output.instances[0]
+				: `${output.instances[0]}-${output.instances[output.instances.length - 1]}`
+			: 'Clamped'
+		const name = output.name || (sourceFamily ? `${sourceFamily} ${range}` : range)
 
 		let buffer = await runInstancer(bytes, instancerAxes)
 
@@ -632,9 +597,8 @@ export async function clampFont(
 			throw new Error("vf-clamp: format 'otf' needs a CFF/CFF2 source font; this font has TrueType outlines — use 'ttf'")
 		}
 
-		// Prune STAT records that reference axes pinned/removed by the instancer.
-		// Must run before OS/2 update + name patching so they see a clean table.
-		buffer = await runStatPruner(buffer)
+		// STAT is left to fontTools: its instancer drops axis values outside the new range, and STAT may
+		// legitimately describe axes that are not in fvar (Inter's ital), which upright/italic linking needs.
 
 		// Optionally remap wght axis to CSS 100–900 range
 		if (options.normalizeWeightAxis) {

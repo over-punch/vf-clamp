@@ -1,6 +1,6 @@
 // src/core/plan.ts — purchase-safe grouping: turn a customer's selected named instances into clampFont outputs that never include an unbought named instance.
 import type { AxisDefinition, FontInstance, FontInstancesResult, OutputConfig } from './types.js'
-import { compactName } from './utils.js'
+import { compactName, findInstance } from './utils.js'
 
 /** Per-axis min/max of a set of instances; axes an instance omits use the axis default. */
 type Hull = Record<string, { min: number; max: number }>
@@ -15,10 +15,10 @@ function hullOf(group: FontInstance[], axes: AxisDefinition[]): Hull {
 	return h
 }
 
-/** Returns the named instances that fall inside a hull but are not in the selected set. */
-export function unboughtInstancesInHull(hull: Hull, instances: FontInstance[], selected: Set<string>, axes: AxisDefinition[]): FontInstance[] {
+/** Returns the named instances that fall inside a hull but are not in the selected set (matched by instance, not name). */
+export function unboughtInstancesInHull(hull: Hull, instances: FontInstance[], selected: Set<FontInstance>, axes: AxisDefinition[]): FontInstance[] {
 	return instances.filter((inst) => {
-		if (selected.has(inst.name)) return false
+		if (selected.has(inst)) return false
 		return axes.every((axis) => {
 			const v = inst.coordinates[axis.tag] ?? axis.default
 			const r = hull[axis.tag]
@@ -45,19 +45,13 @@ function primaryAxis(axes: AxisDefinition[]): AxisDefinition | undefined {
  * @param selected - Names of the instances the customer bought (must match exactly)
  * @param family - Optional family name to prefix each output name with, e.g. "Encode Sans"
  * @returns OutputConfig entries ready for clampFont(), sorted along the primary axis
- * @throws If a selected name is not a named instance of the font
+ * @throws If a selected name is not a named instance of the font, or names more than one (ambiguous)
  */
 export function planOutputs(font: FontInstancesResult, selected: string[], family?: string): OutputConfig[] {
 	const { axes, instances } = font
-	const byName = new Map(instances.map((i) => [i.name, i]))
-	const picked: FontInstance[] = []
-	for (const name of new Set(selected)) {
-		const inst = byName.get(name)
-		if (!inst) throw new Error(`Named instance "${name}" not found in font`)
-		picked.push(inst)
-	}
+	const picked: FontInstance[] = [...new Set(selected)].map((name) => findInstance(name, instances))
 	if (!picked.length) return []
-	const chosen = new Set(picked.map((i) => i.name))
+	const chosen = new Set(picked)
 
 	// One group if the whole selection is clean; otherwise greedy pairwise merging of clean pairs.
 	let buckets: FontInstance[][]
@@ -109,8 +103,7 @@ export function planOutputs(font: FontInstancesResult, selected: string[], famil
  * @param names - The instance names one output would hull
  */
 export function unboughtInstances(font: FontInstancesResult, names: string[]): string[] {
-	const byName = new Map(font.instances.map((i) => [i.name, i]))
-	const group = names.map((n) => byName.get(n)).filter((i): i is FontInstance => !!i)
+	const group = names.map((n) => findInstance(n, font.instances))
 	if (!group.length) return []
-	return unboughtInstancesInHull(hullOf(group, font.axes), font.instances, new Set(names), font.axes).map((i) => i.name)
+	return unboughtInstancesInHull(hullOf(group, font.axes), font.instances, new Set(group), font.axes).map((i) => i.name)
 }

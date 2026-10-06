@@ -1,4 +1,5 @@
 // src/core/utils.ts — shared utility functions
+import type { FontInstance } from './types.js'
 
 /**
  * Produce a compact display name from the first and last selected instance names.
@@ -34,4 +35,15 @@ export function compactName(first: string, last: string): string {
 	const suffix = suffixLen > 0 ? fw.slice(fw.length - suffixLen).join(' ') : ''
 	const middle = a && b ? `${a}-${b}` : a || b
 	return [prefix, middle, suffix].filter(Boolean).join(' ')
+}
+
+/**
+ * Finds a named instance by name. Throws if it is missing, or if several instances share the name
+ * (e.g. "Bold" at two optical sizes), since a name alone can't say which one was bought.
+ */
+export function findInstance(name: string, fontInstances: FontInstance[]): FontInstance {
+	const matches = fontInstances.filter((i) => i.name === name)
+	if (!matches.length) throw new Error(`Named instance "${name}" not found in font`)
+	if (matches.length > 1) throw new Error(`Named instance "${name}" is ambiguous: ${matches.length} instances share that name`)
+	return matches[0]
 }

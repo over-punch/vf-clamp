@@ -45,7 +45,7 @@ const { MockPyodideFile, mockInstancerFn, mockPatcherFn, mockNormalizerFn, mockS
 		const mockPatcherFn    = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
 		const mockStatPrunerFn = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
 		const mockOs2UpdaterFn = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
-		const mockNormalizerFn = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
+		const mockNormalizerFn = vi.fn((opts: Map<string, string>, _newMin?: string) => { copyInputToOutput(opts); return 'done' })
 
 		const mockInstancerFn = vi.fn((opts: Map<string, string>, axesJson: string) => {
 			capturedCalls.push({ axesJson })
@@ -290,6 +290,36 @@ describe('clampFont', () => {
 			strict: true,
 			outputs: [{ name: 'Fam', instances: ['W400', 'W500'], axes: { wght: { min: 400, max: 700 } } }],
 		})).rejects.toThrow('would include unselected instances (W600, W700)')
+	})
+
+	it('strict rejects an axes-only output whose range holds any named instance', async () => {
+		vi.mocked(getInstances).mockResolvedValue({
+			axes: [{ tag: 'wght', name: 'Weight', minimum: 100, default: 400, maximum: 900 }],
+			instances: [400, 700].map((w) => ({ name: `W${w}`, coordinates: { wght: w } })),
+		})
+		await expect(clampFont(MOCK_INPUT, {
+			strict: true,
+			outputs: [{ name: 'Everything', axes: { wght: { min: 100, max: 900 } } }],
+		})).rejects.toThrow('would include unselected instances (W400, W700)')
+	})
+
+	it('strict allows an axes-only output whose range holds no named instance', async () => {
+		vi.mocked(getInstances).mockResolvedValue({
+			axes: [{ tag: 'wght', name: 'Weight', minimum: 100, default: 400, maximum: 900 }],
+			instances: [400, 700].map((w) => ({ name: `W${w}`, coordinates: { wght: w } })),
+		})
+		const results = await clampFont(MOCK_INPUT, { strict: true, outputs: [{ name: 'Between', axes: { wght: { min: 450, max: 650 } } }] })
+		expect(results).toHaveLength(1)
+	})
+
+	it('names an unnamed output after the source family, not just the styles', async () => {
+		vi.mocked(getInstances).mockResolvedValue({
+			family: 'Inter',
+			axes: [{ tag: 'wght', name: 'Weight', minimum: 100, default: 400, maximum: 900 }],
+			instances: [400, 700].map((w) => ({ name: w === 400 ? 'Regular' : 'Bold', coordinates: { wght: w } })),
+		})
+		const results = await clampFont(MOCK_INPUT, { outputs: [{ instances: ['Regular', 'Bold'] }] })
+		expect(results[0].name).toBe('Inter Regular-Bold')
 	})
 
 	describe('instances path', () => {

@@ -68,3 +68,25 @@ describe('unboughtInstances', () => {
 		expect(unboughtInstances(WEIGHTS, ['Regular', 'Medium', 'SemiBold', 'Bold'])).toEqual([])
 	})
 })
+
+describe('ambiguous instance names', () => {
+	/** Text and Display optical sizes that both name a "Bold". */
+	const OPSZ: FontInstancesResult = {
+		axes: [
+			{ tag: 'wght', name: 'Weight', minimum: 400, default: 400, maximum: 700 },
+			{ tag: 'opsz', name: 'Optical size', minimum: 14, default: 14, maximum: 32 },
+		],
+		instances: [14, 32].flatMap((opsz) => [
+			{ name: 'Regular', coordinates: { wght: 400, opsz } },
+			{ name: 'Bold', coordinates: { wght: 700, opsz } },
+		]),
+	}
+
+	it('planOutputs refuses a name that matches more than one instance', () => {
+		expect(() => planOutputs(OPSZ, ['Bold'])).toThrow(/ambiguous/)
+	})
+
+	it('unboughtInstances refuses an ambiguous name instead of guessing', () => {
+		expect(() => unboughtInstances(OPSZ, ['Regular', 'Bold'])).toThrow(/ambiguous/)
+	})
+})

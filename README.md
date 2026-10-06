@@ -39,7 +39,7 @@ Why it matters:
 
 - **A new revenue tier** — two adjacent styles become a variable purchase, not just two statics. Price a ladder: two-style VF → subfamily → full family.
 - **Licence scope you can see** — a full VF exposes every weight, including ones the customer never paid for. A clamped VF's axes, named instances and STAT entries stop at the purchased range, so the file matches the invoice. (A determined user could still extrapolate simple two-master designs past the range; the licence's terms do the enforcing.)
-- **Named for the purchase** — the name table (family, full name, PostScript name) is rewritten to the purchased range, so the file is identifiable as that range. It does not identify the order: the unique ID (name ID 3) is rewritten to `version;PostScriptName;family`, which is the same for every buyer of that range, so add a watermark or per-order ID at fulfilment if you need tracing.
+- **Named for the purchase** — the name table (family, full name, PostScript name) is rewritten to the purchased range, so the file is identifiable as that range. It does not identify the order: the unique ID (name ID 3) is rewritten to `version;PostScriptName;family`, which depends only on the output name and is the same for every buyer of that range, so add a watermark or per-order ID at fulfilment if you need tracing.
 - **Lighter files for the web** — a site that uses only Medium–Black shouldn't ship Thin–Light deadweight. Clamping drops the variation data outside the licensed range: variation across what they bought, at a smaller download — from two styles up, smaller than the statics themselves (see below).
 - **Sell bespoke cuts** — pin an axis to a coordinate that was never a named instance (a custom optical size or width) and sell that exact cut, without shipping it in the retail family.
 - **Ready for `opsz` demand** — browsers drive the optical-size axis automatically via `font-optical-sizing: auto`, keyed off the rendered point size. Delivering `opsz` clamped to a usable range keeps files small as that axis matters more.
@@ -264,10 +264,10 @@ async function clampFont(
 - `input` — Source variable font binary (TTF, OTF, WOFF, or WOFF2).
 - `options.outputs` — Array of `OutputConfig` entries, one per output variant.
 - `options.format` — `'ttf'` (default), `'otf'`, `'woff'`, or `'woff2'`. `'otf'` does not convert outlines: it requires a CFF/CFF2 source and throws for a TrueType-outline font.
-- `options.strict` — When `true`, throw instead of building an instances-based output whose range would include unselected named instances. Defaults to `false`.
+- `options.strict` — When `true`, throw instead of building an output whose range would include unselected named instances. An axes-only output selects none, so under `strict` it passes only if its range holds no named instance. Defaults to `false`.
 - `options.normalizeWeightAxis` — When `true`, remaps the wght axis minimum to 100 so that CSS `font-weight: 100` reaches the lightest weight. Useful for fonts whose design space starts above wght 100 (e.g. 250). Defaults to `false`.
 
-**Throws** if an instance name is not found, if `strict` rejects an output, if `'otf'` is requested for a TrueType-outline font, or if any post-processing step (STAT pruning, OS/2 update, weight normalisation, name patching) fails — a half-processed file that still carries the retail family name is never returned.
+**Throws** if an instance name is not found or is shared by several instances (ambiguous), if `strict` rejects an output, if `'otf'` is requested for a TrueType-outline font, if the font uses avar version 2 or VARC, or if any post-processing step (OS/2 update, weight normalisation, name patching) fails — a half-processed file that still carries the retail family name is never returned.
 
 **Returns**
 
@@ -435,7 +435,7 @@ X-API-Key: <your-key>
 |---|---|---|
 | Body | `{ fontUrl, outputs, format?, strict? }`. Each output needs `instances`, `axes`, or both; `format` defaults to `'ttf'`; `strict` (boolean) works as in [`clampFont`](#clampfontinput-options) | `{ fontUrl }` |
 | `200` | `{ results: [{ name, data, format, size }] }`: `data` is the font **base64-encoded**, `size` is its length in **bytes** (decoded) | `{ axes: [...], instances: [...] }`, the same shape as `getInstances()` |
-| `400` | Body isn't JSON, `fontUrl` is missing, `outputs` is empty, an output has neither `instances` nor `axes`, `strict` isn't a boolean, an instance name isn't in the font, `'otf'` was requested for a TrueType font, or the font URL could not be fetched | Body isn't JSON, `fontUrl` is missing, or the font could not be fetched |
+| `400` | Body isn't JSON, `fontUrl` is missing, isn't `https`, points to a private host or is over 20 MB, `outputs` is empty, an output has neither `instances` nor `axes`, `strict` isn't a boolean, an instance name isn't in the font or is ambiguous, `'otf'` was requested for a TrueType font, the font uses avar2/VARC, or the font URL could not be fetched (15 s timeout, no redirects) | Body isn't JSON, `fontUrl` is missing, or the font could not be fetched |
 | `401` | `X-API-Key` header missing or wrong | Same |
 | `422` | `strict: true` and an output's range would include named instances that weren't listed; the message names them | — |
 | `500` | Processing failed (a post-processing error). Nothing is returned for any output if one fails | Instance extraction failed |
@@ -482,13 +482,13 @@ For higher throughput, run **N worker processes** (each with its own warm Pyodid
 For font engineers — the pipeline, in order, per output:
 
 1. **Instance** — fontTools [`varLib.instancer.instantiateVariableFont`](https://fonttools.readthedocs.io/en/latest/varLib/instancer.html) with each axis pinned (`number`) or restricted (`{ min, max }`, a range instance). Variation data outside the range is dropped and the rest renormalised; there are no "masters" in a binary VF to remove. If the range excludes an axis's default, the default moves to the nearest edge (vf-clamp logs a warning for every output), which re-bases the default outlines and metrics; such files save little over the full VF.
-2. **STAT** — the fontTools instancer drops axis values outside the range; vf-clamp then prunes STAT records for axes that were pinned out of `fvar`, so OS font menus don't surface unlicensed names.
+2. **STAT** — left to the fontTools instancer, which drops axis values outside the range. STAT design axes that aren't in `fvar` (such as Inter's `ital`) are kept, because upright/italic linking needs them. (Before 2.3.0, vf-clamp also pruned those axes; that broke the linking.)
 3. **Weight normalisation** (only with `normalizeWeightAxis`) — the wght user-space range is remapped to start at 100; avar is unchanged because normalised values are preserved. This changes registered-axis semantics, so use it only when CSS `font-weight` must reach the lightest weight.
-4. **OS/2 and head** — `usWeightClass`, `fsSelection` and `macStyle` follow the new default.
+4. **OS/2 and head** — `usWeightClass`, `fsSelection` and `macStyle` follow the new default (or the pinned weight). REGULAR is set only when the file is neither bold nor italic, and the italic bit is kept.
 5. **Names** — see the name table note under [Notes](#notes).
 6. **Encode** — WOFF or WOFF2 when requested.
 
-The engine is fontTools **4.56.0** (via [`@web-alchemy/fonttools`](https://www.npmjs.com/package/@web-alchemy/fonttools)) on **Pyodide 0.29.3** — about 15 MB on disk, none of it shipped to browsers. Fonts that rely on newer formats (avar2, VARC) may be refused by this fontTools version. Hinting is whatever the instancer keeps; most VFs ship unhinted.
+The engine is fontTools **4.56.0** (via [`@web-alchemy/fonttools`](https://www.npmjs.com/package/@web-alchemy/fonttools)) on **Pyodide 0.29.3** — about 15 MB on disk, none of it shipped to browsers. Fonts with avar version 2 or a VARC table are refused, because this fontTools version can't restrict them correctly. Hinting is whatever the instancer keeps; most VFs ship unhinted.
 
 If you already run Python, the core step is one command — vf-clamp adds the STAT, OS/2 and name handling, and runs it from Node:
 

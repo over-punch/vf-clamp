@@ -185,3 +185,58 @@ describe('getInstances — integration (real Pyodide + fonttools)', () => {
 		expect(wghtAxis).toBeUndefined()
 	}, 120_000)
 })
+
+/** Reads the tables the review checked: STAT axes, fvar instance PostScript names, nameID 2/6/25 and the style bits. */
+async function inspectFont(buffer: Uint8Array): Promise<{ statAxes: string[]; instancePs: string[]; n2: string; n6: string; n25: string; fsSelection: number; weightClass: number }> {
+	const pyodide = await preparePyodide()
+	const file = new PyodideFile({ pyodide })
+	await file.upload(buffer)
+	const fn = await pyodide.runPythonAsync(`
+import json
+from fontTools import ttLib
+def inspect_font(path):
+    f = ttLib.TTFont(path)
+    n = f['name']
+    stat = [a.AxisTag for a in f['STAT'].table.DesignAxisRecord.Axis] if 'STAT' in f else []
+    ps = [n.getDebugName(i.postscriptNameID) or '' for i in f['fvar'].instances] if 'fvar' in f else []
+    return json.dumps({'statAxes': stat, 'instancePs': ps, 'n2': n.getDebugName(2) or '', 'n6': n.getDebugName(6) or '', 'n25': n.getDebugName(25) or '', 'fsSelection': f['OS/2'].fsSelection, 'weightClass': f['OS/2'].usWeightClass})
+inspect_font
+`)
+	const result = JSON.parse(fn(file.filename))
+	file.delete()
+	return result
+}
+
+describe('clampFont — review fixes (real Pyodide + fonttools)', () => {
+	it('keeps STAT design axes that are not in fvar (Inter ital)', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: 'Inter Regular-Bold', axes: { wght: { min: 400, max: 700 } } }] })
+		expect((await inspectFont(r.buffer)).statAxes).toContain('ital')
+	}, 120_000)
+
+	it('renames the named instances PostScript names to the new prefix', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: 'Inter Regular-Bold', axes: { wght: { min: 400, max: 700 } } }] })
+		const info = await inspectFont(r.buffer)
+		expect(info.instancePs.every((p) => p.startsWith('Inter-Regular-Bold-'))).toBe(true)
+	}, 120_000)
+
+	it('normalizeWeightAxis no longer crashes when the range starts at the default', async () => {
+		const results = await clampFont(interVF(), { normalizeWeightAxis: true, outputs: [{ name: 'Inter Regular-Bold', instances: ['Regular', 'Bold'] }] })
+		expect(results).toHaveLength(1)
+	}, 120_000)
+
+	it('a pinned Bold reports Bold in nameID 2 and the BOLD bit, never REGULAR', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: 'Inter Bold', axes: { wght: 700 } }] })
+		const info = await inspectFont(r.buffer)
+		expect(info.weightClass).toBe(700)
+		expect(info.n2).toBe('Bold')
+		expect(info.fsSelection & 0x20).toBe(0x20)
+		expect(info.fsSelection & 0x40).toBe(0)
+	}, 120_000)
+
+	it('falls back to the source PostScript name when the family name has no Latin letters', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: '源ノ角ゴシック', axes: { wght: { min: 400, max: 700 } } }] })
+		const info = await inspectFont(r.buffer)
+		expect(info.n6.length).toBeGreaterThan(0)
+		expect(info.n6).toMatch(/^[A-Za-z0-9-]+$/)
+	}, 120_000)
+})

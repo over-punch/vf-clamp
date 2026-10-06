@@ -54,8 +54,9 @@ export interface ClampOptions {
 	 */
 	format?: OutputFormat
 	/**
-	 * Refuse any instances-based output whose range would include a named instance that was not listed
-	 * (e.g. Regular + Bold would also hand over Medium and SemiBold). Throws instead of clamping.
+	 * Refuse any output whose range would include a named instance that was not listed
+	 * (e.g. Regular + Bold would also hand over Medium and SemiBold). Axes-only outputs list none,
+	 * so they pass only if their range holds no named instance. Throws instead of clamping.
 	 * Use planOutputs() to split a customer's selection into safe outputs. Defaults to false.
 	 */
 	strict?: boolean
@@ -116,6 +117,8 @@ export interface FontInstancesResult {
 	axes: AxisDefinition[]
 	/** All named instances defined in the font */
 	instances: FontInstance[]
+	/** The font's family name (typographic family, nameID 16, else nameID 1); used to name outputs that set no name */
+	family?: string
 }
 
 /** @deprecated Use OutputConfig instead */

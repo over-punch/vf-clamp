@@ -21,8 +21,9 @@ from fontTools.ttLib import TTFont
 def get_instances_fn(input_file):
     font = TTFont(input_file)
 
+    family = font['name'].getDebugName(16) or font['name'].getDebugName(1) or ''
     if 'fvar' not in font:
-        return json.dumps({'axes': [], 'instances': []})
+        return json.dumps({'axes': [], 'instances': [], 'family': family})
 
     fvar = font['fvar']
     name_table = font['name']
@@ -46,7 +47,7 @@ def get_instances_fn(input_file):
         for i, inst in enumerate(fvar.instances)
     ]
 
-    return json.dumps({'axes': axes, 'instances': instances})
+    return json.dumps({'axes': axes, 'instances': instances, 'family': family})
 
 get_instances_fn
 `)

@@ -1,6 +1,6 @@
 // src/__tests__/utils.test.ts — unit tests for compactName utility
 import { describe, it, expect } from 'vitest'
-import { compactName } from '../core/utils.js'
+import { compactName, findInstance } from '../core/utils.js'
 
 describe('compactName', () => {
 	it('returns first when both strings are identical', () => {
@@ -51,5 +51,25 @@ describe('compactName', () => {
 	it('handles names with hyphens already present', () => {
 		// Hyphenated tokens are treated as single words
 		expect(compactName('Inter-Display Light', 'Inter-Display Bold')).toBe('Inter-Display Light-Bold')
+	})
+})
+
+describe('findInstance', () => {
+	const insts = [
+		{ name: 'Regular', coordinates: { wght: 400, opsz: 14 } },
+		{ name: 'Bold', coordinates: { wght: 700, opsz: 14 } },
+		{ name: 'Bold', coordinates: { wght: 700, opsz: 32 } },
+	]
+
+	it('returns the single instance with that name', () => {
+		expect(findInstance('Regular', insts).coordinates.wght).toBe(400)
+	})
+
+	it('throws for a missing name', () => {
+		expect(() => findInstance('Black', insts)).toThrow(/not found/)
+	})
+
+	it('throws when several instances share the name, so the wrong one is never delivered', () => {
+		expect(() => findInstance('Bold', insts)).toThrow(/ambiguous/)
 	})
 })
