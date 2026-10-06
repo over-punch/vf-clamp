@@ -3,6 +3,8 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import type { AxisDefinition, FontInstance, OutputFormat } from '@overpunch/vf-clamp'
+// Browser-safe subpath: the same naming rule as the package, the CLI, VS Code and the Glyphs/RoboFont plugins.
+import { rangeName } from '@overpunch/vf-clamp/naming'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -13,6 +15,18 @@ interface InstanceGroup {
 }
 
 type LoadState = 'idle' | 'loading' | 'ready' | 'error'
+
+/** What a group's name is built from: every named instance, the axes, and STAT labels by axis and value. */
+interface NamingCtx {
+	instances: FontInstance[]
+	axes: AxisDefinition[]
+	labels: Record<string, Record<string, string>>
+}
+
+/** A group's name: one range per axis in the font's own style words, e.g. "SemiCondensed-Normal Thin-Light". */
+function groupName(group: InstanceGroup, ctx: NamingCtx): string {
+	return rangeName(group.instances, ctx.instances, ctx.axes, ctx.labels)
+}
 
 const STAGE_LABELS = [
 	'Sending font to server…',
@@ -102,16 +116,14 @@ function parseNameTable(buffer: ArrayBuffer): Array<{ nameId: number; label: str
 }
 
 /** Generate a vf-clamp npm code snippet from the current groups. */
-function generateCode(groups: InstanceGroup[], fontName: string, format: OutputFormat, normalizeWeightAxis: boolean): string {
+function generateCode(groups: InstanceGroup[], fontName: string, format: OutputFormat, normalizeWeightAxis: boolean, ctx: NamingCtx): string {
 	if (!groups.length) return ''
 
 	const safe = fontName.replace(/\s+/g, '-') || 'MyFont-VF'
 	const ext  = FORMAT_EXT[format]
 
 	const outputLines = groups.flatMap((group) => {
-		const first = group.instances[0]
-		const last  = group.instances[group.instances.length - 1]
-		const name  = group.instances.length === 1 ? first.name : compactName(first.name, last.name)
+		const name  = groupName(group, ctx)
 		const instanceList = group.instances.map((i) => `        '${i.name}',`).join('\n')
 		return [
 			`    {`,
@@ -157,40 +169,6 @@ function longestCommonPrefix(strings: string[]): string {
 		while (prefix && !s.startsWith(prefix)) prefix = prefix.slice(0, -1)
 	}
 	return prefix
-}
-
-/**
- * Compact two endpoint instance names using shared word-level prefix and/or suffix.
- *   "Encode Sans Light" + "Encode Sans Bold"       → "Encode Sans Light-Bold"
- *   "Condensed Light"   + "SemiCondensed Light"    → "Condensed-SemiCondensed Light"
- *   "Condensed Thin"    + "Condensed Black"        → "Condensed Thin-Black"
- * Falls back to "First–Last" when names share no words.
- */
-function compactName(first: string, last: string): string {
-	if (first === last) return first
-	const fw = first.split(' ')
-	const lw = last.split(' ')
-
-	// Common leading words
-	let prefixLen = 0
-	while (prefixLen < fw.length && prefixLen < lw.length && fw[prefixLen] === lw[prefixLen]) prefixLen++
-
-	// Common trailing words (not overlapping the prefix)
-	let suffixLen = 0
-	while (
-		suffixLen < fw.length - prefixLen &&
-		suffixLen < lw.length - prefixLen &&
-		fw[fw.length - 1 - suffixLen] === lw[lw.length - 1 - suffixLen]
-	) suffixLen++
-
-	const prefix = fw.slice(0, prefixLen).join(' ')
-	const suffix = suffixLen > 0 ? fw.slice(fw.length - suffixLen).join(' ') : ''
-	const a      = fw.slice(prefixLen, fw.length - (suffixLen || 0)).join(' ')
-	const b      = lw.slice(prefixLen, lw.length - (suffixLen || 0)).join(' ')
-
-	if (!a && !b) return [prefix, suffix].filter(Boolean).join(' ') || `${first}–${last}`
-	const middle = a && b ? `${a}-${b}` : (a || b)
-	return [prefix, middle, suffix].filter(Boolean).join(' ')
 }
 
 /**
@@ -383,10 +361,9 @@ function groupFilename(
 	ext: string,
 	fontName: string,
 	axisOverrides: Record<string, { min: number; max: number }>,
+	ctx: NamingCtx,
 ): string {
-	const first    = group.instances[0]
-	const last     = group.instances[group.instances.length - 1]
-	const instPart = group.instances.length === 1 ? first.name : compactName(first.name, last.name)
+	const instPart = groupName(group, ctx)
 
 	// Free-axis segments from the Advanced panel — not present in any instance name
 	const overrideParts = Object.entries(axisOverrides).map(([tag, { min, max }]) =>
@@ -533,6 +510,8 @@ export default function Demo() {
 	const [fontName, setFontName]     = useState('')
 	const [axes, setAxes]             = useState<AxisDefinition[]>([])
 	const [instances, setInstances]   = useState<FontInstance[]>([])
+	const [labels, setLabels]         = useState<Record<string, Record<string, string>>>({})
+	const namingCtx = useMemo<NamingCtx>(() => ({ instances, axes, labels }), [instances, axes, labels])
 	const [loadState, setLoadState]   = useState<LoadState>('idle')
 	const [loadError, setLoadError]   = useState<string | null>(null)
 
@@ -673,14 +652,14 @@ export default function Demo() {
 
 	/** Code snippet — memoised so it isn't recomputed on every RAF tick. (#23) */
 	const codeSnippet = useMemo(
-		() => generateCode(groups, fontName, outputFormat, normalizeWeightAxis),
-		[groups, fontName, outputFormat, normalizeWeightAxis],
+		() => generateCode(groups, fontName, outputFormat, normalizeWeightAxis, namingCtx),
+		[groups, fontName, outputFormat, normalizeWeightAxis, namingCtx],
 	)
 
 	/** Pre-computed filenames for all groups — avoids calling groupFilename twice per group per render. (#24) */
 	const groupFilenames = useMemo(
-		() => groups.map((group) => groupFilename(group, axes, FORMAT_EXT[outputFormat], fontName, axisOverrides)),
-		[groups, axes, outputFormat, fontName, axisOverrides],
+		() => groups.map((group) => groupFilename(group, axes, FORMAT_EXT[outputFormat], fontName, axisOverrides, namingCtx)),
+		[groups, axes, outputFormat, fontName, axisOverrides, namingCtx],
 	)
 
 	const loadFont = useCallback(async (buffer: Uint8Array<ArrayBuffer>, name: string) => {
@@ -711,6 +690,7 @@ export default function Demo() {
 			if (!json.axes?.length) throw new Error('No variable axes found — this may not be a variable font')
 			setAxes(json.axes)
 			setInstances(json.instances ?? [])
+			setLabels(json.labels ?? {})
 			setLoadState('ready')
 		} catch (err) {
 			setLoadError(err instanceof Error ? err.message : 'Failed to read font')
@@ -788,10 +768,8 @@ export default function Demo() {
 
 		try {
 			const outputs = groups.map((group) => {
-				const first = group.instances[0]
-				const last  = group.instances[group.instances.length - 1]
-				// Send compact name as the output identifier; VF/static suffix is applied client-side on download
-				const name  = group.instances.length === 1 ? first.name : compactName(first.name, last.name)
+				// Send the range name as the output identifier; VF/static suffix is applied client-side on download
+				const name  = groupName(group, namingCtx)
 				return { name, instances: group.instances.map((i) => i.name) }
 			})
 
@@ -817,7 +795,7 @@ export default function Demo() {
 
 				const fmt   = (result.format ?? outputFormat) as OutputFormat
 				const bytes = Uint8Array.from(atob(result.data), (c) => c.charCodeAt(0))
-				const filename = groupFilename(group, axes, FORMAT_EXT[fmt], fontName, axisOverrides)
+				const filename = groupFilename(group, axes, FORMAT_EXT[fmt], fontName, axisOverrides, namingCtx)
 
 				newOutputSizes[idx] = bytes.byteLength
 
@@ -1091,11 +1069,7 @@ export default function Demo() {
 					</p>
 
 					{groups.map((group, i) => {
-						const first      = group.instances[0]
-						const last       = group.instances[group.instances.length - 1]
-						const label      = group.instances.length === 1
-							? first.name
-							: `${first.name} → ${last.name}`
+						const label      = groupName(group, namingCtx)
 						const filename   = groupFilenames[i]
 						const isIsolated = group.instances.length === 1
 						const nameTable  = nameTables[i]
