@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-plugin-views.sh — copy the canonical hull_plot.py + preview_view.py
+# sync-plugin-views.sh — copy the canonical hull_plot.py, preview_view.py and vfclamp_naming.py (the naming rules)
 # from vfClamp/shared/plugin-views/ to both the Glyphs and RoboFont plugin
 # bundles, then commit + push each submodule that actually changed.
 #
@@ -36,6 +36,10 @@ TARGETS=(
 	"preview_view.py:plugins/glyphs:vf-clamp.glyphsPlugin/Contents/Resources/preview_view.py"
 	"hull_plot.py:plugins/robofont:vf-clamp.roboFontExt/lib/vfClamp/hull_plot.py"
 	"preview_view.py:plugins/robofont:vf-clamp.roboFontExt/lib/vfClamp/preview_view.py"
+	"vfclamp_naming.py:plugins/glyphs:vf-clamp.glyphsPlugin/Contents/Resources/vfclamp_naming.py"
+	"vfclamp_naming.py:plugins/robofont:vf-clamp.roboFontExt/lib/vfClamp/vfclamp_naming.py"
+	"../naming-cases.json:plugins/glyphs:tests/naming-cases.json"
+	"../naming-cases.json:plugins/robofont:tests/naming-cases.json"
 )
 
 # Track which submodules had any file changed. Bash 3.x on macOS doesn't

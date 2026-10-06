@@ -1,6 +1,6 @@
 // src/core/plan.ts — purchase-safe grouping: turn a customer's selected named instances into clampFont outputs that never include an unbought named instance.
 import type { AxisDefinition, FontInstance, FontInstancesResult, OutputConfig } from './types.js'
-import { compactName, findInstance } from './utils.js'
+import { findInstance, rangeName } from './utils.js'
 
 /** Per-axis min/max of a set of instances; axes an instance omits use the axis default. */
 type Hull = Record<string, { min: number; max: number }>
@@ -38,7 +38,7 @@ function primaryAxis(axes: AxisDefinition[]): AxisDefinition | undefined {
  *
  * Selections merge into one output only when their combined range holds no unselected named
  * instance: Regular + Medium + SemiBold + Bold → one output; Regular + Bold alone → two outputs
- * (each pinned to its own instance). Output names come from compactName(), optionally prefixed
+ * (each pinned to its own instance). Output names come from rangeName() (one range per axis), optionally prefixed
  * with `family`.
  *
  * @param font - The font's axes and named instances, from getInstances()
@@ -89,8 +89,7 @@ export function planOutputs(font: FontInstancesResult, selected: string[], famil
 	buckets = buckets.map((g) => [...g].sort(cmp)).sort((a, b) => cmp(a[0], b[0]))
 
 	return buckets.map((g) => {
-		const first = g[0], last = g[g.length - 1]
-		const range = g.length === 1 ? first.name : compactName(first.name, last.name)
+		const range = rangeName(g, instances, axes, font.labels ?? {})
 		return { name: family ? `${family} ${range}` : range, instances: g.map((i) => i.name) }
 	})
 }

@@ -47,7 +47,17 @@ def get_instances_fn(input_file):
         for i, inst in enumerate(fvar.instances)
     ]
 
-    return json.dumps({'axes': axes, 'instances': instances, 'family': family})
+    labels = {}
+    if 'STAT' in font and font['STAT'].table.AxisValueArray:
+        stat = font['STAT'].table
+        tags = [a.AxisTag for a in stat.DesignAxisRecord.Axis]
+        for av in stat.AxisValueArray.AxisValue:
+            if av.Format in (1, 2, 3) and av.AxisIndex < len(tags):
+                value = av.NominalValue if av.Format == 2 else av.Value
+                key = ('%f' % float(value)).rstrip('0').rstrip('.')
+                labels.setdefault(tags[av.AxisIndex], {})[key] = name_table.getDebugName(av.ValueNameID) or ''
+
+    return json.dumps({'axes': axes, 'instances': instances, 'family': family, 'labels': labels})
 
 get_instances_fn
 `)

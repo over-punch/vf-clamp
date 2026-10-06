@@ -42,7 +42,7 @@ const { MockPyodideFile, mockInstancerFn, mockPatcherFn, mockNormalizerFn, mockS
 			if (s && d) d.bytes = new Uint8Array(s.bytes)
 		}
 
-		const mockPatcherFn    = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
+		const mockPatcherFn    = vi.fn((opts: Map<string, string>, _optsJson?: string) => copyInputToOutput(opts))
 		const mockStatPrunerFn = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
 		const mockOs2UpdaterFn = vi.fn((opts: Map<string, string>) => copyInputToOutput(opts))
 		const mockNormalizerFn = vi.fn((opts: Map<string, string>, _newMin?: string) => { copyInputToOutput(opts); return 'done' })
@@ -50,6 +50,7 @@ const { MockPyodideFile, mockInstancerFn, mockPatcherFn, mockNormalizerFn, mockS
 		const mockInstancerFn = vi.fn((opts: Map<string, string>, axesJson: string) => {
 			capturedCalls.push({ axesJson })
 			copyInputToOutput(opts)
+			return JSON.stringify({ source: { italic: false, oblique: false, has_ital_slnt: false }, pinned: {} })
 		})
 
 		function resetState() {
@@ -68,7 +69,8 @@ const { MockPyodideFile, mockInstancerFn, mockPatcherFn, mockNormalizerFn, mockS
 		// this is order-independent and survives the test file's lack of module isolation.
 		const mockRunPythonAsync = vi.fn(async (source: string) => {
 			if (source.includes('vf_clamp_instantiate')) return mockInstancerFn
-			if (source.includes('patch_font_names_fn')) return mockPatcherFn
+			if (source.includes('def vf_clamp_finish')) return mockPatcherFn
+			if (source.includes('def range_name')) return undefined  // the shared naming module: defines functions only
 			if (source.includes('vf_clamp_normalize_wght')) return mockNormalizerFn
 			if (source.includes('vf_clamp_prune_stat')) return mockStatPrunerFn
 			if (source.includes('vf_clamp_update_os2')) return mockOs2UpdaterFn

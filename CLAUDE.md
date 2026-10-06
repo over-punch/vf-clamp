@@ -57,11 +57,14 @@ Must be in `serverExternalPackages` when used in Next.js to prevent webpack bund
 
 ## Name Table Patching
 
-After restricting the design space, vf-clamp patches the output font's name table so the
-delivered file is identifiable as the purchased range:
+The rules for names, style bits and STAT links live in **docs/NAMING.md**, implemented once in
+`shared/plugin-views/vfclamp_naming.py`. The npm package runs it in Pyodide; the Glyphs and RoboFont
+plugins get synced copies (`npm run sync-plugin-views`). Default output names come from `range_name()` /
+`rangeName()` (TypeScript twin, browser-safe at `@overpunch/vf-clamp/naming`), both checked against
+`shared/naming-cases.json`. Change the Python module, regenerate the cases, sync, then run the parity
+harness (tool-talk skill, section 1b) before releasing.
 
-| nameID | Field              | Value                    |
-|--------|--------------------|--------------------------|
+--------|--------------------|--------------------------|
 | 1      | Family             | output.name (e.g. "Encode Sans Light-Bold") |
 | 4      | Full name          | same                     |
 | 6      | PostScript name    | no-space ASCII (e.g. "Encode-Sans-Light-Bold") |

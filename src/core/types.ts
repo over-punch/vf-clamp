@@ -119,6 +119,8 @@ export interface FontInstancesResult {
 	instances: FontInstance[]
 	/** The font's family name (typographic family, nameID 16, else nameID 1); used to name outputs that set no name */
 	family?: string
+	/** STAT names by axis tag and value key (numberKey), e.g. { wdth: { '100': 'Normal' } }; used for default names */
+	labels?: Record<string, Record<string, string>>
 }
 
 /** @deprecated Use OutputConfig instead */

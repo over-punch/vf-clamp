@@ -10,6 +10,11 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
+		},
+		"./naming": {
+			"types": "./dist/naming.d.ts",
+			"import": "./dist/naming.js",
+			"require": "./dist/naming.cjs"
 		}
 	},
 	"files": [

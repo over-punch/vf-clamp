@@ -1,0 +1,812 @@
+{
+	"fonts": {
+		"Encode Sans": {
+			"instances": [
+				{
+					"name": "Condensed Thin",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed ExtraLight",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Light",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Regular",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Medium",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed SemiBold",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Bold",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed ExtraBold",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Black",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "SemiCondensed Thin",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed ExtraLight",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed Light",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed Regular",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed Medium",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed SemiBold",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed Bold",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed ExtraBold",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "SemiCondensed Black",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 87.5
+					}
+				},
+				{
+					"name": "Thin",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "ExtraLight",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Light",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Regular",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Medium",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "SemiBold",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Bold",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "ExtraBold",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Black",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "SemiExpanded Thin",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded ExtraLight",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded Light",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded Regular",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded Medium",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded SemiBold",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded Bold",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded ExtraBold",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "SemiExpanded Black",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 112.5
+					}
+				},
+				{
+					"name": "Expanded Thin",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded ExtraLight",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded Light",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded Regular",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded Medium",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded SemiBold",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded Bold",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded ExtraBold",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 125.0
+					}
+				},
+				{
+					"name": "Expanded Black",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 125.0
+					}
+				}
+			],
+			"axes": [
+				{
+					"tag": "wght",
+					"default": 100.0
+				},
+				{
+					"tag": "wdth",
+					"default": 75.0
+				}
+			],
+			"labels": {
+				"wdth": {
+					"75": "Condensed",
+					"87.5": "SemiCondensed",
+					"100": "Normal",
+					"112.5": "SemiExpanded",
+					"125": "Expanded"
+				},
+				"wght": {
+					"100": "Thin",
+					"200": "ExtraLight",
+					"300": "Light",
+					"400": "Regular",
+					"500": "Medium",
+					"600": "SemiBold",
+					"700": "Bold",
+					"800": "ExtraBold",
+					"900": "Black"
+				}
+			}
+		},
+		"Inter": {
+			"instances": [
+				{
+					"name": "Thin",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 100.0
+					}
+				},
+				{
+					"name": "ExtraLight",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 200.0
+					}
+				},
+				{
+					"name": "Light",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 300.0
+					}
+				},
+				{
+					"name": "Regular",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 400.0
+					}
+				},
+				{
+					"name": "Medium",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 500.0
+					}
+				},
+				{
+					"name": "SemiBold",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 600.0
+					}
+				},
+				{
+					"name": "Bold",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 700.0
+					}
+				},
+				{
+					"name": "ExtraBold",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 800.0
+					}
+				},
+				{
+					"name": "Black",
+					"coordinates": {
+						"opsz": 14.0,
+						"wght": 900.0
+					}
+				}
+			],
+			"axes": [
+				{
+					"tag": "opsz",
+					"default": 14.0
+				},
+				{
+					"tag": "wght",
+					"default": 400.0
+				}
+			],
+			"labels": {
+				"opsz": {
+					"14": "Text",
+					"32": "Display"
+				},
+				"wght": {
+					"100": "Thin",
+					"200": "ExtraLight",
+					"300": "Light",
+					"400": "Regular",
+					"500": "Medium",
+					"600": "SemiBold",
+					"700": "Bold",
+					"800": "ExtraBold",
+					"900": "Black"
+				},
+				"ital": {
+					"0": "Roman"
+				}
+			}
+		},
+		"Montserrat": {
+			"instances": [
+				{
+					"name": "Thin",
+					"coordinates": {
+						"wght": 100.0
+					}
+				},
+				{
+					"name": "ExtraLight",
+					"coordinates": {
+						"wght": 200.0
+					}
+				},
+				{
+					"name": "Light",
+					"coordinates": {
+						"wght": 300.0
+					}
+				},
+				{
+					"name": "Regular",
+					"coordinates": {
+						"wght": 400.0
+					}
+				},
+				{
+					"name": "Medium",
+					"coordinates": {
+						"wght": 500.0
+					}
+				},
+				{
+					"name": "SemiBold",
+					"coordinates": {
+						"wght": 600.0
+					}
+				},
+				{
+					"name": "Bold",
+					"coordinates": {
+						"wght": 700.0
+					}
+				},
+				{
+					"name": "ExtraBold",
+					"coordinates": {
+						"wght": 800.0
+					}
+				},
+				{
+					"name": "Black",
+					"coordinates": {
+						"wght": 900.0
+					}
+				}
+			],
+			"axes": [
+				{
+					"tag": "wght",
+					"default": 100.0
+				}
+			],
+			"labels": {
+				"wght": {
+					"100": "Thin",
+					"200": "ExtraLight",
+					"300": "Light",
+					"400": "Regular",
+					"500": "Medium",
+					"600": "SemiBold",
+					"700": "Bold",
+					"800": "ExtraBold",
+					"900": "Black"
+				},
+				"ital": {
+					"0": "Roman"
+				}
+			}
+		},
+		"Roboto Italic": {
+			"instances": [
+				{
+					"name": "Thin Italic",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "ExtraLight Italic",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Light Italic",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Italic",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Medium Italic",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "SemiBold Italic",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Bold Italic",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "ExtraBold Italic",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Black Italic",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 100.0
+					}
+				},
+				{
+					"name": "Condensed Thin Italic",
+					"coordinates": {
+						"wght": 100.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed ExtraLight Italic",
+					"coordinates": {
+						"wght": 200.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Light Italic",
+					"coordinates": {
+						"wght": 300.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Italic",
+					"coordinates": {
+						"wght": 400.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Medium Italic",
+					"coordinates": {
+						"wght": 500.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed SemiBold Italic",
+					"coordinates": {
+						"wght": 600.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Bold Italic",
+					"coordinates": {
+						"wght": 700.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed ExtraBold Italic",
+					"coordinates": {
+						"wght": 800.0,
+						"wdth": 75.0
+					}
+				},
+				{
+					"name": "Condensed Black Italic",
+					"coordinates": {
+						"wght": 900.0,
+						"wdth": 75.0
+					}
+				}
+			],
+			"axes": [
+				{
+					"tag": "wght",
+					"default": 400.0
+				},
+				{
+					"tag": "wdth",
+					"default": 100.0
+				}
+			],
+			"labels": {
+				"wdth": {
+					"75": "Condensed",
+					"100": "Normal"
+				},
+				"wght": {
+					"100": "Thin",
+					"200": "ExtraLight",
+					"300": "Light",
+					"400": "Regular",
+					"500": "Medium",
+					"600": "SemiBold",
+					"700": "Bold",
+					"800": "ExtraBold",
+					"900": "Black"
+				},
+				"ital": {
+					"1": "Italic"
+				}
+			}
+		}
+	},
+	"cases": [
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"SemiCondensed Thin",
+				"SemiCondensed ExtraLight",
+				"SemiCondensed Light",
+				"Thin",
+				"ExtraLight",
+				"Light"
+			],
+			"expected": "SemiCondensed-Normal Thin-Light"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"SemiCondensed Thin",
+				"Light"
+			],
+			"expected": "SemiCondensed-Normal Thin-Light"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"SemiCondensed Thin",
+				"SemiCondensed Light"
+			],
+			"expected": "SemiCondensed Thin-Light"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"Regular",
+				"Medium",
+				"SemiBold",
+				"Bold"
+			],
+			"expected": "Regular-Bold"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"SemiCondensed Regular",
+				"Regular"
+			],
+			"expected": "SemiCondensed-Normal Regular"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"Condensed Bold",
+				"Expanded Bold"
+			],
+			"expected": "Condensed-Expanded Bold"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"Condensed Thin",
+				"Expanded Black"
+			],
+			"expected": "Condensed-Expanded Thin-Black"
+		},
+		{
+			"font": "Encode Sans",
+			"selected": [
+				"Expanded Light"
+			],
+			"expected": "Expanded Light"
+		},
+		{
+			"font": "Inter",
+			"selected": [
+				"Regular",
+				"Medium",
+				"SemiBold",
+				"Bold"
+			],
+			"expected": "Regular-Bold"
+		},
+		{
+			"font": "Inter",
+			"selected": [
+				"Thin",
+				"Black"
+			],
+			"expected": "Thin-Black"
+		},
+		{
+			"font": "Inter",
+			"selected": [
+				"Bold"
+			],
+			"expected": "Bold"
+		},
+		{
+			"font": "Montserrat",
+			"selected": [
+				"Light",
+				"Regular",
+				"Medium"
+			],
+			"expected": "Light-Medium"
+		},
+		{
+			"font": "Montserrat",
+			"selected": [
+				"Thin",
+				"ExtraLight"
+			],
+			"expected": "Thin-ExtraLight"
+		},
+		{
+			"font": "Roboto Italic",
+			"selected": [
+				"Light Italic",
+				"Italic",
+				"Medium Italic"
+			],
+			"expected": "Light-Medium Italic"
+		}
+	]
+}

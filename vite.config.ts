@@ -8,9 +8,10 @@ export default defineConfig({
 	],
 	build: {
 		lib: {
-			entry: 'src/index.ts',
+			// index: the full package (Node, Pyodide). naming: pure helpers that are safe to bundle for browsers.
+			entry: { index: 'src/index.ts', naming: 'src/naming.ts' },
 			formats: ['es', 'cjs'],
-			fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+			fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
 		},
 		rollupOptions: {
 			external: ['@web-alchemy/fonttools', /^node:/],

@@ -3,123 +3,49 @@ import type { AxisValue, ClampOptions, ClampResult, FontInstance, OutputFormat }
 import { convertToWoff, convertToWoff2 } from './convert.js'
 import { getInstances } from './instances.js'
 import { preparePyodide, PyodideFile } from './pyodide.js'
-import { findInstance } from './utils.js'
+import { findInstance, rangeName } from './utils.js'
+// The one implementation of the naming, style-bit and STAT rules, shared with the Glyphs and RoboFont plugins.
+import NAMING_PY from '../../shared/plugin-views/vfclamp_naming.py?raw'
 
 /**
  * Promise-singleton caches for Python functions — initialised once per process.
  * Storing Promises (not resolved values) ensures concurrent callers await the same
  * pending initialisation instead of racing to issue multiple runPythonAsync calls.
  */
-let _namePatcherFnP: Promise<(fileOptions: Map<string, string>) => void> | null = null
-let _instancerFnP: Promise<(fileOptions: Map<string, string>, axesJson: string) => void> | null = null
+let _namingP: Promise<void> | null = null
+let _finisherFnP: Promise<(fileOptions: Map<string, string>, optsJson: string) => void> | null = null
+let _instancerFnP: Promise<(fileOptions: Map<string, string>, axesJson: string) => string> | null = null
 let _normalizerFnP: Promise<(fileOptions: Map<string, string>, newMin: string) => string | undefined> | null = null
-let _os2UpdaterFnP: Promise<(fileOptions: Map<string, string>) => void> | null = null
 
-async function getNamePatcher() {
-	if (!_namePatcherFnP) {
+/** Loads shared/plugin-views/vfclamp_naming.py into Pyodide's global namespace, once per process. */
+export function loadNaming(): Promise<void> {
+	if (!_namingP) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		_namePatcherFnP = preparePyodide().then((pyodide: any) =>
+		_namingP = preparePyodide().then(async (pyodide: any) => { await pyodide.runPythonAsync(NAMING_PY) })
+	}
+	return _namingP!
+}
+
+/** Python step run after instancing: STAT links, style bits and names, via vfclamp_naming.finish(). */
+async function getFinisher() {
+	if (!_finisherFnP) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		_finisherFnP = loadNaming().then(() => preparePyodide()).then((pyodide: any) =>
 			pyodide.runPythonAsync(`
-from fontTools import ttLib
+import json
+from fontTools.ttLib import TTFont
 
-def patch_font_names_fn(file_options):
-    font = ttLib.TTFont(file_options['input-file'])
-    name_table = font['name']
-    family_name  = file_options['family-name']
-    ps_name      = file_options['postscript-name']
-
-    existing_ids = {r.nameID for r in name_table.names}
-
-    # A family name with no ASCII letters gives an empty PostScript name: fall back to the
-    # source PostScript name plus a short hash of the family name (passed in from JS).
-    if not ps_name:
-        source_ps = name_table.getDebugName(6) or 'Font'
-        ps_name = ('%s-%s' % (source_ps[:52], file_options['postscript-suffix']))[:63]
-
-    # nameID 2 must be a RIBBI style that matches OS/2 (already updated): Regular, Italic, Bold or Bold Italic.
-    fs = font['OS/2'].fsSelection if 'OS/2' in font else 0x40
-    is_italic = bool(fs & 0x01)
-    is_bold = bool(fs & 0x20)
-    ribbi = ('Bold Italic' if is_italic else 'Bold') if is_bold else ('Italic' if is_italic else 'Regular')
-
-    # nameID 17 (typographic subfamily): the name of the named instance at the new default, if any.
-    default_style = None
-    if 'fvar' in font:
-        defaults = {ax.axisTag: ax.defaultValue for ax in font['fvar'].axes}
-        for inst in font['fvar'].instances:
-            if all(abs(inst.coordinates.get(t, v) - v) < 0.01 for t, v in defaults.items()):
-                default_style = name_table.getDebugName(inst.subfamilyNameID)
-                break
-
-    # nameID 1 = Family, 4 = Full name, 6 = PostScript name
-    # nameID 2 = Subfamily — reset to 'Regular' so the restricted file does not
-    #            collide with the source font's Subfamily in OS font caches.
-    # nameID 3 = Unique ID — regenerate so it is distinct from the source font.
-    # nameID 16 = Preferred family (update only if present)
-    # nameID 25 = Variations PS Name Prefix (update only if present)
-    #
-    # head.fontRevision is a Fixed value (e.g. 1.000). Fall back to '1.000' if
-    # the head table is unreadable.
-    try:
-        version = '%.3f' % font['head'].fontRevision
-    except Exception:
-        version = '1.000'
-    unique_id = '%s;%s;%s' % (version, ps_name, family_name)
-
-    # Full name: drop "Regular" (as the spec advises) and don't repeat a style the family name already ends with.
-    full_name = family_name if ribbi == 'Regular' or family_name.lower().endswith(ribbi.lower()) else '%s %s' % (family_name, ribbi)
-    # nameID 25 may only hold ASCII letters and digits (OpenType spec); named-instance PostScript names
-    # are <prefix>-<style> (Adobe Technical Note #5902).
-    vf_prefix = ''.join(c for c in ps_name if c.isascii() and c.isalnum())[:27] or 'Font'
-    updates = {
-        1: family_name,
-        2: ribbi,
-        3: unique_id,
-        4: full_name,
-        6: ps_name,
-    }
-    if 16 in existing_ids:
-        updates[16] = family_name
-    if 17 in existing_ids and default_style:
-        updates[17] = default_style
-    if 25 in existing_ids:
-        updates[25] = vf_prefix
-
-    # Named instances' PostScript names follow the new prefix, e.g. InterRegularBold-Medium.
-    if 'fvar' in font:
-        for inst in font['fvar'].instances:
-            pid = getattr(inst, 'postscriptNameID', 0xFFFF)
-            if pid in (None, 0xFFFF):
-                continue
-            style = (name_table.getDebugName(inst.subfamilyNameID) or '').replace(' ', '')
-            style = ''.join(c for c in style if c.isascii() and (c.isalnum() or c == '-'))
-            updates[pid] = ('%s-%s' % (vf_prefix, style))[:63]
-
-    # Rewrite every platform. A Mac (platform 1) record that can't be encoded in Mac Roman is dropped
-    # rather than filled with '?'; Windows and Unicode records always carry the full name.
-    keep = []
-    for record in name_table.names:
-        if record.nameID not in updates:
-            keep.append(record)
-            continue
-        value = updates[record.nameID]
-        if record.platformID in (0, 3):
-            record.string = value.encode('utf-16-be')
-        elif record.platformID == 1:
-            try:
-                record.string = value.encode('mac_roman')
-            except Exception:
-                continue
-        keep.append(record)
-    name_table.names = keep
-
+def vf_clamp_finish(file_options, opts_json):
+    opts = json.loads(opts_json)
+    font = TTFont(file_options['input-file'])
+    finish(font, opts['family'], opts.get('style'), opts.get('pinned') or {}, opts['source'])
     font.save(file_options['output-file'])
 
-patch_font_names_fn
+vf_clamp_finish
 `)
 		)
 	}
-	return _namePatcherFnP!
+	return _finisherFnP!
 }
 
 /**
@@ -131,7 +57,7 @@ patch_font_names_fn
 async function getInstancer() {
 	if (!_instancerFnP) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		_instancerFnP = preparePyodide().then((pyodide: any) =>
+		_instancerFnP = loadNaming().then(() => preparePyodide()).then((pyodide: any) =>
 			pyodide.runPythonAsync(`
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
@@ -163,8 +89,12 @@ def vf_clamp_instantiate(file_options, axes_json):
         else:
             limits[tag] = float(spec)
 
+    # The style rules need the source's italic bits and which axes were pinned (they leave fvar).
+    source = source_style_info(font)
+    pinned = {tag: value for tag, value in limits.items() if isinstance(value, float)}
     partial = instancer.instantiateVariableFont(font, limits)
     partial.save(file_options['output-file'])
+    return json.dumps({'source': source, 'pinned': pinned})
 
 vf_clamp_instantiate
 `)
@@ -258,123 +188,24 @@ vf_clamp_normalize_wght
 }
 
 /**
- * Update OS/2.usWeightClass, OS/2.fsSelection, and head.macStyle to reflect
- * the new wght default after clamping. Without this, the OS reports the
- * restricted file with the source font's original weight metadata.
+ * Apply vf-clamp's naming, style-bit and STAT rules to a clamped font (docs/NAMING.md).
+ * Throws if it fails, so a file still carrying the retail names is never returned.
  */
-async function getOs2Updater() {
-	if (!_os2UpdaterFnP) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		_os2UpdaterFnP = preparePyodide().then((pyodide: any) =>
-			pyodide.runPythonAsync(`
-from fontTools.ttLib import TTFont
-
-def vf_clamp_update_os2(file_options):
-    font = TTFont(file_options['input-file'])
-
-    # A fully static output (every axis pinned) has no fvar, but still needs its style bits set.
-    wght_axis = next((ax for ax in font['fvar'].axes if ax.axisTag == 'wght'), None) if 'fvar' in font else None
-    if wght_axis is not None:
-        # OS/2.usWeightClass valid range is 1..1000.
-        weight_class = int(round(max(1, min(1000, wght_axis.defaultValue))))
-    elif 'OS/2' in font:
-        # wght was pinned: fontTools has already set usWeightClass to the pinned weight.
-        weight_class = font['OS/2'].usWeightClass
-    else:
-        font.save(file_options['output-file'])
-        return
-
-    if 'OS/2' in font:
-        os2 = font['OS/2']
-        os2.usWeightClass = weight_class
-        # fsSelection: 0x01 ITALIC (kept), 0x20 BOLD, 0x40 REGULAR. REGULAR only when neither ITALIC nor BOLD.
-        fs = os2.fsSelection
-        fs &= ~(0x20 | 0x40)
-        if weight_class >= 700:
-            fs |= 0x20
-        elif not fs & 0x01:
-            fs |= 0x40
-        os2.fsSelection = fs
-
-    if 'head' in font:
-        head = font['head']
-        # macStyle bit 0 = bold.
-        ms = head.macStyle
-        if weight_class >= 700:
-            ms |= 0x01
-        else:
-            ms &= ~0x01
-        head.macStyle = ms
-
-    font.save(file_options['output-file'])
-
-vf_clamp_update_os2
-`)
-		)
-	}
-	return _os2UpdaterFnP!
-}
-
-/**
- * Convert a human-readable family name to a valid PostScript name.
- * Transliterates accents (Été → Ete), drops other non-ASCII characters, replaces spaces with
- * hyphens, and keeps within the 63-character OpenType limit (long names end in a short hash).
- * An empty result is replaced in Python by the source PostScript name plus a hash.
- */
-export function toPostScriptName(familyName: string): string {
-	const ascii = familyName
-		.normalize('NFKD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/[^A-Za-z0-9 -]/g, '')
-		.trim()
-		.split(/\s+/)
-		.join('-')
-		.replace(/-+/g, '-')
-		.replace(/^-+|-+$/g, '')
-	// Over 63 characters: keep a readable prefix and add a hash of the full name so long names stay unique.
-	return ascii.length <= 63 ? ascii : `${ascii.slice(0, 56).replace(/-+$/, '')}-${shortHash(familyName)}`
-}
-
-/** Six-character FNV-1a hash of a string, used to keep shortened or transliterated PostScript names unique. */
-export function shortHash(text: string): string {
-	let h = 0x811c9dc5
-	for (const ch of text) {
-		h ^= ch.codePointAt(0)!
-		h = Math.imul(h, 0x01000193) >>> 0
-	}
-	return h.toString(36).padStart(6, '0').slice(-6)
-}
-
-/**
- * Patch the name table of a font buffer to reflect the restricted instance range.
- * Updates nameIDs 1 (Family), 4 (Full name), 6 (PostScript), 16 and 25 if present.
- * Throws if patching fails, so a file still carrying the retail names is never returned.
- */
-async function patchFontNames(buffer: Uint8Array, familyName: string): Promise<Uint8Array> {
-	if (!familyName) return buffer
+async function runFinisher(buffer: Uint8Array, opts: { family: string; style: string | null; pinned: Record<string, number>; source: unknown }): Promise<Uint8Array> {
 	const pyodide = await preparePyodide()
 	const inputFile  = new PyodideFile({ pyodide })
 	const outputFile = new PyodideFile({ pyodide })
 	try {
-		const psName = toPostScriptName(familyName)
-
 		await inputFile.upload(buffer)
-
 		const fileOptions = new Map([
-			['input-file', inputFile.filename],
+			['input-file',  inputFile.filename],
 			['output-file', outputFile.filename],
-			['family-name', familyName],
-			['postscript-name', psName],
-			['postscript-suffix', shortHash(familyName)],
 		])
-
-		const patcher = await getNamePatcher()
-		patcher(fileOptions)
-
-		const result = outputFile.download()
-		return result as Uint8Array
+		const fn = await getFinisher()
+		fn(fileOptions, JSON.stringify(opts))
+		return outputFile.download() as Uint8Array
 	} catch (err) {
-		throw Object.assign(new Error(`vf-clamp: name table patching failed for "${familyName}"`), { cause: err })
+		throw Object.assign(new Error(`vf-clamp: name table patching failed for "${opts.family}"`), { cause: err })
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -389,7 +220,7 @@ function toInstancerValue(value: AxisValue): number | [number, number] | null {
 }
 
 /** Run the Python instancer via Pyodide, passing axis specs as JSON to avoid bridging issues */
-async function runInstancer(bytes: Uint8Array | Buffer, instancerAxes: Record<string, number | [number, number] | null>): Promise<Uint8Array> {
+async function runInstancer(bytes: Uint8Array | Buffer, instancerAxes: Record<string, number | [number, number] | null>): Promise<{ buffer: Uint8Array; info: { source: unknown; pinned: Record<string, number> } }> {
 	const pyodide = await preparePyodide()
 	const inputFile  = new PyodideFile({ pyodide })
 	const outputFile = new PyodideFile({ pyodide })
@@ -403,37 +234,9 @@ async function runInstancer(bytes: Uint8Array | Buffer, instancerAxes: Record<st
 		])
 
 		const fn = await getInstancer()
-		fn(fileOptions, JSON.stringify(instancerAxes))
+		const info = JSON.parse(fn(fileOptions, JSON.stringify(instancerAxes)))
 
-		const result = outputFile.download()
-		return result as Uint8Array
-	} finally {
-		try { inputFile.delete() } catch { /* already cleaned */ }
-		try { outputFile.delete() } catch { /* already cleaned */ }
-	}
-}
-
-/** Update OS/2.usWeightClass, fsSelection, and head.macStyle from the new wght default */
-async function runOs2Updater(bytes: Uint8Array): Promise<Uint8Array> {
-	const pyodide = await preparePyodide()
-	const inputFile  = new PyodideFile({ pyodide })
-	const outputFile = new PyodideFile({ pyodide })
-
-	try {
-		await inputFile.upload(bytes)
-
-		const fileOptions = new Map([
-			['input-file',  inputFile.filename],
-			['output-file', outputFile.filename],
-		])
-
-		const fn = await getOs2Updater()
-		fn(fileOptions)
-
-		const result = outputFile.download()
-		return result as Uint8Array
-	} catch (err) {
-		throw Object.assign(new Error('vf-clamp: OS/2 and macStyle update failed'), { cause: err })
+		return { buffer: outputFile.download() as Uint8Array, info }
 	} finally {
 		try { inputFile.delete() } catch { /* already cleaned */ }
 		try { outputFile.delete() } catch { /* already cleaned */ }
@@ -530,7 +333,7 @@ export async function clampFont(
 	const format: OutputFormat = options.format ?? 'ttf'
 
 	// Read axes and named instances once — needed for the instances path, the strict check and the default-range warning
-	const { instances: fontInstances, axes: axisDefs, family: sourceFamily } = await getInstances(bytes)
+	const { instances: fontInstances, axes: axisDefs, family: sourceFamily, labels } = await getInstances(bytes)
 
 	const results: ClampResult[] = []
 
@@ -582,37 +385,28 @@ export async function clampFont(
 			if (value !== null) instancerAxes[tag] = toInstancerValue(value)
 		}
 
-		// Derive name before patching so the name table reflects it. Without an explicit name, prefix the
-		// source family so the delivered file isn't called just "Regular-Bold".
-		// Use ASCII hyphen (not en-dash) so toPostScriptName preserves the separator
-		const range = output.instances?.length
-			? output.instances.length === 1
-				? output.instances[0]
-				: `${output.instances[0]}-${output.instances[output.instances.length - 1]}`
-			: 'Clamped'
-		const name = output.name || (sourceFamily ? `${sourceFamily} ${range}` : range)
+		// Without an explicit name: the source family plus one range per axis, in the font's own style words
+		// ("Encode Sans SemiCondensed-Normal Thin-Light"). A blank name counts as no name.
+		const picked = (output.instances ?? []).map((n) => findInstance(n, fontInstances))
+		const range = picked.length ? rangeName(picked, fontInstances, axisDefs, labels ?? {}) : 'Clamped'
+		const name = output.name?.trim() || (sourceFamily ? `${sourceFamily} ${range}` : range)
 
-		let buffer = await runInstancer(bytes, instancerAxes)
+		const { buffer: instanced, info } = await runInstancer(bytes, instancerAxes)
+		let buffer = instanced
 
 		// 'otf' is a label, not a conversion: refuse it for TrueType-outline fonts rather than mislabel them
 		if (format === 'otf' && !isCffSfnt(buffer)) {
 			throw new Error("vf-clamp: format 'otf' needs a CFF/CFF2 source font; this font has TrueType outlines — use 'ttf'")
 		}
 
-		// STAT is left to fontTools: its instancer drops axis values outside the new range, and STAT may
-		// legitimately describe axes that are not in fvar (Inter's ital), which upright/italic linking needs.
-
 		// Optionally remap wght axis to CSS 100–900 range
 		if (options.normalizeWeightAxis) {
 			buffer = await runNormalizer(buffer, 100)
 		}
 
-		// Sync OS/2.usWeightClass + head.macStyle to the new wght default so the
-		// OS reports the restricted file with the correct weight metadata.
-		buffer = await runOs2Updater(buffer)
-
-		// Update the name table so the restricted font reflects its actual instance range
-		buffer = await patchFontNames(buffer, name)
+		// STAT links, OS/2 style bits and names, all from the shared module (docs/NAMING.md). A single picked
+		// instance names the file's style; a range takes the instance at its new default.
+		buffer = await runFinisher(buffer, { family: name, style: picked.length === 1 ? picked[0].name : null, pinned: info.pinned, source: info.source })
 
 		if (format === 'woff2') {
 			buffer = await convertToWoff2(buffer)

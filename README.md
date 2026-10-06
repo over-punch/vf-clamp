@@ -486,7 +486,7 @@ For font engineers — the pipeline, in order, per output:
 2. **STAT** — left to the fontTools instancer, which drops axis values outside the range. STAT design axes that aren't in `fvar` (such as Inter's `ital`) are kept, because upright/italic linking needs them. (Before 2.3.0, vf-clamp also pruned those axes; that broke the linking.)
 3. **Weight normalisation** (only with `normalizeWeightAxis`) — the wght user-space range is remapped to start at 100; avar is unchanged because normalised values are preserved. This changes registered-axis semantics, so use it only when CSS `font-weight` must reach the lightest weight.
 4. **OS/2 and head** — `usWeightClass`, `fsSelection` and `macStyle` follow the new default (or the pinned weight). REGULAR is set only when the file is neither bold nor italic, and the italic bit is kept.
-5. **Names** — see the name table note under [Notes](#notes).
+5. **Names, style bits and STAT links** — one shared implementation, specified in [docs/NAMING.md](docs/NAMING.md). Unnamed outputs get one range per axis in the font's own style words, e.g. `Encode Sans SemiCondensed-Normal Thin-Light`.
 6. **Encode** — WOFF or WOFF2 when requested.
 
 The engine is fontTools **4.56.0** (via [`@web-alchemy/fonttools`](https://www.npmjs.com/package/@web-alchemy/fonttools)) on **Pyodide 0.29.3** — about 15 MB on disk, none of it shipped to browsers. Fonts with avar version 2 or a VARC table are refused, because this fontTools version can't restrict them correctly. Hinting is whatever the instancer keeps; most VFs ship unhinted.

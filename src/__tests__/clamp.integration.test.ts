@@ -249,4 +249,18 @@ describe('clampFont — review fixes (real Pyodide + fonttools)', () => {
 		expect(info.fsSelection & 0x40).toBe(0)
 		expect(info.n2).toBe('Bold')
 	}, 120_000)
+
+	it('a non-Latin family name never leaks the source name into PostScript names', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: '源ノ角ゴシック', instances: ['Regular', 'Bold'] }] })
+		const info = await inspectFont(r.buffer)
+		expect(info.n6.startsWith('Font-')).toBe(true)
+		expect([info.n6, info.n25, ...info.instancePs].join(' ')).not.toMatch(/Inter/)
+	}, 120_000)
+
+	it('two static pins with the same family get different PostScript names', async () => {
+		const [bold, thin] = await clampFont(interVF(), { outputs: [{ name: 'Test Sans', instances: ['Bold'] }, { name: 'Test Sans', instances: ['Thin'] }] })
+		const a = await inspectFont(bold.buffer), b = await inspectFont(thin.buffer)
+		expect(a.n6).toBe('Test-Sans-Bold')
+		expect(b.n6).not.toBe(a.n6)
+	}, 120_000)
 })
