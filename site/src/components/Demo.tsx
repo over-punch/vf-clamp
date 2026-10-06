@@ -16,7 +16,7 @@ type LoadState = 'idle' | 'loading' | 'ready' | 'error'
 
 const STAGE_LABELS = [
 	'Sending font to server…',
-	'Starting fonttools engine…',
+	'Running fonttools…',
 	'Restricting axis ranges…',
 	'Packaging output files…',
 ] as const
@@ -1291,7 +1291,7 @@ export default function Demo() {
 								{/* Show cold-start hint only on the first download */}
 								{downloadCount === 0 && (
 									<p className="text-[10px] text-subtle">
-										First run includes fonttools engine startup (~10 s)
+										If the server is asleep, the first run takes up to ~10 s
 									</p>
 								)}
 							</div>
