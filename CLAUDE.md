@@ -68,7 +68,9 @@ delivered file is identifiable as the purchased range:
 | 16     | Preferred family   | same as 1 (if present)   |
 | 25     | Variations PS prefix | ASCII letters and digits only (OpenType spec), e.g. "EncodeSansLightBold" (if present) |
 
-nameID 2 (Subfamily) is reset to 'Regular' and nameID 3 (Unique ID) is rewritten to `version;psName;family` (per range, not per order). nameIDs 5 (Version) and 7–14 (legal/designer) are NOT changed.
+nameID 2 (Subfamily) is the RIBBI style that matches OS/2 (Regular, Italic, Bold or Bold Italic); a non-RIBBI style such as SemiBold stays in the family name. nameID 4 leaves out "Regular" and never repeats a style the family name ends with. nameID 3 (Unique ID) is rewritten to `version;psName;family` (per output name, not per order). Named instances' PostScript names become `<nameID 25 prefix>-<style>`. nameIDs 5 (Version) and 7–14 (legal/designer) are NOT changed.
+
+The Glyphs and RoboFont plugins reimplement this in Python: any change here must be ported to both, then checked with the parity harness (see the tool-talk skill, section 1b).
 
 ---
 
