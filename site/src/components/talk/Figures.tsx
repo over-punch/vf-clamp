@@ -5,11 +5,11 @@ function Caption({ children }: { children: React.ReactNode }) {
 	return <figcaption className="mt-3 px-2 lg:px-8 text-xs text-muted tracking-wide">{children}</figcaption>
 }
 
-/** Survey funnel: 394 → 227 → 119 → 22 → 0. */
+/** Survey funnel: 394 → 213 classified VF sellers → 119 → 22 → 0. */
 export function FunnelFigure() {
 	const rows = [
 		{ label: 'Listed in the Type Foundry Directory', n: 394 },
-		{ label: 'Sell variable fonts', n: 227 },
+		{ label: 'Sell variable fonts (classified)', n: 213 },
 		{ label: 'Offer a VF without the complete family', n: 119 },
 		{ label: 'Sell subfamily VFs', n: 22, strong: true },
 		{ label: 'Scope a VF to the styles bought', n: 0, strong: true },
@@ -28,7 +28,7 @@ export function FunnelFigure() {
 					</div>
 				))}
 			</div>
-			<Caption>Subfamily VF: one whole width, optical size, posture or corner style of a larger VF. Every foundry checked against its buy pages and store data, October 2026.</Caption>
+			<Caption>Subfamily VF: one whole width, optical size, posture or corner style of a larger VF. Every foundry checked against its buy pages and store data, October 2026; 32 more sell or may sell VFs but couldn&rsquo;t be classified.</Caption>
 		</div>
 	)
 }
@@ -79,7 +79,7 @@ export function CrossoverFigure() {
 	]
 	return (
 		<div className="fig rounded-xl p-6 lg:p-8" style={{ background: 'var(--panel)' }}>
-			<p className="mb-4 text-xl lg:text-2xl" style={{ fontFamily: 'var(--font-merriweather), serif', fontVariationSettings: '"wght" 300, "opsz" 36' }}>Two styles in, the clamped VF is smaller. Seven in, it is 72% smaller.</p>
+			<p className="mb-4 text-xl lg:text-2xl" style={{ fontFamily: 'var(--font-merriweather), serif', fontVariationSettings: '"wght" 300, "opsz" 36' }}>Two adjacent styles in, the clamped VF is smaller. Seven in, it&rsquo;s 72% smaller.</p>
 			<svg viewBox="0 0 700 270" className="w-full h-auto" role="img" aria-label="Inter 4 WOFF2 size by styles bought: static fonts grow from 111 KB to 1,020 KB; a weight-clamped variable font grows from 111 KB to 234 KB; the full variable font is 345 KB.">
 				<line x1="40" x2="530" y1="230" y2="230" strokeWidth="1" style={{ stroke: 'var(--foreground)', strokeOpacity: 0.15 }} />
 				{series.map((s, i) => s.label === 'Full VF'
@@ -87,7 +87,7 @@ export function CrossoverFigure() {
 						: <path key={s.label} className="fig-draw" pathLength={1} d={s.d} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ ...s.style, ['--r' as string]: `entry ${25 + i * 14}% entry 100%` } as React.CSSProperties} />)}
 				{series.map(s => <text key={s.label} className="fig-fade" x={540} y={y(s.end) + (s.label === 'Full VF' ? -9 : s.label === 'Clamped + opsz' ? 5 : 8)} fontSize="12" style={{ fill: s.label === 'Clamped VF' ? 'var(--foreground)' : 'var(--foreground-muted)' }}>{s.label} · {s.end} KB</text>)}
 				{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => <text key={k} x={x(k)} y={250} textAnchor="middle" fontSize="11" style={{ fill: 'var(--foreground-subtle)' }}>{k}</text>)}
-				<text x={40} y={268} fontSize="11" style={{ fill: 'var(--foreground-subtle)' }}>Styles bought, from Regular upward</text>
+				<text x={40} y={268} fontSize="11" style={{ fill: 'var(--foreground-subtle)' }}>Adjacent styles bought: Regular, then heavier; 7–9 add Light, ExtraLight, Thin</text>
 			</svg>
 			<Caption>Inter 4 (wght 100–900, opsz 14–32), WOFF2, fontTools 4.63 instancer, October 2026. “Clamped VF” pins opsz like the statics; “Clamped + opsz” keeps it variable.</Caption>
 		</div>

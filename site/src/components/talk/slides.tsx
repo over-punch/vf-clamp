@@ -4,8 +4,7 @@
 import { Fragment, useEffect, useState, type CSSProperties } from 'react'
 import { MagnetChar } from '@overpunch/magnettype'
 import { SCRIPT_NOTES } from '../../content/talkScript'
-import { toolBg, toolFg, toolFgMuted, type ToolId } from '../../lib/toolColors'
-import { TOOLS } from '../ToolDirectory'
+import { type ToolId } from '../../lib/toolColors'
 import { A, MONO, palette, display, rise, CountUp, Eyebrow, Title, Body, Card, Numeral, Quote, Reveal, FunnelRow, Frame, ThreeUp, type Slide } from './engine'
 
 /** Source URLs cited in footers. */
@@ -27,6 +26,10 @@ const SRC = {
 	instancer: 'https://fonttools.readthedocs.io/en/latest/varLib/instancer.html',
 	balEula: 'https://www.bal-foundry.com/eula',
 	vfclampGithub: 'https://github.com/over-punch/vf-clamp',
+	typophile1514: 'https://github.com/06b/typophile.github.io/blob/master/json/1514.json',
+	riggs2014: 'https://blog.typekit.com/2014/07/30/the-adobe-originals-silver-anniversary-story-how-the-originals-endured-in-an-ever-changing-industry/',
+	hbPaper: 'https://hoverboldly.com/paper',
+	almanac24: 'https://almanac.httparchive.org/en/2024/fonts',
 }
 
 /** Talk title, used in footers and the page chrome. */
@@ -45,8 +48,9 @@ function ClampMotif() {
 			{rows.map(r => (
 				<div key={r.tag} style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
 					<span style={{ fontFamily: MONO, fontSize: 22, width: 64, color: 'var(--t-subtle)' }}>{r.tag}</span>
-					<div style={{ position: 'relative', flex: 1, height: 6, borderRadius: 3, background: 'var(--t-faint)' }}>
-						<div className={r.clamp ? 'vfd-clamp' : undefined} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 6, borderRadius: 3, background: 'var(--accent, rgba(80,190,200,.85))' }} />
+					<div style={{ position: 'relative', flex: 1, height: 10, borderRadius: 5, background: 'var(--t-faint)' }}>
+						<div className={r.clamp ? 'vfd-clamp' : undefined} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 10, borderRadius: 5, background: 'var(--accent, rgba(80,190,200,.85))' }} />
+						{r.clamp && ['400', '700'].map((v, i) => <span key={v} style={{ position: 'absolute', top: 18, left: i ? '75%' : '37.5%', transform: 'translateX(-50%)', fontFamily: MONO, fontSize: 18, color: 'var(--t-muted)' }}>{v}</span>)}
 					</div>
 				</div>
 			))}
@@ -116,21 +120,21 @@ function AdoptionChart() {
 /** Inter 4 WOFF2 sizes in KB by number of contiguous styles bought (benchmark, fontTools 4.63, October 2026). */
 const CROSSOVER = {
 	statics: [111, 226, 340, 456, 571, 683, 797, 910, 1020],
-	clamped: [111, 163, 169, 173, 177, 181, 225, 230, 234],
+	clamped: [111, 162, 169, 173, 177, 181, 225, 230, 234],
 	clampedOpsz: [164, 232, 243, 250, 256, 261, 334, 343, 345],
 	full: 345,
 }
 
 /** Crossover chart: total static size vs a range-clamped VF as more styles are bought; series reveal by step. */
 function CrossoverChart({ step }: { step: number }) {
-	const W = 1664, H = 470, x0 = 90, x1 = W - 240, y0 = 30, y1 = H - 60, max = 1050
+	const W = 1664, H = 470, x0 = 90, x1 = W - 340, y0 = 30, y1 = H - 60, max = 1050
 	const x = (k: number) => x0 + ((k - 1) / 8) * (x1 - x0)
 	const y = (kb: number) => y1 - (kb / max) * (y1 - y0)
 	const path = (arr: number[]) => arr.map((v, i) => `${i ? 'L' : 'M'}${x(i + 1)} ${y(v)}`).join(' ')
 	const series: { key: string; d: string; label: string; end: number; style: CSSProperties; at: number }[] = [
 		{ key: 'statics', d: path(CROSSOVER.statics), label: 'Static fonts', end: CROSSOVER.statics[8], style: { stroke: 'var(--t-subtle)', strokeWidth: 3 }, at: 0 },
 		{ key: 'full', d: `M${x(1)} ${y(CROSSOVER.full)} L${x(9)} ${y(CROSSOVER.full)}`, label: 'Full VF', end: CROSSOVER.full, style: { stroke: 'var(--t-faint)', strokeWidth: 2, strokeDasharray: '8 8' }, at: 0 },
-		{ key: 'opsz', d: path(CROSSOVER.clampedOpsz), label: 'Clamped, opsz kept', end: CROSSOVER.clampedOpsz[8], style: { stroke: 'var(--t-muted)', strokeWidth: 3 }, at: 2 },
+		{ key: 'opsz', d: path(CROSSOVER.clampedOpsz), label: '', end: CROSSOVER.clampedOpsz[8], style: { stroke: 'var(--t-muted)', strokeWidth: 3 }, at: 2 },
 		{ key: 'clamped', d: path(CROSSOVER.clamped), label: 'Clamped VF', end: CROSSOVER.clamped[8], style: { stroke: 'var(--t-fg)', strokeWidth: 5 }, at: 1 },
 	]
 	return (
@@ -139,14 +143,21 @@ function CrossoverChart({ step }: { step: number }) {
 				<line x1={x0} x2={x1} y1={y1} y2={y1} strokeWidth="2" style={{ stroke: 'var(--t-fg)', strokeOpacity: 0.1 }} />
 				{series.map(s => <path key={s.key} d={s.d} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ ...s.style, opacity: step >= s.at ? 1 : 0, transition: 'opacity 500ms ease' }} />)}
 			</svg>
-			{series.map(s => (
-				<span key={s.key} style={{ position: 'absolute', left: x1 + 20, top: y(s.end) - 18 + (s.key === 'full' ? -32 : s.key === 'opsz' ? 4 : s.key === 'clamped' ? 26 : 0), fontSize: 24, fontWeight: s.key === 'clamped' ? 500 : 300, color: s.key === 'clamped' ? 'var(--t-fg)' : 'var(--t-muted)', opacity: step >= s.at ? 1 : 0, transition: 'opacity 500ms ease', whiteSpace: 'nowrap' }}>{s.label} · {s.end} KB</span>
+			{series.filter(s => s.label).map(s => (
+				<span key={s.key} style={{ position: 'absolute', left: x1 + 20, top: y(s.end) - 18 + (s.key === 'clamped' ? 16 : 0), fontSize: 24, fontWeight: s.key === 'clamped' ? 500 : 300, color: s.key === 'clamped' ? 'var(--t-fg)' : 'var(--t-muted)', opacity: step >= s.at ? 1 : 0, transition: 'opacity 500ms ease', whiteSpace: 'nowrap' }}>{s.label} · {s.end} KB{s.key === 'full' && step >= 2 && <span style={{ display: 'block', fontSize: 20, color: 'var(--t-subtle)' }}>clamped with opsz kept: the same</span>}</span>
+			))}
+			{([[2, '162 vs 226 KB'], [7, '−72%']] as [number, string][]).map(([k, t]) => (
+				<span key={k} style={{ position: 'absolute', left: x(k), top: y(CROSSOVER.clamped[k - 1]) + 22, transform: 'translateX(-50%)', ...display(34), whiteSpace: 'nowrap', opacity: step >= 1 ? 1 : 0, transition: 'opacity 500ms ease' }}>{t}</span>
 			))}
 			{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => <span key={k} style={{ position: 'absolute', left: x(k), top: y1 + 16, transform: 'translateX(-50%)', fontSize: 22, color: 'var(--t-subtle)' }}>{k}</span>)}
-			<span style={{ position: 'absolute', left: x0, top: y1 + 48, fontSize: 22, color: 'var(--t-subtle)' }}>Styles bought, from Regular upward · WOFF2</span>
+			<span style={{ position: 'absolute', left: x0, top: y1 + 48, fontSize: 22, color: 'var(--t-subtle)' }}>Adjacent styles bought: Regular, then heavier; 7–9 add lighter weights · Inter 4, WOFF2</span>
 		</div>
 	)
 }
+
+/** The demo's result, read from the recorded demo: percentage saved and the caption under it. */
+const DEMO_SAVING = 33
+const DEMO_CAPTION = 'Encode Sans, Regular to Bold in the demo: one file, 279 KB down to 186 KB.'
 
 /** The 22 foundries selling subfamily variable fonts (verified October 2026). */
 const SUBFAMILY_FOUNDRIES = ['BAL Foundry', 'CJ Type', 'CSTM', 'Dalton Maag', 'Dinamo', 'DJR', 'Flight Mode', 'Gruppo Due', 'Identity Letters', 'Kilotype', 'Luzi Type', 'Mass-Driver', 'NaN', 'nice to type', 'Optimo', 'Pangram Pangram', 'Pizza Typefaces', 'Polytype', 'Smuss Type Kiosk', 'Socio Type', 'Studio Feixen', 'Typotheque']
@@ -174,9 +185,9 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.hook,
 		render: s => (
 			<Frame eyebrow="The problem" gap={48}>
-				<Title a="You bought Regular and Bold." b="You got two static files." size={96} />
-				<Reveal at={1} step={s} style={{ display: 'flex', gap: 24 }}>
-					{['Family-Regular.woff2', 'Family-Bold.woff2'].map(f => <Card key={f} style={{ padding: '24px 36px' }}><p style={{ fontFamily: MONO, fontSize: 30 }}>{f}</p></Card>)}
+				<Title a="You bought four weights. You got four files." size={96} />
+				<Reveal at={1} step={s} style={{ display: 'flex', gap: 20 }}>
+					{['Regular', 'Medium', 'SemiBold', 'Bold'].map(f => <Card key={f} style={{ padding: '22px 28px' }}><p style={{ fontFamily: MONO, fontSize: 26 }}>Family-{f}.woff2</p></Card>)}
 				</Reveal>
 				<Reveal at={2} step={s}><RangeSpecimen /></Reveal>
 			</Frame>
@@ -188,7 +199,7 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.unused,
 		render: s => (
 			<Frame eyebrow="The problem" gap={56}>
-				<Title a="Foundries make variable fonts." b="Almost nobody licenses them." size={96} />
+				<Title a="Variable fonts are made, and rarely sold." size={96} />
 				<ThreeUp step={s}>
 					<Quote q="“We’ve had maybe 4 requests for VF since it launched.”" who="Kris Sowersby · Klim · 2021" />
 					<Quote q="“They are not exactly burning up the charts yet.”" who="Christopher Slye · Type Network · 2022" />
@@ -203,15 +214,15 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.price,
 		render: s => (
 			<Frame eyebrow="Why" gap={56}>
-				<Title a="The price is the whole family." b="The purchase is one to six styles." size={96} />
+				<Title a="A variable font comes as a bundle." size={96} />
 				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 96 }}>
 					<Reveal at={1} step={s}>
 						<p style={display(44, { fontStyle: 'italic', lineHeight: 1.3 })}>“Only a tiny percent of customers purchase an entire static family. … The bulk of my customers purchase 1–6 styles from the 48 available.”</p>
 						<div style={{ marginTop: 24 }}><Eyebrow>Mark Simonson · 2022</Eyebrow></div>
 					</Reveal>
 					<Reveal at={2} step={s} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-						<p style={display(160)}>1.5–6×</p>
-						<Body size={30}>What a two-style buyer pays to get a variable font today, against two single styles. Dalton Maag’s cheapest tier is £95 against £63; a full design space runs £380.</Body>
+						<p style={display(160)}>£64 · £95</p>
+						<Body size={30}>Dalton Maag, Aktiv Grotesk: two single styles, against the cheapest variable font, which includes all nine weights. Proxima Vara: $79.98 against $199.99.</Body>
 					</Reveal>
 				</div>
 			</Frame>
@@ -233,19 +244,33 @@ export const SLIDES: Slide[] = [
 		),
 	},
 	{
+		id: 'mm', tool: 'opszStepper', steps: 1,
+		footer: <>Thomas Phinney on Typophile, 2003 (<A href={SRC.typophile1514}>thread 1514</A>, 2016 archive) · Tamye Riggs, <A href={SRC.riggs2014}>Typekit, 2014</A></>,
+		notes: SCRIPT_NOTES.mm,
+		render: s => (
+			<Frame eyebrow="We’ve been here before" gap={52}>
+				<Title a="Multiple Masters shipped the space, 1991–1998." size={88} />
+				<div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 96, alignItems: 'end' }}>
+					<Reveal at={1} step={s}><p style={display(44, { fontStyle: 'italic', lineHeight: 1.3 })}>“most users only used the default instances and never made custom instances. For them, we would have made their lives easier if we sold them separate fonts with nice clear names.”</p><div style={{ marginTop: 22 }}><Eyebrow>Thomas Phinney · Adobe · 2003</Eyebrow></div></Reveal>
+					<Reveal at={1} step={s}><p style={display(72, { lineHeight: 1.1 })}>Sell named styles.<br /><span style={{ fontStyle: 'italic', color: 'var(--t-subtle)' }}>Ship the space too.</span></p></Reveal>
+				</div>
+			</Frame>
+		),
+	},
+	{
 		id: 'adoption', tool: 'stabilType', steps: 0,
-		footer: <>HTTP Archive Web Almanac · Fonts <A href={SRC.almanac22}>2022</A> and <A href={SRC.almanac25}>2025</A> · mobile pages</>,
+		footer: <>HTTP Archive Web Almanac · Fonts <A href={SRC.almanac22}>2022</A>, <A href={SRC.almanac24}>2024</A> and <A href={SRC.almanac25}>2025</A> · mobile pages · four free families make up almost 60% of requests</>,
 		notes: SCRIPT_NOTES.adoption,
 		render: () => (
 			<Frame eyebrow="The market" gap={32}>
-				<Title a="The web chose variable anyway." b="60% of requests: four free families." size={88} />
+				<Title a="The web chose variable anyway, mostly for free fonts." size={80} />
 				<AdoptionChart />
 			</Frame>
 		),
 	},
 	{
 		id: 'suite', tool: 'magnetType', steps: 4,
-		footer: <>Type Tools READMEs · <A href="https://axisrhythm.com">axisRhythm</A> · <A href="https://hoverboldly.com">hoverBoldly</A> · <A href="https://magnettype.com">magnetType</A></>,
+		footer: <>Type Tools READMEs · <A href="https://axisrhythm.com">axisRhythm</A> · <A href="https://hoverboldly.com">hoverBoldly</A> · <A href="https://magnettype.com">magnetType</A> · shift measured in <A href={SRC.hbPaper}>Weight Without Width</A></>,
 		notes: SCRIPT_NOTES.suite,
 		render: s => {
 			const cards: { tool: ToolId; quote: string }[] = [
@@ -255,7 +280,7 @@ export const SLIDES: Slide[] = [
 			]
 			return (
 				<Frame eyebrow="What static buyers lose" gap={56}>
-					<Title a="Three of our tools need one." b="Five more lose their main effect." size={96} />
+					<Title a="Three of our tools need a variable font." size={96} />
 					<ThreeUp step={s}>
 						{cards.map(c => {
 							const p = palette(c.tool)
@@ -268,8 +293,8 @@ export const SLIDES: Slide[] = [
 						})}
 					</ThreeUp>
 					<Reveal at={4} step={s} style={{ display: 'flex', alignItems: 'baseline', gap: 40 }}>
-						<p style={display(96)}><CountUp to={5.8} decimals={1} run={s >= 4} ms={900} />px <span style={{ color: 'var(--t-faint)' }}>0.0px</span></p>
-						<Body size={30}>How far hoverBoldly’s line shifts on hover: static fonts, then variable.</Body>
+						<p style={display(96)}><CountUp to={3.5} decimals={1} run={s >= 4} ms={900} /> px <span style={{ color: 'var(--t-subtle)' }}>→ 0</span></p>
+						<Body size={30}>Median shift when a menu label turns bold, then with hoverBoldly on a variable font. Five more tools lose their main effect without one.</Body>
 					</Reveal>
 				</Frame>
 			)
@@ -281,7 +306,7 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.crossover,
 		render: s => (
 			<Frame eyebrow="File size" gap={32}>
-				<Title a="Two styles in, the clamped VF is smaller." b="Seven styles in, it is 72% smaller." size={80} />
+				<Title a="Clamped, it’s smaller from two weights on." size={80} />
 				<CrossoverChart step={s} />
 			</Frame>
 		),
@@ -304,14 +329,14 @@ export const SLIDES: Slide[] = [
 	},
 	{
 		id: 'funnel', tool: 'typsettle', steps: 4,
-		footer: <>Subfamily VF · one whole width, optical size, posture or corner style of a larger VF · <A href={SRC.data}>full data</A></>,
+		footer: <>Subfamily VF · one whole width, optical size, posture or corner style of a larger VF · 32 more couldn’t be classified · <A href={SRC.data}>full data</A></>,
 		notes: SCRIPT_NOTES.funnel,
 		render: s => (
 			<Frame eyebrow="The survey" gap={40}>
-				<Title a="Subfamily VFs exist." b="Purchase-scoped ones don’t." size={80} />
+				<Title a="Nobody sells a VF cut to your purchase." size={80} />
 				<div>
 					<FunnelRow label="Listed in the directory" count={394} total={394} on />
-					<FunnelRow label="Sell variable fonts" count={227} total={394} on={s >= 1} />
+					<FunnelRow label="Sell variable fonts (classified)" count={213} total={394} on={s >= 1} />
 					<FunnelRow label="Offer a VF without the complete family" count={119} total={394} on={s >= 2} />
 					<FunnelRow label="Sell subfamily VFs" count={22} total={394} on={s >= 3} strong />
 					<FunnelRow label="Scope a VF to the styles bought" count={0} total={394} on={s >= 4} strong />
@@ -325,13 +350,13 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.precedent,
 		render: () => (
 			<Frame eyebrow="Precedent" gap={44}>
-				<Title a="22 foundries sell subfamily VFs." b="Every one a whole width, size or posture." size={88} />
+				<Title a="22 foundries already sell a slice." size={96} />
 				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 32px' }}>
 					{SUBFAMILY_FOUNDRIES.map((f, i) => <p key={f} className="vfd-rise" style={{ ...rise(380 + i * 35), fontSize: 28, color: 'var(--t-muted)' }}>{f}</p>)}
 				</div>
 				<div style={{ display: 'flex', alignItems: 'baseline', gap: 40 }}>
 					<p style={display(96)}>a third</p>
-					<Body size={30}>What a subfamily VF usually costs, against the complete family (19–67%).</Body>
+					<Body size={30}>What a subfamily VF (a whole width, optical size or posture) usually costs, against the complete family (19–67%).</Body>
 				</div>
 			</Frame>
 		),
@@ -343,10 +368,10 @@ export const SLIDES: Slide[] = [
 		render: () => (
 			<Frame eyebrow="The gap">
 				<div style={{ display: 'flex', alignItems: 'center', gap: 96, flex: 1 }}>
-					<p className="vfd-rise" style={{ ...display(460, { lineHeight: 0.9 }), ...rise(80) }}><CountUp from={394} to={0} ms={1300} delay={350} /></p>
+					<p className="vfd-rise" style={{ ...display(460, { lineHeight: 0.9 }), ...rise(80) }}><CountUp from={213} to={0} ms={1300} delay={350} /></p>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
-						<p className="vfd-rise" style={{ ...display(88), ...rise(1800) }}>of 394 foundries scope a VF to the styles bought.</p>
-						<p className="vfd-rise" style={{ ...display(48, { fontStyle: 'italic', color: 'var(--t-subtle)', lineHeight: 1.3 }), ...rise(2150) }}>Not subfamilies. Instance ranges.</p>
+						<p className="vfd-rise" style={{ ...display(88), ...rise(1800) }}>of 213 variable-font sellers cut one to the styles bought.</p>
+						<p className="vfd-rise" style={{ ...display(48, { fontStyle: 'italic', color: 'var(--t-subtle)', lineHeight: 1.3 }), ...rise(2150) }}>Regular to Bold, one file: nobody sells it.</p>
 					</div>
 				</div>
 			</Frame>
@@ -358,7 +383,7 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.asked,
 		render: s => (
 			<Frame eyebrow="Asked for since 2015" gap={56}>
-				<Title a="The community asked for this." b="Nobody built the shop." size={96} />
+				<Title a="Nick Sherman asked for range licences in 2015." size={84} />
 				<ThreeUp step={s}>
 					<Quote size={38} q="“it would cost less to license a limited weight range from Light to Medium (300–500) than a wide gamut from Thin to Black”" who="Nick Sherman · 2015" />
 					<Quote size={38} q="“a variable design space subsetting tool, that would enable customers to generate smaller variable fonts containing only the axes and deltas they need”" who="John Hudson · 2018" />
@@ -373,12 +398,12 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.opportunity,
 		render: s => (
 			<Frame eyebrow="The opportunity" gap={56}>
-				<Title a="Every piece already exists." b="Nobody has put them together." size={96} />
+				<Title a="Fontdue, Google Fonts and fontTools each do part of it." size={76} />
 				<ThreeUp step={s}>
 					{[
 						{ n: '01', h: 'Partial licences', b: '22 foundries already license part of a design space as a subfamily VF.' },
 						{ n: '02', h: 'Per-order files', b: 'Fontdue watermarks every delivered font with its order ID.' },
-						{ n: '03', h: 'Cuts at delivery', b: 'Google Fonts drops whole axes on the fly. Nobody narrows a range, though fontTools can.' },
+						{ n: '03', h: 'Cuts at delivery', b: 'Google Fonts pins whole axes on request. Nobody narrows a range, though fontTools can.' },
 					].map(c => <Card key={c.n} style={{ height: '100%' }}><Numeral>{c.n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{c.h}</p><Body size={32}>{c.b}</Body></Card>)}
 				</ThreeUp>
 			</Frame>
@@ -390,34 +415,34 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.how,
 		render: s => (
 			<Frame eyebrow="How it works" gap={56}>
-				<Title a="Sell the styles. Ship the space." size={96} />
+				<Title a="Buy styles, get one file." size={96} />
 				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
 					{[
-						['01', 'Buy styles', 'Customer picks Regular and Bold, the way they always have.'],
-						['02', 'Clamp', 'wght limited to 400–700. Free axes like opsz kept; unlicensed ones pinned.'],
-						['03', 'Rename', 'name and STAT tables list only what was bought.'],
-						['04', 'Deliver', 'One variable font, TTF or WOFF2, in seconds.'],
+						['01', 'Buy styles', 'Customer picks Regular to Bold, the way they always have.'],
+						['02', 'Clamp', 'wght limited to 400–700; axes they didn’t license are pinned.'],
+						['03', 'Rename', 'Named for the range; menus list Regular, Medium, SemiBold, Bold.'],
+						['04', 'Deliver', 'One variable font, alongside the statics, in seconds.'],
 					].map(([n, h, b], i) => (
 						<Reveal key={n} at={i + 1} step={s} style={{ height: '100%' }}>
 							<Card style={{ height: '100%' }}><Numeral>{n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{h}</p><Body size={32}>{b}</Body></Card>
 						</Reveal>
 					))}
 				</div>
-				<Reveal at={5} step={s}><p style={display(56, { fontStyle: 'italic' })}>In licensing terms, a static is a range of one point.</p></Reveal>
+				<Reveal at={5} step={s}><p style={display(52, { fontStyle: 'italic' })}>Regular and Bold, nothing between? Two files, or price the gap.</p></Reveal>
 			</Frame>
 		),
 	},
 	{
 		id: 'demo', tool: 'vfClamp', steps: 0,
-		footer: <><A href="https://vfclamp.com">vfclamp.com</A> · <A href={SRC.vfclampGithub}>GitHub</A> · −28% reproduced independently, October 2026</>,
+		footer: <><A href="https://vfclamp.com">vfclamp.com</A> · <A href={SRC.vfclampGithub}>GitHub</A> · vf-clamp 2.3.0, after fixes from this talk’s review</>,
 		notes: SCRIPT_NOTES.demo,
 		render: () => (
 			<Frame eyebrow="Proof it’s practical" gap={56}>
-				<Title a="vf-clamp." b="Restrict the range, keep what varies." size={96} />
+				<Title a="vf-clamp, on fontTools." size={96} />
 				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 96, alignItems: 'start' }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-						<p style={display(220)}>−<CountUp to={28} ms={1000} delay={450} />%</p>
-						<Body size={30}>Inter WOFF2, weights 100–900 clamped to 400–700: 337 KB to 243 KB.</Body>
+						<p style={display(220)}>−<CountUp to={DEMO_SAVING} ms={1000} delay={450} />%</p>
+						<Body size={30}>{DEMO_CAPTION}</Body>
 					</div>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 						{['Built on fontTools’ instancer', 'npm package, CLI and REST API', 'Glyphs, RoboFont and VS Code plugins'].map((t, i) => <p key={t} className="vfd-rise" style={{ ...rise(520 + i * 110), fontSize: 32 }}>{t}</p>)}
@@ -430,18 +455,18 @@ export const SLIDES: Slide[] = [
 	},
 	{
 		id: 'objections', tool: 'steadyGray', steps: 0,
-		footer: <>TypeDrawers: <A href={SRC.td1813}>Phinney and Kosofsky, 2016</A> · <A href={SRC.td4329}>Shinn, 2022</A> · <A href={SRC.td4252}>Constable, 2021</A></>,
+		footer: <>TypeDrawers: <A href={SRC.td1813}>Phinney and Kosofsky, 2016</A> · <A href={SRC.td4329}>Shinn, 2022</A> · <A href={SRC.td4252}>Visi, 2021</A></>,
 		notes: SCRIPT_NOTES.objections,
 		render: () => (
 			<Frame eyebrow="Objections" gap={48}>
-				<Title a="Objections, answered." size={96} />
+				<Title a="What TypeDrawers said against it." size={96} />
 				<div>
 					{[
-						['“Slicing makes retail more complicated”', 'The clamp is one call, about 3 s. Pricing the styles in between is the real decision.'],
-						['“Cheap VFs will erode family prices”', '22 foundries sell subfamily VFs and still sell families.'],
-						['“Sell the whole toolkit or be undercut”', 'Sell both: the range now, the full space as the upgrade.'],
-						['“Two statics are smaller than a VF”', 'Often true for a full VF. That is why the VF should be clamped.'],
-						['“Desktop apps handle VFs badly”', 'True today. Ship the VF alongside the statics, not instead.'],
+						['Phinney: slicing complicates retail', 'A few seconds per file, cached. Pricing the weights between is the harder part.'],
+						['Shinn: cheap VFs erode family prices', '22 foundries sell slices and still sell families. Nobody publishes the numbers.'],
+						['Kosofsky: slices get undercut', 'Sell both: the range now, the full space as the upgrade.'],
+						['Visi: file-size wins only sometimes', 'True for a full VF. Clamped, two neighbouring weights are already smaller.'],
+						['Desktop apps handle VFs badly', 'True today. Ship the VF alongside the statics, not instead.'],
 					].map(([q, a], i) => (
 						<div key={q} className="vfd-rise" style={{ ...rise(380 + i * 120), display: 'grid', gridTemplateColumns: '680px 1fr', gap: 48, padding: '20px 24px', margin: '0 -24px', background: i % 2 ? 'transparent' : 'color-mix(in oklch, var(--t-fg) 4%, transparent)' }}>
 							<p style={display(36, { fontStyle: 'italic', lineHeight: 1.35 })}>{q}</p>
@@ -458,12 +483,12 @@ export const SLIDES: Slide[] = [
 		notes: SCRIPT_NOTES.ask,
 		render: s => (
 			<Frame eyebrow="The ask" gap={56}>
-				<Title a="What to change now." size={96} />
+				<Title a="Three asks." size={96} />
 				<ThreeUp step={s}>
 					{[
-						['01', 'Foundries', 'Keep selling styles. Ship the VF scoped to the range bought, alongside the statics.'],
-						['02', 'Storefronts', 'Add a clamp step at fulfilment. Today VFs exist only as fixed, pre-cut products.'],
-						['03', 'Licence authors', '27 of 35 EULAs never mention VFs. Define the licensed range, grant instances inside it, fence the rest.'],
+						['01', 'Foundries', 'Keep selling styles. Put a VF for the range bought in the box, with the statics.'],
+						['02', 'Storefronts', 'Add a clamp step at checkout. Run one pilot to see if anyone pays.'],
+						['03', 'Licence authors', '27 of 35 EULAs never mention VFs. Write down the range, allow any weight inside it, fence the rest.'],
 					].map(([n, h, b]) => <Card key={n} style={{ height: '100%' }}><Numeral>{n}</Numeral><p style={{ fontSize: 40, fontWeight: 500 }}>{h}</p><Body size={32}>{b}</Body></Card>)}
 				</ThreeUp>
 			</Frame>
@@ -496,33 +521,17 @@ export const SLIDES: Slide[] = [
 		id: 'about', tool: 'opticalMargin', steps: 0,
 		notes: SCRIPT_NOTES.about,
 		render: () => (
-			<div style={{ position: 'absolute', inset: 0, padding: '88px 128px', display: 'flex', flexDirection: 'column', gap: 26 }}>
+			<div style={{ position: 'absolute', inset: 0, padding: '104px 128px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 				<Eyebrow>About</Eyebrow>
-				<Title a="We’re Overpunch." b="We make type tools for the web." size={88} />
-				<p className="vfd-rise" style={{ ...rise(280), fontSize: 30, lineHeight: 1.45, color: 'var(--t-muted)', maxWidth: 1500 }}>
-					15+ years building websites for type foundries. Next: <span style={{ color: 'var(--t-fg)' }}>Typetin</span>, a self-serve storefront for independent foundries, in development (waitlist at <A href="https://typetin.com">typetin.com</A>).
-				</p>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
-					{TOOLS.map(t => {
-						const id = t.id as ToolId
-						return (
-							<a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="vfd-rise" style={{ ...rise(320 + TOOLS.indexOf(t) * 28), display: 'flex', flexDirection: 'column', gap: 6, padding: '12px 18px', borderRadius: 12, background: toolBg(id), color: toolFg(id), textDecoration: 'none' }}>
-								<span style={{ fontSize: 24, fontWeight: 500 }}>{t.name}</span>
-								<span style={{ fontSize: 18, color: toolFgMuted(id) }}>{t.short}</span>
-							</a>
-						)
-					})}
-				</div>
-				<div className="vfd-rise" style={{ ...rise(950), display: 'flex', flexDirection: 'column', gap: 12 }}>
-					<p style={display(44)}>Start with vf-clamp: <A href="https://vfclamp.com">vfclamp.com</A></p>
-					<p style={{ fontSize: 26, color: 'var(--t-muted)' }}>
-						<A href="https://vfclamp.com/integrations/glyphs-robofont">Glyphs and RoboFont plugins</A>
-						<span aria-hidden="true"> · </span><A href="https://github.com/over-punch/vf-clamp-vscode">VS Code extension</A>
-						<span aria-hidden="true"> · </span><A href="https://github.com/over-punch/vf-clamp-cli">CLI</A>
-						<span aria-hidden="true"> · </span><A href="https://www.npmjs.com/package/@overpunch/vf-clamp">npm</A>
-						<span aria-hidden="true"> · </span><A href={SRC.vfclampGithub}>GitHub</A>
-						<span aria-hidden="true"> · </span><A href={SRC.paper}>The paper and data</A>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
+					<Title a="We’re Overpunch." size={96} />
+					<p className="vfd-rise" style={{ ...rise(280), fontSize: 34, lineHeight: 1.45, color: 'var(--t-muted)', maxWidth: 1500 }}>
+						15+ years building websites for type foundries. Type tools for the web. Building <span style={{ color: 'var(--t-fg)' }}>Typetin</span>, a storefront for independent foundries, in development (<A href="https://typetin.com">typetin.com</A>).
 					</p>
+				</div>
+				<div className="vfd-rise" style={{ ...rise(700), display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+					<p style={display(120)}><A href="https://vfclamp.com">vfclamp.com</A></p>
+					<p style={{ fontSize: 26, color: 'var(--t-muted)' }}>The tool · the paper · the survey data</p>
 				</div>
 			</div>
 		),
@@ -533,9 +542,9 @@ export const SLIDES: Slide[] = [
 export const TALK_CSS = `
 @keyframes vfd-sweep { 0%, 100% { font-variation-settings: "wght" 400, "opsz" 144; } 50% { font-variation-settings: "wght" 700, "opsz" 144; } }
 @keyframes vfd-dot { 0%, 100% { left: 37.5%; } 50% { left: 75%; } }
-@keyframes vfd-clamp { 0%, 15% { left: 0; width: 100%; } 45%, 85% { left: 37.5%; width: 37.5%; } 100% { left: 0; width: 100%; } }
+@keyframes vfd-clamp { 0%, 6% { left: 0; width: 100%; } 30%, 90% { left: 37.5%; width: 37.5%; } 100% { left: 0; width: 100%; } }
 .vfd-sweep { animation: vfd-sweep 3.2s ease-in-out infinite; }
 .vfd-dot { animation: vfd-dot 3.2s ease-in-out infinite; }
-.vfd-clamp { animation: vfd-clamp 6s ease-in-out infinite; }
+.vfd-clamp { animation: vfd-clamp 9s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .vfd-sweep, .vfd-dot, .vfd-clamp { animation: none; } }
 `

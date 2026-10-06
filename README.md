@@ -38,7 +38,7 @@ A variable font is usually all-or-nothing: customers buy the whole family to get
 Why it matters:
 
 - **A new revenue tier** — two adjacent styles become a variable purchase, not just two statics. Price a ladder: two-style VF → subfamily → full family.
-- **Licence scope you can see** — a full VF exposes every weight, including ones the customer never paid for. A clamped VF's axes, named instances and STAT entries stop at the purchased range, so the file matches the invoice. (A determined user could still extrapolate simple two-master designs past the range; the licence's terms do the enforcing.)
+- **Licence scope you can see** — a full VF exposes every weight, including ones the customer never paid for. A clamped VF's axes, named instances and STAT entries stop at the purchased range, so the file shows what was bought. It isn't protection: the remaining data can be extrapolated past the range (in our test, Inter clamped to 400–700 reproduced Black to within about 2 font units), so the licence's terms and a per-order watermark do the enforcing.
 - **Named for the purchase** — the name table (family, full name, PostScript name) is rewritten to the purchased range, so the file is identifiable as that range. It does not identify the order: the unique ID (name ID 3) is rewritten to `version;PostScriptName;family`, which depends only on the output name and is the same for every buyer of that range, so add a watermark or per-order ID at fulfilment if you need tracing.
 - **Lighter files for the web** — a site that uses only Medium–Black shouldn't ship Thin–Light deadweight. Clamping drops the variation data outside the licensed range: variation across what they bought, at a smaller download — from two styles up, smaller than the statics themselves (see below).
 - **Sell bespoke cuts** — pin an axis to a coordinate that was never a named instance (a custom optical size or width) and sell that exact cut, without shipping it in the retail family.
@@ -46,22 +46,23 @@ Why it matters:
 
 The npm package, CLI, and editor plugins all share the same axis-constraint model, so the same delivery logic runs in your build pipeline, your storefront, or a designer's font editor.
 
-**Real numbers** — Inter (wght 100–900) clamped to a Text weight range (400–700), same WOFF2 format so the delta is pure clamping:
+**Real numbers** — Inter (wght 100–900) clamped to a Text weight range (400–700), optical size kept, same WOFF2 format so the delta is pure clamping (vf-clamp 2.3.0, 1 KB = 1,000 bytes):
 
 | Font | Source TTF | Full WOFF2 | Text-clamped WOFF2 |
 |---|---|---|---|
-| Inter | 843 KB | 337 KB | **243 KB** — −28% vs full WOFF2 |
+| Inter | 863 KB | 346 KB | **248 KB** — −28% vs full WOFF2 |
 
 Pinning an axis outright (e.g. a fixed width or optical size) removes that axis and its variation data entirely and saves more.
 
-Against the static files a two-style buyer would otherwise get (Inter 4, fontTools instancer, WOFF2, October 2026 — [method](https://vfclamp.com/paper#method)):
+Against the static files the customer would otherwise get, for adjacent purchases (Inter 4, opsz pinned like the statics, WOFF2, October 2026 — [method](https://vfclamp.com/paper#method)):
 
-| Inter, Regular + Bold | Two statics | Clamped VF (wght 400–700, opsz pinned) |
+| Inter purchase | Statics | Clamped VF |
 |---|---|---|
-| Full character set | 226 KB | **173 KB** |
-| Latin subset | 64,104 B | **50,168 B** (−22%) |
+| Regular + Medium | 226 KB | **163 KB** (−28%) |
+| Regular to Bold (4 styles) | 456 KB | **173 KB** (−62%) |
+| Latin subset, Regular + Medium | 64.0 KB | **46.9 KB** (−27%) |
 
-At seven styles the clamped VF is 72% smaller than the statics. Keeping a free axis such as `opsz` variable costs size: worth it from about three styles up.
+At seven styles the clamped VF is 72% smaller than the statics. A non-adjacent purchase such as Regular + Bold comes back as two files from `planOutputs`, the same size as the statics, unless you choose to deliver (and price) the weights in between. Keeping a free axis such as `opsz` variable costs size.
 
 ### For type designers
 

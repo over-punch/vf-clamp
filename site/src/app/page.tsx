@@ -250,10 +250,10 @@ export default function Home() {
 				</p>
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
 					{[
-						{ n: "227", d: "sell variable fonts" },
+						{ n: "213", d: "sell variable fonts (classified)" },
 						{ n: "22", d: "sell a smaller, subfamily VF" },
 						{ n: "0", d: "scope a VF to the styles bought" },
-						{ n: "1.5–6×", d: "what a two-style buyer pays to get a VF today" },
+						{ n: "−28%", d: "two adjacent styles as one clamped VF, against the statics (Inter)" },
 					].map((f) => (
 						<div key={f.d} className="flex flex-col gap-1 rounded-xl p-5" style={{ background: "var(--panel)" }}>
 							<span className="text-3xl" style={{ fontFamily: "var(--font-merriweather), serif", fontVariationSettings: '"wght" 300, "opsz" 72' }}>{f.n}</span>
