@@ -216,7 +216,9 @@ describe('clampFont — review fixes (real Pyodide + fonttools)', () => {
 	it('renames the named instances PostScript names to the new prefix', async () => {
 		const [r] = await clampFont(interVF(), { outputs: [{ name: 'Inter Regular-Bold', axes: { wght: { min: 400, max: 700 } } }] })
 		const info = await inspectFont(r.buffer)
-		expect(info.instancePs.every((p) => p.startsWith('Inter-Regular-Bold-'))).toBe(true)
+		expect(info.instancePs.every((p) => p.startsWith('InterRegularBold-'))).toBe(true)
+		// nameID 25 may only hold ASCII letters and digits
+		expect(info.n25).toMatch(/^[A-Za-z0-9]+$/)
 	}, 120_000)
 
 	it('normalizeWeightAxis no longer crashes when the range starts at the default', async () => {
@@ -238,5 +240,13 @@ describe('clampFont — review fixes (real Pyodide + fonttools)', () => {
 		const info = await inspectFont(r.buffer)
 		expect(info.n6.length).toBeGreaterThan(0)
 		expect(info.n6).toMatch(/^[A-Za-z0-9-]+$/)
+	}, 120_000)
+
+	it('a fully static pin (every axis pinned) still gets Bold bits and name', async () => {
+		const [r] = await clampFont(interVF(), { outputs: [{ name: 'Inter Bold', instances: ['Bold'] }] })
+		const info = await inspectFont(r.buffer)
+		expect(info.fsSelection & 0x20).toBe(0x20)
+		expect(info.fsSelection & 0x40).toBe(0)
+		expect(info.n2).toBe('Bold')
 	}, 120_000)
 })

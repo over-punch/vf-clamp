@@ -66,11 +66,16 @@ def patch_font_names_fn(file_options):
         version = '1.000'
     unique_id = '%s;%s;%s' % (version, ps_name, family_name)
 
+    # Full name: drop "Regular" (as the spec advises) and don't repeat a style the family name already ends with.
+    full_name = family_name if ribbi == 'Regular' or family_name.lower().endswith(ribbi.lower()) else '%s %s' % (family_name, ribbi)
+    # nameID 25 may only hold ASCII letters and digits (OpenType spec); named-instance PostScript names
+    # are <prefix>-<style> (Adobe Technical Note #5902).
+    vf_prefix = ''.join(c for c in ps_name if c.isascii() and c.isalnum())[:27] or 'Font'
     updates = {
         1: family_name,
         2: ribbi,
         3: unique_id,
-        4: family_name if ribbi == 'Regular' else '%s %s' % (family_name, ribbi),
+        4: full_name,
         6: ps_name,
     }
     if 16 in existing_ids:
@@ -78,9 +83,9 @@ def patch_font_names_fn(file_options):
     if 17 in existing_ids and default_style:
         updates[17] = default_style
     if 25 in existing_ids:
-        updates[25] = ps_name
+        updates[25] = vf_prefix
 
-    # Named instances' PostScript names must follow the new prefix, e.g. Inter-Regular-Bold-Medium.
+    # Named instances' PostScript names follow the new prefix, e.g. InterRegularBold-Medium.
     if 'fvar' in font:
         for inst in font['fvar'].instances:
             pid = getattr(inst, 'postscriptNameID', 0xFFFF)
@@ -88,7 +93,7 @@ def patch_font_names_fn(file_options):
                 continue
             style = (name_table.getDebugName(inst.subfamilyNameID) or '').replace(' ', '')
             style = ''.join(c for c in style if c.isascii() and (c.isalnum() or c == '-'))
-            updates[pid] = ('%s-%s' % (ps_name, style))[:63]
+            updates[pid] = ('%s-%s' % (vf_prefix, style))[:63]
 
     # Rewrite every platform. A Mac (platform 1) record that can't be encoded in Mac Roman is dropped
     # rather than filled with '?'; Windows and Unicode records always carry the full name.
@@ -267,11 +272,8 @@ from fontTools.ttLib import TTFont
 def vf_clamp_update_os2(file_options):
     font = TTFont(file_options['input-file'])
 
-    if 'fvar' not in font:
-        font.save(file_options['output-file'])
-        return
-
-    wght_axis = next((ax for ax in font['fvar'].axes if ax.axisTag == 'wght'), None)
+    # A fully static output (every axis pinned) has no fvar, but still needs its style bits set.
+    wght_axis = next((ax for ax in font['fvar'].axes if ax.axisTag == 'wght'), None) if 'fvar' in font else None
     if wght_axis is not None:
         # OS/2.usWeightClass valid range is 1..1000.
         weight_class = int(round(max(1, min(1000, wght_axis.defaultValue))))

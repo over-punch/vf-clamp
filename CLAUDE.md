@@ -66,7 +66,7 @@ delivered file is identifiable as the purchased range:
 | 4      | Full name          | same                     |
 | 6      | PostScript name    | no-space ASCII (e.g. "Encode-Sans-Light-Bold") |
 | 16     | Preferred family   | same as 1 (if present)   |
-| 25     | Variations PS prefix | same as 6 (if present) |
+| 25     | Variations PS prefix | ASCII letters and digits only (OpenType spec), e.g. "EncodeSansLightBold" (if present) |
 
 nameID 2 (Subfamily) is reset to 'Regular' and nameID 3 (Unique ID) is rewritten to `version;psName;family` (per range, not per order). nameIDs 5 (Version) and 7–14 (legal/designer) are NOT changed.
 
