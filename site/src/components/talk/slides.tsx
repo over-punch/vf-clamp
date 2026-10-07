@@ -4,8 +4,7 @@
 import { Fragment, useEffect, useState, type CSSProperties } from 'react'
 import { MagnetChar } from '@overpunch/magnettype'
 import { SCRIPT_NOTES } from '../../content/talkScript'
-import { type ToolId } from '../../lib/toolColors'
-import { A, MONO, palette, display, rise, CountUp, Eyebrow, Title, Body, Card, Numeral, Quote, Reveal, FunnelRow, Frame, ThreeUp, type Slide } from './engine'
+import { A, MONO, display, rise, CountUp, Eyebrow, Title, Body, Card, Numeral, Quote, Reveal, FunnelRow, Frame, ThreeUp, type Slide } from './engine'
 
 /** Source URLs cited in footers. */
 const SRC = {
@@ -267,38 +266,6 @@ export const SLIDES: Slide[] = [
 				<AdoptionChart />
 			</Frame>
 		),
-	},
-	{
-		id: 'suite', tool: 'magnetType', steps: 4,
-		footer: <>Type Tools READMEs · <A href="https://axisrhythm.com">axisRhythm</A> · <A href="https://hoverboldly.com">hoverBoldly</A> · <A href="https://magnettype.com">magnetType</A> · shift measured in <A href={SRC.hbPaper}>Weight Without Width</A></>,
-		notes: SCRIPT_NOTES.suite,
-		render: s => {
-			const cards: { tool: ToolId; quote: string }[] = [
-				{ tool: 'axisRhythm', quote: '“The effect is invisible with fonts that do not have variable axis support.”' },
-				{ tool: 'hoverBoldly', quote: '“Requires a variable font with a wght axis.”' },
-				{ tool: 'magnetType', quote: '“The markup is correct but the glyphs cannot change weight.”' },
-			]
-			return (
-				<Frame eyebrow="What static buyers lose" gap={56}>
-					<Title a="Three of our tools need a variable font." size={96} />
-					<ThreeUp step={s}>
-						{cards.map(c => {
-							const p = palette(c.tool)
-							return (
-								<div key={c.tool} style={{ background: c.tool === 'magnetType' ? p.panel : p.bg, color: p.fg, borderRadius: 20, padding: 40, display: 'flex', flexDirection: 'column', gap: 20, height: '100%' }}>
-									<Eyebrow color={p.muted}>{c.tool}</Eyebrow>
-									<p style={display(40, { fontStyle: 'italic', lineHeight: 1.35 })}>{c.quote}</p>
-								</div>
-							)
-						})}
-					</ThreeUp>
-					<Reveal at={4} step={s} style={{ display: 'flex', alignItems: 'baseline', gap: 40 }}>
-						<p style={display(96)}><CountUp to={3.5} decimals={1} run={s >= 4} ms={900} /> px <span style={{ color: 'var(--t-subtle)' }}>→ 0</span></p>
-						<Body size={30}>Median shift when a menu label turns bold, then with hoverBoldly on a variable font. Five more tools lose their main effect without one.</Body>
-					</Reveal>
-				</Frame>
-			)
-		},
 	},
 	{
 		id: 'crossover', tool: 'fitFlush', steps: 2,
