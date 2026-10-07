@@ -2,7 +2,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { SCRIPT, spoken, clicksToNext } from '../../../content/talkScript'
+import { SCRIPT, spoken } from '../../../content/talkScript'
 import SiteFooter from '../../../components/SiteFooter'
 import { version } from '../../../../../package.json'
 import { version as siteVersion } from '../../../../package.json'
@@ -64,7 +64,7 @@ export default function TranscriptPage() {
 					<span aria-hidden="true">·</span>
 					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
 				</div>
-				<p className="text-sm text-muted">Marked for reading aloud: <span className="text-faint">/</span> a short pause, <span className="text-faint">{'//'}</span> a longer beat, <em>italics</em> for stress. <span style={{ opacity: 0.5 }}>Dimmed passages</span> read out what someone said, and can be skipped. The count beside each slide is how many clicks it takes until the next slide appears.</p>
+				<p className="text-sm text-muted">Marked for reading aloud: <span className="text-faint">/</span> a short pause, <span className="text-faint">{'//'}</span> a longer beat, <em>italics</em> for stress. Each slide plays its builds on its own, so one click or key press moves to the next slide.</p>
 			</header>
 			<article className="w-full max-w-2xl flex flex-col gap-10">
 				{SCRIPT.map((e, i) => (
@@ -72,11 +72,6 @@ export default function TranscriptPage() {
 						<p className="flex gap-3 text-xs uppercase tracking-[0.18em] font-medium text-muted">
 							<Link href={`/talk#${i + 1}`} className="font-mono text-faint tabular-nums hover:text-foreground transition-colors" aria-label={`Slide ${i + 1}`}>{String(i + 1).padStart(2, '0')}</Link>
 							<span>{e.label}</span>
-							{i < SCRIPT.length - 1 && (
-								<span className="ml-auto font-mono text-faint tabular-nums normal-case tracking-normal" title="Clicks until the next slide appears: one per build on this slide, plus one to move on">
-									{clicksToNext(e.text)} {clicksToNext(e.text) === 1 ? 'click' : 'clicks'}
-								</span>
-							)}
 						</p>
 						<p className="text-base lg:text-lg leading-relaxed"><Delivery text={e.text} /></p>
 					</section>
