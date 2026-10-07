@@ -44,6 +44,16 @@ export function spoken(text: string): string {
 	return text.replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+/**
+ * How many clicks a slide takes before the next slide appears: one per [Next] build cue ([Next ×N] counts N),
+ * plus the click that moves on.
+ */
+export function clicksToNext(text: string): number {
+	let builds = 0
+	for (const m of text.matchAll(/\[Next(?: ×(\d+))?\]/g)) builds += m[1] ? Number(m[1]) : 1
+	return builds + 1
+}
+
 /** Strips delivery marks too (pauses and *stress*), leaving plain prose. */
 export function plain(text: string): string {
 	return spoken(text).replace(/[{}]/g, '').replace(/\s*\/\/?\s*/g, ' ').replace(/\*([^*]+)\*/g, '$1').replace(/\s+([,.;:!?”])/g, '$1').replace(/\s+/g, ' ').trim()
