@@ -295,7 +295,7 @@ export const SLIDES: Slide[] = [
 		),
 	},
 	{
-		id: 'funnel', tool: 'typsettle', steps: 4,
+		id: 'funnel', tool: 'typsettle', steps: 3,
 		footer: <>Subfamily VF · one whole width, optical size, posture or corner style of a larger VF · 32 more couldn’t be classified · <A href={SRC.data}>full data</A></>,
 		notes: SCRIPT_NOTES.funnel,
 		render: s => (
@@ -304,9 +304,8 @@ export const SLIDES: Slide[] = [
 				<div>
 					<FunnelRow label="Listed in the directory" count={394} total={394} on />
 					<FunnelRow label="Sell variable fonts (classified)" count={213} total={394} on={s >= 1} />
-					<FunnelRow label="Offer a VF without the complete family" count={119} total={394} on={s >= 2} />
-					<FunnelRow label="Sell subfamily VFs" count={22} total={394} on={s >= 3} strong />
-					<FunnelRow label="Scope a VF to the styles bought" count={0} total={394} on={s >= 4} strong />
+					<FunnelRow label="Sell subfamily VFs" count={22} total={394} on={s >= 2} strong />
+					<FunnelRow label="Scope a VF to the styles bought" count={0} total={394} on={s >= 3} strong />
 				</div>
 			</Frame>
 		),
