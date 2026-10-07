@@ -20,17 +20,27 @@ export const metadata: Metadata = {
 	},
 }
 
-/**
- * A slide's spoken text with its delivery marks typeset: " / " (short pause) and " // " (longer beat) as faint
- * marks hidden from screen readers, and *stress* as emphasis.
- */
-function Delivery({ text }: { text: string }): ReactNode {
-	return spoken(text).split(/(\s\/\/\s|\s\/\s|\*[^*]+\*)/).map((part, i) => {
-		if (part === ' // ') return <span key={i} aria-hidden="true" className="text-faint"> {'//'} </span>
-		if (part === ' / ') return <span key={i} aria-hidden="true" className="text-faint"> / </span>
-		if (/^\*[^*]+\*$/.test(part)) return <em key={i}>{part.slice(1, -1)}</em>
+/** Typesets pause marks and stress in a run of script text: " / " and " // " as faint marks hidden from screen readers, *stress* as emphasis. */
+function marks(text: string, keyPrefix: string): ReactNode[] {
+	return text.split(/(\s\/\/\s|\s\/\s|\*[^*]+\*)/).map((part, i) => {
+		const key = `${keyPrefix}-${i}`
+		if (part === ' // ') return <span key={key} aria-hidden="true" className="text-faint"> {'//'} </span>
+		if (part === ' / ') return <span key={key} aria-hidden="true" className="text-faint"> / </span>
+		if (/^\*[^*]+\*$/.test(part)) return <em key={key}>{part.slice(1, -1)}</em>
 		return part
 	})
+}
+
+/**
+ * A slide's spoken text with its delivery marks typeset. {Braced} passages read out what someone said: they
+ * are shown at half opacity, so the speaker can choose to read them or skip them.
+ */
+function Delivery({ text }: { text: string }): ReactNode {
+	return spoken(text).split(/(\{[^}]*\})/).map((part, i) => (
+		/^\{[^}]*\}$/.test(part)
+			? <span key={i} data-quote="" style={{ opacity: 0.5 }}>{marks(part.slice(1, -1), `q${i}`)}</span>
+			: marks(part, `t${i}`)
+	))
 }
 
 /** The transcript page: hero, links, a key to the delivery marks, one numbered section per slide, footer. */
@@ -54,7 +64,7 @@ export default function TranscriptPage() {
 					<span aria-hidden="true">·</span>
 					<a href="/paper/sell-the-styles-ship-the-space.pdf" download className="hover:text-foreground transition-colors">Paper PDF ↓</a>
 				</div>
-				<p className="text-sm text-muted">Marked for reading aloud: <span className="text-faint">/</span> a short pause, <span className="text-faint">{'//'}</span> a longer beat, <em>italics</em> for stress.</p>
+				<p className="text-sm text-muted">Marked for reading aloud: <span className="text-faint">/</span> a short pause, <span className="text-faint">{'//'}</span> a longer beat, <em>italics</em> for stress. <span style={{ opacity: 0.5 }}>Dimmed passages</span> read out what someone said, and can be skipped.</p>
 			</header>
 			<article className="w-full max-w-2xl flex flex-col gap-10">
 				{SCRIPT.map((e, i) => (
